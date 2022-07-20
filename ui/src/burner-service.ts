@@ -6,22 +6,28 @@ export class BurnerService {
   constructor(public cellClient: CellClient, public zomeName = 'chat') {}
 
   /**
-   * Get the members of a group
-   * @param secret a secret string defining the shared group
+   * Get the members of a channel
+   * @param secret a secret string defining the shared channel
    * @returns array of AgentPubKeys
    */
-  async getGroupMembers(secret: string): Promise<AgentPubKey[]> {
-    return this.callZome('get_group_members', secret);
+  async getChannelMembers(secret: string): Promise<AgentPubKey[]> {
+    const channelMembers = await this.callZome('get_channel_members', secret);
+    // console.log("channelMembersWithDuplicates: ", channelMembersWithDuplicates);
+    // const channelMembers =  channelMembersWithDuplicates.filter((c: AgentPubKey, index: number, self: AgentPubKey[]) => {
+    //   return self.indexOf(c) === index;
+    // });
+    // console.log("channelMembers: ", channelMembers);
+    return channelMembers;
   }
 
   /**
-   * Join a group. Creates one if it doesn't exist yet.
+   * Join a channel. Creates one if it doesn't exist yet.
    *
-   * @param secret a secret string defining the shared group
+   * @param secret a secret string defining the shared channel
    * @returns action hash of the create_link action
    */
-  async joinGroup(secret: string): Promise<ActionHash> {
-    return this.callZome('join_group', secret);
+  async joinChannel(secret: string): Promise<ActionHash> {
+    return this.callZome('join_channel', secret);
   }
 
   /**

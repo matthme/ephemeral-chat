@@ -3,7 +3,7 @@ use hdk::prelude::{InitCallbackResult, create_cap_grant};
 
 #[hdk_link_types]
 pub enum LinkTypes {
-  GroupSecretToAgent,
+  ChannelSecretToAgent,
   SecretAnchor,
 }
 
