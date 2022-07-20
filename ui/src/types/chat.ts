@@ -4,7 +4,7 @@ import { AgentPubKey } from '@holochain/client';
 export interface Message {
   payload: string,
   timestamp: number,
-  sender_key: AgentPubKey,
+  senderKey: AgentPubKey,
   senderName: string,
   secret: string,
 }
@@ -16,3 +16,4 @@ export interface MessageInput {
   recipients: AgentPubKey[],
   secret: string,
 }
+
