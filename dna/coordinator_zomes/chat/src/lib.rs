@@ -36,7 +36,7 @@ pub struct MessageInput{
 
 
 #[hdk_extern]
-pub fn join_group(secret: String) -> ExternResult<ActionHash> {
+pub fn join_channel(secret: String) -> ExternResult<ActionHash> {
   // 1. get our own pubkey
   let pubkey = agent_info()?.agent_initial_pubkey;
 
@@ -51,7 +51,7 @@ pub fn join_group(secret: String) -> ExternResult<ActionHash> {
   let create_link_hash = create_link(
     secret_anchor,
     pubkey,
-    LinkTypes::GroupSecretToAgent,
+    LinkTypes::ChannelSecretToAgent,
     ())?;
 
   Ok(create_link_hash)
@@ -59,7 +59,7 @@ pub fn join_group(secret: String) -> ExternResult<ActionHash> {
 }
 
 #[hdk_extern]
-pub fn get_group_members(secret: String) -> ExternResult<Vec<AgentPubKey>> {
+pub fn get_channel_members(secret: String) -> ExternResult<Vec<AgentPubKey>> {
 
   // 1. generate secret anchor from secret String
   let secret_anchor = anchor(
@@ -71,7 +71,7 @@ pub fn get_group_members(secret: String) -> ExternResult<Vec<AgentPubKey>> {
   // 2. Get all links from that anchor
   let links = get_links(
     secret_anchor,
-    LinkTypes::SecretAnchor,
+    LinkTypes::ChannelSecretToAgent,
     None
   )?;
 
@@ -153,6 +153,6 @@ pub fn signal_test(string_input: String) -> ExternResult<()> {
 
 // FEATUREs TO BUILD
 // #[hdk_extern]
-// pub fn leave_group(_: ()) -> ExternResult<ActionHash> {
+// pub fn leave_channel(_: ()) -> ExternResult<ActionHash> {
 //   unimplemented!()
 // }

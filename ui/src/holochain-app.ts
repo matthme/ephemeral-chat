@@ -13,12 +13,14 @@ import {
 import { contextProvider } from '@lit-labs/context';
 import '@material/mwc-circular-progress';
 
-import './components/create-entry-def-0';
-import './components/entry-def-0-detail';
-import { appWebsocketContext, appInfoContext } from './contexts';
+import { get } from 'svelte/store';
+import { appWebsocketContext, appInfoContext, burnerStoreContext } from './contexts';
 import { serializeHash, deserializeHash } from '@holochain-open-dev/utils';
 import { MessageInput } from './types/chat';
 import { ChatScreen } from './components/chat-screen';
+import { BurnerStore } from './burner-store';
+import { BurnerService } from './burner-service';
+import { CellClient, HolochainClient } from '@holochain-open-dev/cell-client';
 
 @customElement('holochain-app')
 export class HolochainApp extends LitElement {
@@ -33,6 +35,9 @@ export class HolochainApp extends LitElement {
   @property({ type: Object })
   appInfo!: InstalledAppInfo;
 
+  @contextProvider({ context: burnerStoreContext })
+  @property({ type: Object })
+  store!: BurnerStore;
 
 
   @query("#test-signal-text-input")
@@ -41,14 +46,20 @@ export class HolochainApp extends LitElement {
   @query("#test-recipient-input")
   recipientInputField!: HTMLInputElement;
 
+  @query("#channel-secret-input")
+  channelSecretInputField!: HTMLInputElement;
+
   @state()
   myAgentPubKey!: String;
+
+  @state()
+  channelMembers: string[] = [];
 
   async dispatchTestSignal() {
     // get the input from the input text field
     const input = this.textInputField.value;
     // copied from boiulerplate
-    const cellData = this.appInfo.cell_data.find((c: InstalledCell) => c.role_id === 'ephemeral_chat')!;
+    const cellData = this.appInfo.cell_data.find((c: InstalledCell) => c.role_id === 'burner_chat')!;
     await this.appWebsocket.callZome({
       cap_secret: null,
       cell_id: cellData.cell_id,
@@ -71,7 +82,7 @@ export class HolochainApp extends LitElement {
       secret: "secret",
     }
 
-    const cellData = this.appInfo.cell_data.find((c: InstalledCell) => c.role_id === 'ephemeral_chat')!;
+    const cellData = this.appInfo.cell_data.find((c: InstalledCell) => c.role_id === 'burner_chat')!;
     await this.appWebsocket.callZome({
       cap_secret: null,
       cell_id: cellData.cell_id,
@@ -90,8 +101,6 @@ export class HolochainApp extends LitElement {
   }
 
   async firstUpdated() {
-    (window as any).serializeHash = serializeHash;
-    (window as any).deserializeHash = deserializeHash;
     this.appWebsocket = await AppWebsocket.connect(
       `ws://localhost:${process.env.HC_PORT}`,
       undefined, // timeout
@@ -99,13 +108,27 @@ export class HolochainApp extends LitElement {
     );
 
     this.appInfo = await this.appWebsocket.appInfo({
-      installed_app_id: 'ephemeral-chat',
+      installed_app_id: 'burner-chat',
     });
 
-    const cellData = this.appInfo.cell_data.find((c: InstalledCell) => c.role_id === 'ephemeral_chat')!;
+    const cellData = this.appInfo.cell_data.find((c: InstalledCell) => c.role_id === 'burner_chat')!;
     this.myAgentPubKey = serializeHash(cellData.cell_id[1]);
 
+    const cell = this.appInfo.cell_data.find(c => c.role_id === 'burner_chat');
+    const client = new HolochainClient(this.appWebsocket);
+    const cellClient = new CellClient(client, cell!);
+
+    this.store = new BurnerStore(new BurnerService(cellClient));
+
     this.loading = false;
+  }
+
+  async joinChannel(): Promise<void> {
+    const secret = this.channelSecretInputField.value;
+    await this.store.joinChannel(secret);
+    const channelMembers = await this.store.fetchChannelMembers(secret);
+    const channelMembersB64 = get(channelMembers).map(pubkey => serializeHash(pubkey));
+    this.channelMembers = channelMembersB64;
   }
 
   render() {
@@ -114,6 +137,8 @@ export class HolochainApp extends LitElement {
         <mwc-circular-progress indeterminate></mwc-circular-progress>
       `;
 
+    console.log("CHANNEL MEMBERS: ", this.channelMembers);
+
     return html`
       <main>
         <h1 class="main-title">🔥 BURNER CHAT</h1>
@@ -121,6 +146,17 @@ export class HolochainApp extends LitElement {
         <input id="test-signal-text-input" type="text" placeholder="your message..." />
         <input id="test-recipient-input" type="text" placeholder="recipient pubkey"/>
         <div>My key: ${this.myAgentPubKey}</div>
+        <div>
+          <input id="channel-secret-input" type="text" placeholder="Channel secret"/>
+          <button @click=${this.joinChannel}>Join Channel</button>
+        </div>
+        <div>MEMBERS:
+        ${
+          this.channelMembers.forEach((member) => {
+            return html`<div>${member}</div>`
+          })
+        }
+        </div>
         <button class="bttn-test-signal"
           @click=${this.sendRemoteSignal}>
            Send Remote Signal

@@ -50,7 +50,7 @@ export class ChatScreen extends LitElement {
     );
 
     this.appInfo = await this.appWebsocket.appInfo({
-      installed_app_id: 'ephemeral-chat',
+      installed_app_id: 'burner-chat',
     });
   }
 

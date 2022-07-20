@@ -1,6 +1,6 @@
 ---
 manifest_version: "1"
-name: ephemeral_chat
+name: burner_chat
 integrity:
   uuid: 00000000-0000-0000-0000-000000000000
   properties: ~
