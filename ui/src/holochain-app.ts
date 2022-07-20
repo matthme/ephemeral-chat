@@ -115,7 +115,7 @@ export class HolochainApp extends LitElement {
 
     return html`
       <main>
-        <h1>🔥 Burner Chat</h1>
+        <h1 class="main-title">🔥 BURNER CHAT</h1>
         <input id="test-signal-text-input" type="text" placeholder="your message..." />
         <input id="test-recipient-input" type="text" placeholder="recipient pubkey"/>
         <div>My key: ${this.myAgentPubKey}</div>
@@ -163,5 +163,19 @@ export class HolochainApp extends LitElement {
     .app-footer a {
       margin-left: 5px;
     }
+
+    .main-title {
+      font-family: 'Rubik', monospace;
+      font-weight: bold;
+      letter-spacing: -4px;
+      color: #6737FF;
+    }
   `;
 }
+
+
+/**
+LOADED FONTS, use like this
+font-family: 'Roboto Mono', monospace;
+font-family: 'Rubik', sans-serif;
+ */
