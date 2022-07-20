@@ -14,8 +14,8 @@ EntryDef0(EntryDef0),
 
 #[hdk_link_types]
 pub enum LinkTypes {
-  AgentToGroupSecret,
   GroupSecretToAgent,
+  SecretAnchor,
 }
 
 

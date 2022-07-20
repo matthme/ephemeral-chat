@@ -6,33 +6,37 @@ use chat_integrity::*;
 
 
 
-#[derive(Serialize, Deserialize, Debug)]
-pub struct GroupInfo{
-  secret: String,
-  hashed_secret: Vec<u8>,
-};
-
-
-
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Message(char);
 
 
 
+
+
+
+
+
 #[hdk_extern]
 pub fn join_group(secret: String) -> ExternResult<ActionHash> {
+  // 1. get our own pubkey
+  let pubkey = agent_info()?.agent_initial_pubkey;
 
-  let hashed_secret = hash_sha256(secret.into_vec());
+  // 2. create secret anchor from secret
+  let secret_anchor = anchor(
+    LinkTypes::SecretAnchor,
+    "secret_anchor".into(),
+    secret.into()
+  )?;
 
-  // create HoloHash from hashed_secret
+  // 3. link from secret anchor to our own pubkey (for other agents to find us)
+  let create_link_hash = create_link(
+    secret_anchor,
+    pubkey,
+    LinkTypes::GroupSecretToAgent,
+    ())?;
 
-  // get all existinglinks
-  // create two links Me <-> Secret & Secret <-> Me
-  // if there are agents already linked to this Secret --> send signal
-
-  let action_hash = create_link(hashed_secret, agent_pub_key,  LinkTypes::GroupSecretToAgent, secret.into())?;
-  unimplemented!()
+  Ok(create_link_hash)
 
 }
 
