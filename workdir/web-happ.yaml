@@ -1,0 +1,7 @@
+---
+manifest_version: "1"
+name: ephemeral-chat
+ui:
+  bundled: "../ui/dist.zip"
+happ_manifest:
+  bundled: "./ephemeral-chat.happ"

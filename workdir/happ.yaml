@@ -1,0 +1,17 @@
+---
+manifest_version: "1"
+name: ephemeral-chat
+description: ~
+roles:
+
+  - id: ephemeral_chat
+    provisioning:
+      strategy: create
+      deferred: false
+    dna:
+      bundled: "../dna/workdir/ephemeral_chat.dna"
+      properties: ~
+      uuid: ~
+      version: ~
+      clone_limit: 0
+

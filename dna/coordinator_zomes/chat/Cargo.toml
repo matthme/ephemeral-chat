@@ -1,0 +1,15 @@
+[package]
+edition = "2021"
+name = "chat"
+version = "0.0.1"
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+name = "chat"
+
+[dependencies]
+serde = "1"
+derive_more = "0"
+chat_integrity = { path = "../../integrity_zomes/chat" }
+
+hdk = "0.0.142"
