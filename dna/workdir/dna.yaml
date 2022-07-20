@@ -6,13 +6,13 @@ integrity:
   properties: ~
   origin_time: 2022-07-20T12:26:07.069Z
   zomes:
-    - name: zome_0_integrity
+    - name: chat_integrity
       bundled: ../../target/wasm32-unknown-unknown/release/chat_integrity.wasm
 
 coordinator:
   zomes:
-    - name: zome_0
+    - name: chat
       bundled: ../../target/wasm32-unknown-unknown/release/chat.wasm
       dependencies:
-        - name: zome_0_integrity
+        - name: chat_integrity
 

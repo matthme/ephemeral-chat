@@ -1,11 +1,13 @@
 import '@webcomponents/scoped-custom-element-registry';
 
 import { LitElement, css, html } from 'lit';
-import { customElement, property, state } from 'lit/decorators.js';
+import { customElement, property, query, state } from 'lit/decorators.js';
 import {
+  AppSignal,
   AppWebsocket,
   EntryHash,
   InstalledAppInfo,
+  InstalledCell,
 } from '@holochain/client';
 import { contextProvider } from '@lit-labs/context';
 import '@material/mwc-circular-progress';
@@ -27,9 +29,35 @@ export class HolochainApp extends LitElement {
   @property({ type: Object })
   appInfo!: InstalledAppInfo;
 
+  @query("#test-signal-text-input")
+  textInputField!: HTMLInputElement;
+
+  async dispatchTestSignal() {
+    // get the input from the input text field
+    const input = this.textInputField.value;
+    // copied from boiulerplate
+    const cellData = this.appInfo.cell_data.find((c: InstalledCell) => c.role_id === 'ephemeral_chat')!;
+    await this.appWebsocket.callZome({
+      cap_secret: null,
+      cell_id: cellData.cell_id,
+      zome_name: 'chat',
+      fn_name: 'signal_test',
+      payload: input,
+      provenance: cellData.cell_id[1]
+    });
+  }
+  // 
+  async signalCallback(signalInput: AppSignal) {
+    console.log(signalInput);
+    (window as any).signalInput = signalInput;
+    alert(signalInput.data.payload.payload);
+  }
+
   async firstUpdated() {
     this.appWebsocket = await AppWebsocket.connect(
-      `ws://localhost:${process.env.HC_PORT}`
+      `ws://localhost:${process.env.HC_PORT}`,
+      undefined, // timeout
+      this.signalCallback,
     );
 
     this.appInfo = await this.appWebsocket.appInfo({
@@ -47,8 +75,12 @@ export class HolochainApp extends LitElement {
 
     return html`
       <main>
-        <h1>ephemeral-chat</h1>
-
+        <h1>🔥 Burner Chat</h1>
+        <input id="test-signal-text-input" type="text" />
+        <button class="bttn-test-signal" 
+          @click=${this.dispatchTestSignal}>
+            Signal Test
+        </button>
         <create-entry-def-0 @entry-def-0-created=${(e: CustomEvent) => this.entryHash = e.detail.entryHash}></create-entry-def-0>
     ${this.entryHash ? html`
       <entry-def-0-detail .entryHash=${this.entryHash}></entry-def-0-detail>

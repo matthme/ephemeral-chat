@@ -13,14 +13,16 @@
     "package": "npm run build && cd dist && bestzip ../dist.zip *"
   },
   "dependencies": {
+    "@holochain-open-dev/utils": "^0.2.2",
     "@holochain/client": "^0.5.0",
     "@lit-labs/context": "^0.1.1",
+    "@material/mwc-button": "^0.25.3",
     "@material/mwc-circular-progress": "^0.25.3",
-    "@webcomponents/scoped-custom-element-registry": "0.0.5",
-    "lit": "^2.0.2",
-    "@type-craft/title": "^0.0.8",
+    "@msgpack/msgpack": "^2.7.2",
     "@type-craft/content": "^0.0.7",
-    "@material/mwc-button": "^0.25.3"
+    "@type-craft/title": "^0.0.8",
+    "@webcomponents/scoped-custom-element-registry": "0.0.5",
+    "lit": "^2.0.2"
   },
   "devDependencies": {
     "@babel/preset-env": "^7.15.0",

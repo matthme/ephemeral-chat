@@ -1,21 +1,19 @@
 
-mod entry_def_0;
-pub use entry_def_0::*;
 use hdk::prelude::*;
 use chat_integrity::*;
 
 
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, SerializedBytes, Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
-pub struct Message{
+pub struct Message {
   payload: String,
   timestamp: Timestamp,
   sender_key: AgentPubKey,
   sender_name: String,
 }
 
-
+#[allow(dead_code)]
 impl Message {
   fn encode(&self) -> String {
     format!("{}@@@@@{}@@@@@{}@@@@@{}", self.timestamp, self.sender_key, self.sender_name, self.payload)
@@ -58,14 +56,6 @@ pub fn join_group(secret: String) -> ExternResult<ActionHash> {
 
 }
 
-
-
-// #[hdk_extern]
-// pub fn leave_group(_: ()) -> ExternResult<ActionHash> {
-//   unimplemented!()
-// }
-
-
 #[hdk_extern]
 pub fn get_group_members(secret: String) -> ExternResult<Vec<AgentPubKey>> {
 
@@ -93,19 +83,15 @@ pub fn get_group_members(secret: String) -> ExternResult<Vec<AgentPubKey>> {
   }
 
   Ok(members)
-  // let members: Vec<AgentPubKey> = links.iter().map(|link| AgentPubKey::try_from(link.target)?).collect();
 
 }
 
 
 #[hdk_extern]
 pub fn send_letter(input: MessageInput) -> ExternResult<()> {
-
   // 1. Create message struct
-
   let sender_key = agent_info()?.agent_initial_pubkey;
   let timestamp = sys_time()?;
-
   let msg = Message {
     payload: input.payload,
     timestamp,
@@ -113,23 +99,52 @@ pub fn send_letter(input: MessageInput) -> ExternResult<()> {
     sender_name: input.sender_name,
   };
 
+  // 2. send remote_signal
   let encoded_input = ExternIO::encode(msg)
     .map_err(|err| wasm_error!(WasmErrorInner::Guest(err.into())))?; // Wrapping input
-
-
-  // 2. send remote_signal
   remote_signal(encoded_input, input.recipients)?; // Doesn't wait
 
   Ok(())
-
 }
 
+
+// CALLBACK WHEN SIGNAL IS RECIEVED
+#[hdk_extern]
+fn recv_remote_signal(signal: SerializedBytes) -> ExternResult<()> {
+  // decode and emit to the UI
+  let decoded_message = Message::try_from(signal)
+  .map_err(|err| wasm_error!(WasmErrorInner::Guest(err.into())))?;
+  emit_signal(decoded_message)?;
+  
+  Ok(())
+}
 
 
 #[hdk_extern]
-fn recv_remote_signal(signal: SerializedBytes) -> ExternResult<()> {
-    // decode and emit to the UI
-    emit_signal(&signal)?;
-    Ok(())
+pub fn signal_test(string_input: String) -> ExternResult<()> {
+  let my_agent_pub_key = agent_info()?.agent_latest_pubkey;
+  
+  let message = Message {
+    payload: string_input,
+    timestamp: sys_time()?,
+    sender_key: my_agent_pub_key.clone(),
+    sender_name: "dcts_random_agent_name".into(),
+  };
+
+  let encoded_message = ExternIO::encode(message)
+    .map_err(|err| wasm_error!(WasmErrorInner::Guest(err.into())))?; // Wrapping input
+  
+  let agents: Vec<AgentPubKey> = vec![my_agent_pub_key];
+  
+  remote_signal(encoded_message, agents)?;
+
+  Ok(())
 }
 
+
+
+// FEATUREs TO BUILD
+// #[hdk_extern]
+// pub fn leave_group(_: ()) -> ExternResult<ActionHash> {
+//   unimplemented!()
+// }

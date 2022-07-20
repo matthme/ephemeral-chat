@@ -8,6 +8,8 @@ import { EntryDef0 } from '../../../types/ephemeral_chat/chat';
 import '@material/mwc-button';
 import '@type-craft/title/create-title';
 import '@type-craft/content/create-content';
+import { decode } from "@msgpack/msgpack"; // decode takes bytearray and decodes into js obj
+import { serializeHash, deserializeHash } from '@holochain-open-dev/utils'; // basic endocing / decoding
 
 @customElement('create-entry-def-0')
 export class CreateEntryDef0 extends LitElement {
@@ -37,22 +39,22 @@ export class CreateEntryDef0 extends LitElement {
         content: this._content!,
     };
 
-    const { entryHash } = await this.appWebsocket.callZome({
+    await this.appWebsocket.callZome({
       cap_secret: null,
       cell_id: cellData.cell_id,
       zome_name: 'chat',
-      fn_name: 'create_entry_def_0',
-      payload: entryDef0,
+      fn_name: 'signal_test',
+      payload: null,
       provenance: cellData.cell_id[1]
     });
 
-    this.dispatchEvent(new CustomEvent('entry-def-0-created', {
-      composed: true,
-      bubbles: true,
-      detail: {
-        entryHash
-      }
-    }));
+    // this.dispatchEvent(new CustomEvent('entry-def-0-created', {
+    //   composed: true,
+    //   bubbles: true,
+    //   detail: {
+    //     entryHash
+    //   }
+    // }));
   }
 
   render() {
