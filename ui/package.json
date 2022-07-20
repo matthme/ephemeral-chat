@@ -13,6 +13,7 @@
     "package": "npm run build && cd dist && bestzip ../dist.zip *"
   },
   "dependencies": {
+    "@holochain-open-dev/cell-client": "^0.6.1",
     "@holochain-open-dev/utils": "^0.2.2",
     "@holochain/client": "^0.5.0",
     "@lit-labs/context": "^0.1.1",

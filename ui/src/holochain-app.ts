@@ -3,6 +3,7 @@ import '@webcomponents/scoped-custom-element-registry';
 import { LitElement, css, html } from 'lit';
 import { customElement, property, query, state } from 'lit/decorators.js';
 import {
+  AgentPubKey,
   AppSignal,
   AppWebsocket,
   EntryHash,
@@ -12,9 +13,11 @@ import {
 import { contextProvider } from '@lit-labs/context';
 import '@material/mwc-circular-progress';
 
-import './components/ephemeral_chat/chat/create-entry-def-0';
-import './components/ephemeral_chat/chat/entry-def-0-detail';
+import './components/create-entry-def-0';
+import './components/entry-def-0-detail';
 import { appWebsocketContext, appInfoContext } from './contexts';
+import { serializeHash, deserializeHash } from '@holochain-open-dev/utils';
+import { MessageInput } from './types/chat';
 
 @customElement('holochain-app')
 export class HolochainApp extends LitElement {
@@ -29,8 +32,16 @@ export class HolochainApp extends LitElement {
   @property({ type: Object })
   appInfo!: InstalledAppInfo;
 
+
+
   @query("#test-signal-text-input")
   textInputField!: HTMLInputElement;
+
+  @query("#test-recipient-input")
+  recipientInputField!: HTMLInputElement;
+
+  @state()
+  myAgentPubKey!: String;
 
   async dispatchTestSignal() {
     // get the input from the input text field
@@ -46,7 +57,31 @@ export class HolochainApp extends LitElement {
       provenance: cellData.cell_id[1]
     });
   }
-  // 
+
+
+  async sendRemoteSignal() {
+    const msgText = this.textInputField.value;
+    const recipient = this.recipientInputField.value;
+
+    const msgInput: MessageInput = {
+      payload: msgText,
+      senderName: "sender",
+      recipients: [deserializeHash(recipient)],
+      secret: "secret",
+    }
+
+    const cellData = this.appInfo.cell_data.find((c: InstalledCell) => c.role_id === 'ephemeral_chat')!;
+    await this.appWebsocket.callZome({
+      cap_secret: null,
+      cell_id: cellData.cell_id,
+      zome_name: 'chat',
+      fn_name: 'send_msg',
+      payload: msgInput,
+      provenance: cellData.cell_id[1]
+    });
+
+  }
+  //
   async signalCallback(signalInput: AppSignal) {
     console.log(signalInput);
     (window as any).signalInput = signalInput;
@@ -54,6 +89,8 @@ export class HolochainApp extends LitElement {
   }
 
   async firstUpdated() {
+    (window as any).serializeHash = serializeHash;
+    (window as any).deserializeHash = deserializeHash;
     this.appWebsocket = await AppWebsocket.connect(
       `ws://localhost:${process.env.HC_PORT}`,
       undefined, // timeout
@@ -63,6 +100,9 @@ export class HolochainApp extends LitElement {
     this.appInfo = await this.appWebsocket.appInfo({
       installed_app_id: 'ephemeral-chat',
     });
+
+    const cellData = this.appInfo.cell_data.find((c: InstalledCell) => c.role_id === 'ephemeral_chat')!;
+    this.myAgentPubKey = serializeHash(cellData.cell_id[1]);
 
     this.loading = false;
   }
@@ -76,8 +116,15 @@ export class HolochainApp extends LitElement {
     return html`
       <main>
         <h1>🔥 Burner Chat</h1>
-        <input id="test-signal-text-input" type="text" />
-        <button class="bttn-test-signal" 
+        <input id="test-signal-text-input" type="text" placeholder="your message..." />
+        <input id="test-recipient-input" type="text" placeholder="recipient pubkey"/>
+        <div>My key: ${this.myAgentPubKey}</div>
+        <button class="bttn-test-signal"
+          @click=${this.sendRemoteSignal}>
+           Send Remote Signal
+        </button><br>
+        <br>
+        <button class="bttn-test-signal"
           @click=${this.dispatchTestSignal}>
             Signal Test
         </button>
