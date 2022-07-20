@@ -8,6 +8,11 @@ import { BurnerStore } from '../burner-store';
 import { serializeHash, deserializeHash } from '@holochain-open-dev/utils';
 import { Message } from '../types/chat';
 
+interface ChatBufferElement {
+  timestamp: number,
+  payload: string,
+}
+
 @customElement('chat-bubble')
 export class ChatBubble extends LitElement {
 
@@ -24,10 +29,10 @@ export class ChatBubble extends LitElement {
   channel!: string;
 
   @state()
-  chatBuffer!: [number, string][];
+  chatBuffer!: ChatBufferElement[];
 
   @property()
-  name!: string;
+  username!: string;
 
   @property()
   avatarUrl!: string;
@@ -37,8 +42,32 @@ export class ChatBubble extends LitElement {
 
 
   addToBuffer(msg: Message) {
+    let chatBufferElement = {
+      timestamp: msg.timestamp,
+      payload: msg.payload
+    };
+    // let newBuffer = this.chatBuffer.concat(chatBufferElement);
+    this.chatBuffer = [...this.chatBuffer, chatBufferElement];
 
   }
+
+  updateBuffer() {
+
+  }
+
+  sortBuffer() {
+    let sortedBuffer = this.chatBuffer.sort((a,b) => {
+      return b.timestamp - a.timestamp;
+    });
+    this.chatBuffer = sortedBuffer;
+  }
+
+  bufferToString() {
+    return this.chatBuffer.map(chatBufferObj => {
+      return chatBufferObj.payload;
+    }).join("");
+  }
+
 
   async signalCallback(signalInput: AppSignal) {
 
@@ -69,6 +98,13 @@ export class ChatBubble extends LitElement {
 
 
   render() {
+    return html`
+      <div class="chat-bubble">
+        <p>${this.channel} ${this.username}</p>
+        <p class="chat-area"></p>
+        <img src=${this.avatarUrl} width="50" height="50"/>
+      </div>  
+    `
     // if (!this._entryDef0) {
     //   return html`<div style="display: flex; flex: 1; align-items: center; justify-content: center">
     //     <mwc-circular-progress indeterminate></mwc-circular-progress>

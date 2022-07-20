@@ -18,10 +18,11 @@ import './components/entry-def-0-detail';
 import { appWebsocketContext, appInfoContext } from './contexts';
 import { serializeHash, deserializeHash } from '@holochain-open-dev/utils';
 import { MessageInput } from './types/chat';
+import { ChatScreen } from './components/chat-screen';
 
 @customElement('holochain-app')
 export class HolochainApp extends LitElement {
-  @state() loading = true;
+  @state() loading = false;
   @state() entryHash: EntryHash | undefined;
 
   @contextProvider({ context: appWebsocketContext })
@@ -116,6 +117,7 @@ export class HolochainApp extends LitElement {
     return html`
       <main>
         <h1 class="main-title">🔥 BURNER CHAT</h1>
+        <chat-screen channel="my-random-channel"></chat-screen>
         <input id="test-signal-text-input" type="text" placeholder="your message..." />
         <input id="test-recipient-input" type="text" placeholder="recipient pubkey"/>
         <div>My key: ${this.myAgentPubKey}</div>
@@ -167,10 +169,16 @@ export class HolochainApp extends LitElement {
     .main-title {
       font-family: 'Rubik', monospace;
       font-weight: bold;
-      letter-spacing: -4px;
+      letter-spacing: 4px;
       color: #6737FF;
     }
   `;
+
+  static get scopedElements() {
+    return {
+      "chat-screen": ChatScreen,
+    }
+  }
 }
 
 

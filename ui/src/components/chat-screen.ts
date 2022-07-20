@@ -8,6 +8,7 @@ import { BurnerStore } from '../burner-store';
 import { serializeHash, deserializeHash } from '@holochain-open-dev/utils';
 import { Message } from '../types/chat';
 import { TaskSubscriber } from 'lit-svelte-stores';
+import { ChatBubble } from './chat-bubble';
 
 @customElement('chat-screen')
 export class ChatScreen extends LitElement {
@@ -35,11 +36,7 @@ export class ChatScreen extends LitElement {
 
 
   async signalCallback(signalInput: AppSignal) {
-
     let msg: Message = signalInput.data.payload;
-
-
-
     console.log(signalInput);
     (window as any).signalInput = signalInput;
     alert(signalInput.data.payload.payload);
@@ -55,11 +52,41 @@ export class ChatScreen extends LitElement {
     this.appInfo = await this.appWebsocket.appInfo({
       installed_app_id: 'ephemeral-chat',
     });
-
   }
 
 
   render() {
+    const chatBubbles: any[] = [
+      {
+        channel: this.channel,
+        username: "dcts",
+        avatarUrl: "https://img.seadn.io/files/66196dd65af5e25c2fac209b0e33bd8d.png?auto=format&fit=max&w=256",
+        agentPubKey: "ascou3v8asv8yx0984v0p7duzk"
+      },
+      {
+        channel: this.channel,
+        username: "Art Brock",
+        avatarUrl: "https://img.seadn.io/files/45e5b8384841b475e7411dafd6c6291a.png?auto=format&fit=max&w=256",
+        agentPubKey: "x7f33168savLSKJOIQzasd"
+      },
+      {
+        channel: this.channel,
+        username: "dcts",
+        avatarUrl: "https://img.seadn.io/files/4f809b585367ec71fa19daba04066cd0.png?auto=format&fit=max&w=256",
+        agentPubKey: "v8274sduv2874eva98dv0lki"
+      },
+    ]
+    return html`
+      ${chatBubbles.map(chatBubbleObj => {
+        let { channel, username, avatarUrl, agentPubKey } = chatBubbleObj;
+        return html`<chat-bubble 
+          channel="${channel}"
+          username="${username}"
+          avatarUrl="${avatarUrl}"
+          agentPubKey="${agentPubKey}"
+        >${username}</chat-bubble>`
+      })}
+    `
     // if (!this._entryDef0) {
     //   return html`<div style="display: flex; flex: 1; align-items: center; justify-content: center">
     //     <mwc-circular-progress indeterminate></mwc-circular-progress>
@@ -86,5 +113,11 @@ export class ChatScreen extends LitElement {
 
     //   </div>
     // `;
+  }
+
+  static get scopedElements() {
+    return {
+      "chat-bubble": ChatBubble,
+    }
   }
 }
