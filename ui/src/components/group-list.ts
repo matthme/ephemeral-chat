@@ -20,7 +20,7 @@
 //   appInfo!: InstalledAppInfo;
 
 //   async firstUpdated() {
-//     const cellData = this.appInfo.cell_data.find((c: InstalledCell) => c.role_id === 'ephemeral_chat')!;
+//     const cellData = this.appInfo.cell_data.find((c: InstalledCell) => c.role_id === 'burner_chat')!;
 
 //     this._entryDef0 = await this.appWebsocket.callZome({
 //       cap_secret: null,

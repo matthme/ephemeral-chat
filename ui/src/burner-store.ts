@@ -25,10 +25,9 @@ export class BurnerStore {
   }
 
   /** Actions */
-  async joinGroup(secret: string): Promise<void> {
-    const _actionHash = await this.service.joinGroup(secret);
-    const alreadyMembers = await this.service.getGroupMembers(secret);
-
+  async joinChannel(secret: string): Promise<void> {
+    const _actionHash = await this.service.joinChannel(secret);
+    const alreadyMembers = await this.service.getChannelMembers(secret);
     this._myChannels.update(channels => {
       if (!channels[secret]) {
         channels[secret] = alreadyMembers;
@@ -47,12 +46,12 @@ export class BurnerStore {
 
 
   /**
-   * Fetches members of a group
+   * Fetches members of a channel
    *
    *
    */
   async fetchChannelMembers(secret: string): Promise<Readable<AgentPubKey[]>> {
-    const channelMembers = await this.service.getGroupMembers(secret);
+    const channelMembers = await this.service.getChannelMembers(secret);
 
     this._myChannels.update(channels => {
       channels[secret] = channelMembers;

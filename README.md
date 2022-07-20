@@ -1,4 +1,4 @@
-# ephemeral-chat
+# Burner Chat
 
 ## Environment Setup
 
@@ -11,7 +11,7 @@ cachix use holochain-ci
 ```
 
 3. Clone this repo and `cd` inside of it.
-4. Enter the nix shell by running this in the root folder of the repository: 
+4. Enter the nix shell by running this in the root folder of the repository:
 
 ```bash
 nix-shell
@@ -35,7 +35,7 @@ Substitute the "3" for the number of nodes that you want to bootstrap in your ne
 This will also bring up the Holochain Playground for advanced introspection of the conductors.
 
 ## Running an agent
- 
+
 If you only want to run a single conductor and a UI connected to it:
 
 ```bash

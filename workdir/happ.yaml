@@ -1,15 +1,15 @@
 ---
 manifest_version: "1"
-name: ephemeral-chat
+name: burner-chat
 description: ~
 roles:
 
-  - id: ephemeral_chat
+  - id: burner_chat
     provisioning:
       strategy: create
       deferred: false
     dna:
-      bundled: "../dna/workdir/ephemeral_chat.dna"
+      bundled: "../dna/workdir/burner_chat.dna"
       properties: ~
       uuid: ~
       version: ~

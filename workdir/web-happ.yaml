@@ -1,7 +1,7 @@
 ---
 manifest_version: "1"
-name: ephemeral-chat
+name: burner-chat
 ui:
   bundled: "../ui/dist.zip"
 happ_manifest:
-  bundled: "./ephemeral-chat.happ"
+  bundled: "./burner-chat.happ"
