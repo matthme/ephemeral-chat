@@ -39,14 +39,24 @@ export class ChatScreen extends LitElement {
 
   @query("input#current-channel")
   currentChannelInput!: HTMLInputElement;
-  
 
+
+  channel = new TaskSubscriber(
+    this,
+    () => this.service.getChannel(),
+    () => [this.service]
+  );
+
+  username = new TaskSubscriber(
+    this,
+    () => this.service.getUsername(),
+    () => [this.service]
+  );
 
   @property({ type: Object })
+  @state()
   channelMembers: Record<AgentPubKeyB64, Username> = {};
 
-  @property()
-  channel: string | undefined;
 
   // async signalCallback(signalInput: AppSignal) {
   //   let msg: Message = signalInput.data.payload;
@@ -102,17 +112,18 @@ export class ChatScreen extends LitElement {
     );
   }
 
+
   renderChannelSelector() {
     return html`
       <div style="display: flex; flex-direction: column; align-items: center;">
         <div>Current Channel</div>
         <form @submit=${this.submitChannelChange}>
-          <input id="current-channel" .value=${this.channel!} style="all: unset; border-bottom: 2px solid black;"/>
+          <input id="current-channel" .value=${this.channel.value!} style="all: unset; border-bottom: 2px solid black;"/>
         </form>
       </div>
     `
   }
-      
+
   render() {
     console.log("this.channelMembers");
     console.log(this.channelMembers);
@@ -122,27 +133,31 @@ export class ChatScreen extends LitElement {
       <!-- <div class="chat-name">
         ${this.renderChannelSelector()}
       </div> -->
-        <drawer-menu></drawer-menu>
-        <div class="chat-bubblez">
-          ${Object.entries(this.channelMembers)
-            .concat(chatBubbles(this.channel as string) // comment out this and next line to disable demo data
-              .map(e => [e.agentPubKey, e.username]))
-            .map(([agentPubKey, username]) => {
-            return html`<chat-bubble
-              .channel=${this.channel}
-              .username=${username}
-              .avatarUrl=${randomAvatar()}
-              .agentPubKey=${agentPubKey}
-            >${username}</chat-bubble>`
-          })}
-        </div>
+      <drawer-menu></drawer-menu>
+      <div class="chat-bubblez">
+        ${Object.entries(this.channelMembers)
+          .concat(chatBubbles(this.channel as string) // comment out this and next line to disable demo data
+            .map(e => [e.agentPubKey, e.username]))
+          .map(([agentPubKey, username]) => {
+          return html`<chat-bubble
+            .channel=${this.channel.value}
+            .username=${username}
+            .avatarUrl=${randomAvatar()}
+            .agentPubKey=${agentPubKey}
+          >${username}</chat-bubble>`
+        })}
       </div>
+    </div>
     `
   }
 
   static styles = css`
     .chat-screen {
       display: flex;
+      flex-direction: column;
+    }
+    .chat-name {
+      margin-bottom: 30px;
     }
 
     .chat-bubblez {
@@ -151,11 +166,11 @@ export class ChatScreen extends LitElement {
       flex-wrap: wrap;
       justify-content: space-evenly;
     }
-    
+
     /* .chat-bubblez > chat-bubble {
       flex: 1 1 250px;
     } */
-    
+
   ` as CSSResultGroup;
 
   static get scopedElements() {

@@ -1,9 +1,32 @@
 import { CellClient } from '@holochain-open-dev/cell-client';
 import { ActionHash, AgentPubKey } from '@holochain/client';
 import { ChannelMessageInput, MessageInput, Username } from './types/chat';
+import { writable, Writable, derived, Readable, get } from 'svelte/store';
 
 export class BurnerService {
+
+  private _channel: Writable<string | undefined> = writable();
+  private _username: Writable<string | undefined> = writable();
+
   constructor(public cellClient: CellClient, public zomeName = 'chat') {}
+
+
+  async getChannel(): Promise<Readable<string | undefined>> {
+    return derived(this._channel, c => c);
+  }
+
+  setChannel(channel: string | undefined): void {
+    this._channel.update(c => channel);
+  }
+
+  async getUsername(): Promise<Readable<string | undefined>> {
+    return derived(this._username, c => c);
+  }
+
+  setUsername(username: string | undefined): void {
+    this._username.update(u => username);
+  }
+
 
   /**
    * Get the members of a channel
