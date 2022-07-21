@@ -104,7 +104,7 @@ export class ChatScreen extends LitElement {
   renderChannelSelector() {
     return html`
       <div style="display: flex; flex-direction: column; align-items: center;">
-        <div style="font">Current Channel</div>
+        <div>Current Channel</div>
         <form @submit=${this.submitChannelChange}>
           <input id="current-channel" .value=${this.channel!} style="all: unset; border-bottom: 2px solid black;"/>
         </form>
@@ -115,12 +115,12 @@ export class ChatScreen extends LitElement {
   render() {
     console.log("this.channelMembers");
     console.log(this.channelMembers);
+    console.warn(randomAvatar())
     return html`
     <div class="chat-screen">
-      ${this.renderChannelSelector()}
-      <!-- <div class="chat-name"> -->
-        <!-- <h1>${this.channel}</h1> -->
-      <!-- </div> -->
+      <div class="chat-name">
+        ${this.renderChannelSelector()}
+      </div>
         <div class="chat-bubblez">
           ${Object.entries(this.channelMembers).map(([agentPubKey, username]) => {
             return html`<chat-bubble
