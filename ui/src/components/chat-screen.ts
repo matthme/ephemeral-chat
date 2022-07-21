@@ -11,6 +11,13 @@ import { ChatBubble } from './chat-bubble';
 import { BurnerService } from '../burner-service';
 import { randomAvatar } from '../helpers/random-avatars';
 
+// export interface MemberInfo {
+//   agentPubKey: AgentPubKey,
+//   username: string,
+// }
+type Username = string;
+type AgentPubKeyB64 = string;
+
 @customElement('chat-screen')
 export class ChatScreen extends LitElement {
   receiveMessage(signalInput: AppSignal) {
@@ -30,10 +37,8 @@ export class ChatScreen extends LitElement {
   @state()
   service!: BurnerService;
 
-  // service!: BurnerService;
-
   @state()
-  channelMembers!: string[];
+  channelMembers: Record<AgentPubKeyB64, Username> = {};
 
   @property()
   channel: string | undefined;
