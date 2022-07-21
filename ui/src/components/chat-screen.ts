@@ -12,6 +12,9 @@ import { BurnerService } from '../burner-service';
 
 @customElement('chat-screen')
 export class ChatScreen extends LitElement {
+  receiveMessage(signalInput: AppSignal) {
+    throw new Error('Method not implemented.');
+  }
   constructor() {
     super();
   }
@@ -55,10 +58,17 @@ export class ChatScreen extends LitElement {
     console.log(this.service);
 
   }
-    
-  // receiveSignal(signal: ) {
+  
+  
+  receiveMessageSignal(signal: AppSignal) {
 
-  // }
+  }  
+
+  receiveJoiningSignal(signal: AppSignal) {
+    const joiningMember = signal.data.payload;
+    // @TODO => ensure that joining member is of type AgentPubKeyB64
+    // this.channelMembers = [...this.channelMembers, joiningMember];
+  }
       
   render() {
     const chatBubbles: any[] = [

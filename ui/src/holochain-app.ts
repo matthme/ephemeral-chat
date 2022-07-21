@@ -146,9 +146,25 @@ export class HolochainApp extends LitElement {
   // filter signals
   async signalCallback(signalInput: AppSignal) {
     // filter only current room
+    const signal = signalInput.data.payload;
+    const signalType = signalInput.data.payload.signalType;
+    if (signalType === "EmojiCannon") {
+      // propagate and let chat-screen decide if emoji cannon should be fired
+
+    } else if (signalType === "Message" && signal.secret === this.activeChannel) {
+      // propagate only when in active room
+      this.chatScreen.receiveMessage(signalInput);
+
+    } else if (signalInput.type === "JoinChannel") {
+      // @TODO 1. check if join channel is === activeChannel
+      // 2. send join info to chat-screen
+      this.chatScreen.receiveJoiningSignal(signalInput);
+
+    } else if (signalInput.type === "BurnChannel") {
+      console.log("RECEIVING BURN SIGNAL");
+    }
 
     //
-
     // console.log(signalInput);
     // (window as any).signalInput = signalInput;
   }
