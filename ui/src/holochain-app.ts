@@ -247,12 +247,17 @@ export class HolochainApp extends LitElement {
       </div>
     `;
   }
+  switchChannel(ev: CustomEvent) {
+    console.log("inside switchChannel");
+    this.activeChannel = ev.detail;
+  }
 
   renderChatScreen() {
     return html`
       <chat-screen
         .channel=${this.activeChannel}
         .channelMembers=${this.activeChannelMembers}
+        @switchChannel=${this.switchChannel}
       ></chat-screen>
     `
   }

@@ -1,6 +1,6 @@
 
 import { LitElement, html, css, CSSResultGroup } from 'lit';
-import { state, customElement, property } from 'lit/decorators.js';
+import { state, customElement, property, query } from 'lit/decorators.js';
 import { InstalledCell, AppWebsocket, EntryHash, InstalledAppInfo, AgentPubKey, AppSignal } from '@holochain/client';
 import { contextProvided } from '@lit-labs/context';
 import { appInfoContext, appWebsocketContext, burnerServiceContext } from '../contexts';
@@ -35,6 +35,11 @@ export class ChatScreen extends LitElement {
   @contextProvided({ context: burnerServiceContext, subscribe: true })
   @state()
   service!: BurnerService;
+
+  @query("input#current-channel")
+  currentChannelInput!: HTMLInputElement;
+  
+
 
   @property({ type: Object })
   channelMembers: Record<AgentPubKeyB64, Username> = {};
@@ -81,13 +86,28 @@ export class ChatScreen extends LitElement {
     const memberWhoBurns = signal.data.payload.agent;
     // @TODO => ensure that joining member is of type AgentPubKeyB64
     // this.channelMembers = [...this.channelMembers, joiningMember];
-  } 
+  }
+  submitChannelChange(ev: SubmitEvent) {
+    ev.preventDefault();
+    const newChannel = this.currentChannelInput.value;
+    console.log("requesting channel change to " + newChannel);
+    // this.channel = newChannel;
+    this.dispatchEvent(
+      new CustomEvent("switchChannel", {
+        detail: newChannel,
+        bubbles: true,
+        composed: true,
+      })
+    );
+  }
 
   renderChannelSelector() {
     return html`
       <div style="display: flex; flex-direction: column; align-items: center;">
         <div style="font">Current Channel</div>
-        <input .value=${this.channel!} style="all: unset; border-bottom: 2px solid black;"/>
+        <form @submit=${this.submitChannelChange}>
+          <input id="current-channel" .value=${this.channel!} style="all: unset; border-bottom: 2px solid black;"/>
+        </form>
       </div>
     `
   }
