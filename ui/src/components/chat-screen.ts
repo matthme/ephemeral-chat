@@ -127,25 +127,36 @@ export class ChatScreen extends LitElement {
           >${username}</chat-bubble>`
         })}
       </div>
-      <div style='display: flex;
-        justify-items: center;
-        align-items: center;
-        flex-direction: column;'>
-        <h1>ADMIN CHATBUBBLE</h1>
-        <chat-bubble id=${this.myAgentPubKey}
-          .username=${this.username.value!}
-          .avatarUrl=${randomAvatar()}
-          .agentPubKey=${this.myAgentPubKey}
-          .isAdmin=${true}
-          .channelMembers=${this.channelMembers}
-        >${this.username.value!}
-        </chat-bubble>
+      <div class="bottom-chat-container">
+        <div style='display: flex;
+          justify-items: center;
+          align-items: center;
+          flex-direction: column;'>
+          <h1>ADMIN CHATBUBBLE</h1>
+          <chat-bubble id=${this.myAgentPubKey}
+            .username=${this.username.value!}
+            .avatarUrl=${randomAvatar()}
+            .agentPubKey=${this.myAgentPubKey}
+            .isAdmin=${true}
+            .channelMembers=${this.channelMembers}
+          >${this.username.value!}
+          </chat-bubble>
+        </div>
+
       </div>
     </div>
     `
   }
 
   static styles = css`
+    .bottom-chat-container {
+      position:fixed;
+      bottom: 0;
+      width: 100%;
+      background-color: magenta;
+      height: 330px;
+    }
+
     .chat-screen {
       display: flex;
       flex-direction: column;

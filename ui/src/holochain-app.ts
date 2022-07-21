@@ -321,6 +321,9 @@ export class HolochainApp extends LitElement {
       background-color: var(--lit-element-background-color);
       font-size: 25px;
     }
+    main {
+      min-width: 100vw;
+    }
 
     .isWesley {
       background-color: magenta;
@@ -376,7 +379,7 @@ export class HolochainApp extends LitElement {
       margin-left: 5px;
     }
 
-    .tagline {
+      .tagline {
       font-family: Roboto Mono;
       font-size: 30px;
       margin-top: 80px;

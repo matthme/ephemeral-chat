@@ -259,8 +259,8 @@ export class ChatBubble extends LitElement {
   }
 
   .chat-bubble {
-    background-color: white;
-    border: 1px solid gray;
+    /* background-color: white;
+    border: 1px solid gray; */
     padding: 8px;
     margin: 8px;
     max-width: 500px;
@@ -295,6 +295,7 @@ export class ChatBubble extends LitElement {
     margin-left: 10px;
     margin-right: 10px;
     max-height: 3rem;
+    overflow-y: hidden;
   }
 
   .chat-buttons {
@@ -345,7 +346,10 @@ export class ChatBubble extends LitElement {
     align-self: center;  // maybe align all to center?
   }
   .avatar-name {
-    margin-top: 20px;
+    margin-top: 2px;
+    font-family: 'Roboto Mono';
+    font-size: 22px;
+    font-weight: bold;
   }
 
 ` as CSSResultGroup;
