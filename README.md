@@ -83,3 +83,9 @@ This repository is using this tooling:
 - [@holochain/tryorama](https://www.npmjs.com/package/@holochain/tryorama): test framework.
 - [@holochain/client](https://www.npmjs.com/package/@holochain/client): client library to connect to Holochain from the UI.
 - [@holochain-playground/cli](https://www.npmjs.com/package/@holochain-playground/cli): introspection tooling to understand what's going on in the Holochain nodes.
+
+// TODO 
+// - [ ] icons only on one tab
+// - [ ] your chat tab separate and bigger
+// - [X] space icons buttons evenly
+// - [X] add unicors and make burn and burn emoji

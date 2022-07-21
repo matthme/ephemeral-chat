@@ -42,6 +42,7 @@ ul {
   overflow-x: hidden;
   pointer-events: auto;
 }
+
 .drawer-list li {
   list-style: none;
   text-transform: uppercase;
@@ -49,6 +50,7 @@ ul {
   white-space: nowrap;
   box-sizing: border-box;
   transform: translatex(100vw);
+  font-weight: bold;
   /* ie workaround */
   -ms-transform: translatex(-100vw);
 }

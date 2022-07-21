@@ -33,7 +33,7 @@ export class ChatBubble extends LitElement {
   chatBuffer!: ChatBufferElement[];
 
   @state()
-  emojis: string[] = ['🌈', '⚡️', '💥', '✨', '💫', '🌸'];
+  emojis: string[] = ['🌈', '⚡️', '💥', '✨', '💫', '🌸', '🦄', '🔥'];
 
   @property()
   username!: string;
@@ -147,7 +147,6 @@ export class ChatBubble extends LitElement {
               <div class="avatar-name">${this.username}</div>
             </div>
           </div>
-          <button @click="${this._handleClick}">🔥</button>
         </div>
       <!-- </div> -->
     `
@@ -182,22 +181,6 @@ export class ChatBubble extends LitElement {
   }
 
   static styles = css`
-
-  /* @media screen and (min-width: 992px) { */
-  /* @media screen and (min-width: 400px) {
-    .flex {
-      flex-direction: row;
-    }
-
-    .flex > *:nth-child(-n + 3) {
-      flex-basis: calc(33.33% - 40px);
-    }
-
-    .flex > *:nth-last-child(-n + 2) {  /* see note below */
-      /* flex-basis: calc(50% - 40px); */
-    /* }
-  }   */
-
   .chat-bubble {
     background-color: white;
     border: 1px solid gray;
@@ -238,16 +221,16 @@ export class ChatBubble extends LitElement {
     display: flex;
     flex-wrap: wrap;
     /* flex: 1; */
-    width: 60%;
+    width: 55%;
+    justify-content: space-evenly;
   }
-
 
 
   .emoji-btn {
     background-color: rgb(126, 54, 54);
     border: 1px solid rgb(126, 54, 54);
     border-radius: 9px;
-    margin: 4px;
+    margin: 5px;
     /* padding: 10px; */
     font-size: large;
     font-weight: bolder;
