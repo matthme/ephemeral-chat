@@ -7,6 +7,7 @@ export class BurnerService {
 
   private _channel: Writable<string | undefined> = writable();
   private _username: Writable<string | undefined> = writable();
+  // private _bubbles: Writable<Record<AgentPubKeyB64, ChatBubble>> = writable({});
 
   constructor(public cellClient: CellClient, public zomeName = 'chat') {}
 
