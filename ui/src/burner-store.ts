@@ -61,4 +61,9 @@ export class BurnerStore {
     return derived(this._myChannels, channels => channels[secret]);
   }
 
+
+  async burnChannel() {
+    await this.service.burnChannel(get(this._currentChannel));
+  }
+
 }

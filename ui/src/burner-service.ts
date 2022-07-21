@@ -41,6 +41,18 @@ export class BurnerService {
   }
 
 
+  /**
+   * Burn channel
+   *
+   * @param secret a secret string defining the shared channel
+   * @returns void
+   */
+  async burnChannel(secret: string): Promise<void> {
+    return this.callZome('burn_channel', secret);
+  }
+
+
+
   private callZome(fn_name: string, payload: any) {
     return this.cellClient.callZome(this.zomeName, fn_name, payload);
   }

@@ -1,12 +1,30 @@
 
+use std::fmt::Debug;
+
 use hdk::prelude::*;
 use chat_integrity::*;
 
 
 
+
+#[derive(Serialize, SerializedBytes, Deserialize, Debug, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct JoinChannelMessage {
+  signal_type: String,
+  agent: AgentPubKey,
+}
+
+#[derive(Serialize, SerializedBytes, Deserialize, Debug, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct BurnChannelMessage {
+  signal_type: String,
+  agent: AgentPubKey,
+}
+
 #[derive(Serialize, SerializedBytes, Deserialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct Message {
+  signal_type: String,
   payload: String,
   timestamp: Timestamp,
   sender_key: AgentPubKey,
@@ -37,6 +55,9 @@ pub struct MessageInput{
 
 #[hdk_extern]
 pub fn join_channel(secret: String) -> ExternResult<ActionHash> {
+  // 0. clean the channel from existing links to own public key
+  clean_channel_links(secret.clone())?;
+
   // 1. get our own pubkey
   let pubkey = agent_info()?.agent_initial_pubkey;
 
@@ -44,38 +65,36 @@ pub fn join_channel(secret: String) -> ExternResult<ActionHash> {
   let secret_anchor = anchor(
     LinkTypes::SecretAnchor,
     "secret_anchor".into(),
-    secret.into()
+    secret.clone().into()
   )?;
 
   // 3. link from secret anchor to our own pubkey (for other agents to find us)
   let create_link_hash = create_link(
     secret_anchor,
-    pubkey,
+    pubkey.clone(),
     LinkTypes::ChannelSecretToAgent,
     ())?;
 
-  Ok(create_link_hash)
+  // 4. send remote signal to members of the group about your joining
+  let channel_members = get_channel_members(secret)?;
+  let join_channel_message = JoinChannelMessage {
+    signal_type: "JoinChannel".into(),
+    agent: pubkey,
+  };
+  let encoded_input = ExternIO::encode(join_channel_message)
+  .map_err(|err| wasm_error!(WasmErrorInner::Guest(err.into())))?;
+  remote_signal(encoded_input, channel_members)?;
 
+  Ok(create_link_hash)
 }
 
 #[hdk_extern]
 pub fn get_channel_members(secret: String) -> ExternResult<Vec<AgentPubKey>> {
 
-  // 1. generate secret anchor from secret String
-  let secret_anchor = anchor(
-    LinkTypes::SecretAnchor,
-    "secret_anchor".into(),
-    secret.into()
-  )?;
+  // 1. Get links pointing away from the secret channel to member agents
+  let links = get_channel_links(secret)?;
 
-  // 2. Get all links from that anchor
-  let links = get_links(
-    secret_anchor,
-    LinkTypes::ChannelSecretToAgent,
-    None
-  )?;
-
-  // 3. Add link targets to vector and return
+  // 2. Add link targets to vector and return
   let mut members = Vec::new();
   for link in links {
     let target = link.target;
@@ -95,6 +114,7 @@ pub fn send_msg(input: MessageInput) -> ExternResult<()> {
   let sender_key = agent_info()?.agent_initial_pubkey;
   let timestamp = sys_time()?;
   let msg = Message {
+    signal_type: "Message".into(),
     payload: input.payload,
     timestamp,
     sender_key,
@@ -132,6 +152,7 @@ pub fn signal_test(string_input: String) -> ExternResult<()> {
   let my_agent_pub_key = agent_info()?.agent_latest_pubkey;
 
   let message = Message {
+    signal_type: "Message".into(),
     payload: string_input,
     timestamp: sys_time()?,
     sender_key: my_agent_pub_key.clone(),
@@ -150,6 +171,65 @@ pub fn signal_test(string_input: String) -> ExternResult<()> {
 }
 
 
+fn get_channel_links(secret: String) -> ExternResult<Vec<Link>> {
+
+  // 1. generate secret anchor from secret String
+  let secret_anchor = anchor(
+    LinkTypes::SecretAnchor,
+    "secret_anchor".into(),
+    secret.into()
+  )?;
+
+  // 2. Get all links from that anchor
+  let links = get_links(
+    secret_anchor,
+    LinkTypes::ChannelSecretToAgent,
+    None
+  )?;
+
+  Ok(links)
+}
+
+
+/* Deletes all existing links to own public key for a channel */
+fn clean_channel_links(secret: String) -> ExternResult<()> {
+
+  let my_pubkey = agent_info()?.agent_initial_pubkey;
+  let all_links = get_channel_links(secret)?;
+
+  for link in all_links {
+    if AgentPubKey::from(EntryHash::from(link.target)) == my_pubkey {
+      delete_link(link.create_link_hash)?;
+    }
+  }
+
+  Ok(())
+}
+
+
+
+#[hdk_extern]
+pub fn burn_channel(secret: String) -> ExternResult<()> {
+  // 1. deleta all links pointing away from this channel
+  let links = get_channel_links(secret.clone())?;
+  for link in links {
+    delete_link(link.create_link_hash)?;
+  }
+
+  // 2. send remote signal to members of the group about your joining
+  let pubkey = agent_info()?.agent_initial_pubkey;
+  let channel_members = get_channel_members(secret)?;
+  let join_channel_message = JoinChannelMessage {
+    signal_type: "BurnChannel".into(),
+    agent: pubkey,
+  };
+  let encoded_input = ExternIO::encode(join_channel_message)
+  .map_err(|err| wasm_error!(WasmErrorInner::Guest(err.into())))?;
+
+  remote_signal(encoded_input, channel_members)?;
+
+  Ok(())
+}
 
 // FEATUREs TO BUILD
 // #[hdk_extern]

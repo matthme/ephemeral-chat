@@ -103,7 +103,7 @@ export class ChatBubble extends LitElement {
         <p>${this.channel} ${this.username}</p>
         <p class="chat-area"></p>
         <img src=${this.avatarUrl} width="50" height="50"/>
-      </div>  
+      </div>
     `
     // if (!this._entryDef0) {
     //   return html`<div style="display: flex; flex: 1; align-items: center; justify-content: center">

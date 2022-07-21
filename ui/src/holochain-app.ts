@@ -93,6 +93,10 @@ export class HolochainApp extends LitElement {
     });
 
   }
+
+  async burnChannel() {
+    await this.store.burnChannel();
+  }
   //
   async signalCallback(signalInput: AppSignal) {
     console.log(signalInput);
@@ -153,10 +157,11 @@ export class HolochainApp extends LitElement {
         <div>MEMBERS:
         ${
           this.channelMembers.forEach((member) => {
-            return html`<div>${member}</div>`
+            html`<div>${member}</div>`
           })
         }
         </div>
+        <button @click=${this.burnChannel}>+ + + B U R N  + + +  C H A N N E L + + +</button>
         <button class="bttn-test-signal"
           @click=${this.sendRemoteSignal}>
            Send Remote Signal
