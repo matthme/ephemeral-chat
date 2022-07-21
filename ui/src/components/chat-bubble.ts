@@ -35,6 +35,9 @@ export class ChatBubble extends LitElement {
   chatBuffer: ChatBufferElement[] = [];
 
   @state()
+  chatBufferString: string = "";
+
+  @state()
   emojis: string[] = ['🌈', '⚡️', '💥', '✨', '💫', '🌸', '🦄', '🔥'];
 
   @property()
@@ -66,7 +69,17 @@ export class ChatBubble extends LitElement {
   }
 
   updateBuffer() {
-
+    const now = new Date();
+    this.chatBuffer = this.chatBuffer.filter(chatBufferElement => {
+      const timestamp = chatBufferElement.timestamp;
+      const writeDate = new Date(timestamp/1000);
+      const delta = Number(now)-Number(writeDate)
+      console.log(delta);
+      return delta < 3500;
+    });
+    console.log("updating buffer.")
+    this.chatBufferString = this.bufferToString();
+    // (this.shadowRoot?.getElementById("on-admin-text-bubble") as HTMLTextAreaElement).value = this.chatBufferString;
   }
 
   sortBuffer() {
@@ -101,7 +114,7 @@ export class ChatBubble extends LitElement {
     const timestamp = signal.data.payload.timestamp;
     console.log({ str });
     console.log({ timestamp });
-    // const 
+    // const
     const newChatBufferElement: ChatBufferElement = {
       timestamp,
       payload: str,
@@ -129,10 +142,11 @@ export class ChatBubble extends LitElement {
   // }
 
   async firstUpdated() {
-    // setInterval(() => {
-    //   this.printBuffer();
-    //   console.log("fixing buffer");
-    // }, 200);
+    setInterval(() => {
+      this.updateBuffer();
+      this.printBuffer();
+      console.log("fixing buffer");
+    }, 200);
   }
 
   renderEmoji(emoji: string, i: number) {
@@ -146,7 +160,7 @@ export class ChatBubble extends LitElement {
     // only admin type can send messages
     // get character from keystroke
     const isNotAdmin = !this.isAdmin;
-    const isInvalidKey = !ev.key.match(/^[A-Za-z0-9_.+/><\\?!$-:;]$/g);
+    const isInvalidKey = !ev.key.match(/^[A-Za-z0-9_.+/><\\?!$-:; ]$/g);
     if (isNotAdmin || isInvalidKey) {
       return;
     }
@@ -170,9 +184,9 @@ export class ChatBubble extends LitElement {
     return html`
         <div class="chat-bubble">
           <div class="chat-quote ${this.isAdmin ? 'admin': ''}">
-            ${this.isAdmin 
+            ${this.isAdmin
               ? html`<textarea @keyup=${this.dispatchRealtimeSignal} placeholder="Insert your message" rows="2" wrap="hard" maxlength="50"></textarea>`
-              : html`<textarea id="non-admin-text-bubble" disabled rows="2" wrap="hard" maxlength="50" value=""></textarea>`
+              : html`<textarea id="non-admin-text-bubble" disabled rows="2" wrap="hard" maxlength="50" .value=${this.chatBufferString}></textarea>`
             }
           </div>
 
@@ -278,7 +292,7 @@ export class ChatBubble extends LitElement {
     position: relative;
     flex-wrap: wrap;
     max-width: 200px;
-    width: 55%; 
+    width: 55%;
     justify-content: space-evenly;
     margin-left: 30px;
   }
