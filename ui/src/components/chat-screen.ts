@@ -9,7 +9,7 @@ import { AgentPubKeyB64, Message, Username } from '../types/chat';
 import { TaskSubscriber } from 'lit-svelte-stores';
 import { ChatBubble } from './chat-bubble';
 import { BurnerService } from '../burner-service';
-import { randomAvatar } from '../helpers/random-avatars';
+import { chatBubbles, randomAvatar } from '../helpers/random-avatars';
 
 // export interface MemberInfo {
 //   agentPubKey: AgentPubKey,
@@ -122,7 +122,10 @@ export class ChatScreen extends LitElement {
         ${this.renderChannelSelector()}
       </div>
         <div class="chat-bubblez">
-          ${Object.entries(this.channelMembers).map(([agentPubKey, username]) => {
+          ${Object.entries(this.channelMembers)
+            .concat(chatBubbles(this.channel as string) // comment out this and next line to disable demo data
+              .map(e => [e.agentPubKey, e.username]))
+            .map(([agentPubKey, username]) => {
             return html`<chat-bubble
               .channel=${this.channel}
               .username=${username}
