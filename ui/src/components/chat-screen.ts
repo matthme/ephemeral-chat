@@ -106,31 +106,6 @@ export class ChatScreen extends LitElement {
     // @TODO => ensure that joining member is of type AgentPubKeyB64
     // this.channelMembers = [...this.channelMembers, joiningMember];
   }
-  submitChannelChange(ev: SubmitEvent) {
-    ev.preventDefault();
-    const newChannel = this.currentChannelInput.value;
-    console.log("requesting channel change to " + newChannel);
-    // this.channel = newChannel;
-    this.dispatchEvent(
-      new CustomEvent("switchChannel", {
-        detail: newChannel,
-        bubbles: true,
-        composed: true,
-      })
-    );
-  }
-
-
-  renderChannelSelector() {
-    return html`
-      <div style="display: flex; flex-direction: column; align-items: center;">
-        <div>Current Channel</div>
-        <form @submit=${this.submitChannelChange}>
-          <input id="current-channel" .value=${this.channel.value!} style="all: unset; border-bottom: 2px solid black;"/>
-        </form>
-      </div>
-    `
-  }
 
   render() {
     console.log("this.channelMembers");
@@ -138,9 +113,6 @@ export class ChatScreen extends LitElement {
     console.warn(randomAvatar())
     return html`
     <div class="chat-screen">
-      <!-- <div class="chat-name">
-        ${this.renderChannelSelector()}
-      </div> -->
       <drawer-menu></drawer-menu>
       <div class="chat-bubblez">
         ${Object.entries(this.channelMembers)
@@ -168,7 +140,6 @@ export class ChatScreen extends LitElement {
         >${this.username.value!}
         </chat-bubble>
       </div>
-      
     </div>
     `
   }

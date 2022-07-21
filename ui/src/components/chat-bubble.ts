@@ -239,11 +239,9 @@ export class ChatBubble extends LitElement {
     background-repeat: no-repeat;
     background-position: center;
     width: 100%;
-    /* transition: width 1s;  */
-    transition: linear 0.5s;
+    transition: ease-in-out 0.5s;
   }
 
-  /* .chat-quote:hover { */
   .admin.chat-quote:hover {
     transform: scale(1.3);
     transition: transform 0.5s ease-in-out;

@@ -1,8 +1,76 @@
+import { contextProvided } from "@lit-labs/context";
 import { css, CSSResultGroup, html, LitElement } from "lit";
-import { customElement } from "lit/decorators.js";
+import { TaskSubscriber } from "lit-svelte-stores";
+import { customElement, query, state } from "lit/decorators.js";
+import { property } from "lodash";
+import { BurnerService } from "../burner-service";
+import { burnerServiceContext } from "../contexts";
 
 @customElement('drawer-menu')
 export class Drawer extends LitElement {
+
+  @contextProvided({ context: burnerServiceContext, subscribe: true })
+  @state()
+  service!: BurnerService;
+
+  @query("input#current-channel")
+  currentChannelInput!: HTMLInputElement;
+  
+  channel = new TaskSubscriber(
+    this,
+    () => this.service.getChannel(),
+    () => [this.service]
+  );
+
+  submitChannelChange(ev: SubmitEvent) {
+    ev.preventDefault();
+    const newChannel = this.currentChannelInput.value;
+    console.log("requesting channel change to " + newChannel);
+    // this.channel = newChannel;
+    this.dispatchEvent(
+      new CustomEvent("switchChannel", {
+        detail: newChannel,
+        bubbles: true,
+        composed: true,
+      })
+    );
+  }
+
+  renderChannelSelector() {
+    return html`
+      <div style="display: flex; flex-direction: column; align-items: center;">
+        <div>Current Channel</div>
+        <!-- <form @submit=${this.submitChannelChange}> -->
+        <form>
+          <input 
+          id="current-channel" 
+            .value=${this.channel.value as string} 
+            style="all: unset; border-bottom: 2px solid black;" />
+        </form>
+      </div>`
+  }
+
+  render() {
+    return html`
+      <input id="hamburger" class="hamburger" type="checkbox" />
+      <label class="hamburger" for="hamburger">
+        <i></i>
+        <text>
+          <close>close</close>
+          <open>menu</open>
+        </text>
+      </label>
+      <section class="drawer-list">
+        <ul>
+          <li>${this.renderChannelSelector()}</li>
+          <li><a href="#">payment dashboard</a></li>
+          <li><a href="#">email notifications</a></li>
+          <li><a href="#">system administration</a></li>
+          <li><a href="#">no support</a></li>
+        </ul>
+      </section>`
+  }
+
   static styles = css`
 
 ul {
@@ -348,27 +416,5 @@ body {
   stroke: currentColor;
   fill: currentColor;
 }
-` as CSSResultGroup;;
-
-
-  render() {
-    return html`
-  <input id="hamburger" class="hamburger" type="checkbox" />
-  <label class="hamburger" for="hamburger">
-    <i></i>
-    <text>
-      <close>close</close>
-      <open>menu</open>
-    </text>
-  </label>
-  <section class="drawer-list">
-    <ul>
-      <li><a href="#">dashboard</a></li>
-      <li><a href="#">notifications</a></li>
-      <li><a href="#">system administration</a></li>
-      <li><a href="#">support</a></li>
-    </ul>
-  </section>
-`
-  }
+` as CSSResultGroup;
 }
