@@ -62,7 +62,7 @@ export class ChatBubble extends LitElement {
   }
 
   sortBuffer() {
-    let sortedBuffer = this.chatBuffer.sort((a,b) => {
+    let sortedBuffer = this.chatBuffer.sort((a, b) => {
       return b.timestamp - a.timestamp;
     });
     this.chatBuffer = sortedBuffer;
@@ -82,14 +82,14 @@ export class ChatBubble extends LitElement {
     const jsConfetti = new JSConfetti()
     jsConfetti.addConfetti({
       emojis: [emoji],
-   })
+    })
   }
 
   recieveSignal(signal: AppSignal) {
     const str = signal.data.payload.payload;
     const timestamp = signal.data.payload.timestamp;
-    console.log({str});
-    console.log({timestamp});
+    console.log({ str });
+    console.log({ timestamp });
   }
 
   async signalCallback(signalInput: AppSignal) {
@@ -122,65 +122,68 @@ export class ChatBubble extends LitElement {
 
   renderEmoji(emoji: string, i: number) {
     return html`
-    <!-- ${i === 3 ? html`<br>` : ''} -->
     <button @click="${() => this._handleClick(emoji)}" class="emoji-btn">
-        ${emoji}
+      <div class="${emoji === '🔥' ? 'waving' : ''}">${emoji}</span>
     </button>`
   }
 
   render() {
     return html`
-    <!-- <div class="flex"> -->
         <div class="chat-bubble">
-          <!-- <div class="chat-header">${this.username}</div> -->
-
           <div class="chat-quote">
             <textarea placeholder="Insert your message" rows="2" wrap="hard" maxlength="50"></textarea>
           </div>
-
+        
           <div class="chat-buttons">
             <div class="emoji-container">
               ${this.emojis.map((e, i) => this.renderEmoji(e, i))}
             </div>
             <div class="avatar-container">
-              <img src=${this.avatarUrl} width="50" height="50" class="avatar"/>
+              <img src=${this.avatarUrl} width="50" height="50" class="avatar" />
               <div class="avatar-name">${this.username}</div>
             </div>
+        
           </div>
         </div>
-      <!-- </div> -->
     `
-    // if (!this._entryDef0) {
-    //   return html`<div style="display: flex; flex: 1; align-items: center; justify-content: center">
-    //     <mwc-circular-progress indeterminate></mwc-circular-progress>
-    //   </div>`;
-    // }
-
-    // return html`
-    //   <div style="display: flex; flex-direction: column">
-    //     <span style="font-size: 18px">EntryDef0</span>
-
-
-    // <title-detail
-
-    // .value=${this._entryDef0.title}
-    //   style="margin-top: 16px"
-    // ></title-detail>
-
-
-    // <content-detail
-
-    // .value=${this._entryDef0.content}
-    //   style="margin-top: 16px"
-    // ></content-detail>
-
-    //   </div>
-    // `;
-
-
   }
 
   static styles = css`
+  
+  .waving {
+    animation-name: wave-animation;
+    animation-duration: 3.0s;
+    animation-iteration-count: infinite;
+    transform-origin: 70% 70%;
+  }
+
+  @keyframes wave-animation {
+    0% {
+    transform: rotate( 0.0deg)
+    }
+    10% {
+    transform: rotate(14.0deg)
+    }
+    20% {
+    transform: rotate(-8.0deg)
+    }
+    30% {
+    transform: rotate(14.0deg)
+    }
+    40% {
+    transform: rotate(-4.0deg)
+    }
+    50% {
+    transform: rotate(10.0deg)
+    }
+    60% {
+    transform: rotate( 0.0deg)
+    }
+    100% {
+    transform: rotate( 0.0deg)
+    }
+  }
+
   .chat-bubble {
     background-color: white;
     border: 1px solid gray;
