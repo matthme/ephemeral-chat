@@ -123,7 +123,7 @@ export class ChatBubble extends LitElement {
     return html`
     <!-- <div class="flex"> -->
         <div class="chat-bubble">
-          <div class="chat-header">${this.username}</div>
+          <!-- <div class="chat-header">${this.username}</div> -->
 
           <div class="chat-quote">
             <textarea placeholder="Insert your message" rows="2" wrap="hard" maxlength="50"></textarea>
@@ -236,11 +236,13 @@ export class ChatBubble extends LitElement {
 
 
   .emoji-btn {
-    background-color: rgba(65, 29, 29, 1);
-    border: 1px solid rgba(65, 29, 29, 1);
+    background-color: rgb(126, 54, 54);
+    border: 1px solid rgb(126, 54, 54);
     border-radius: 9px;
     margin: 4px;
-    padding: 10px;
+    /* padding: 10px; */
+    font-size: large;
+    font-weight: bolder;
   }
 
   .avatar-container {

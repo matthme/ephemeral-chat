@@ -300,7 +300,10 @@ export class HolochainApp extends LitElement {
 
     return html`
       <main>
-        <h1 class="main-title">BURNER CHAT</h1>
+        <div class="main-title-container">
+          <h1 class="main-title">BURNER CHAT</h1>
+          <p class="powered-by-holochain">powered by holochain</p>
+        </div>
         ${this.activeChannel.value
           ? this.renderChatScreen()
           : this.renderLandingPage()
@@ -325,6 +328,17 @@ export class HolochainApp extends LitElement {
       font-size: 25px;
     }
 
+    .main-title-container {
+      position: relative;
+    }
+    .powered-by-holochain {
+      position: absolute;
+      top: 50px;
+      right: 0;
+      font-family: 'Roboto Mono';
+      font-size: 20px;
+      color: #2E354C;
+    }
     button#start-bttn {
       all: unset;
       margin: 10px;

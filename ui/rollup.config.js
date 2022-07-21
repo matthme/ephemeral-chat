@@ -25,6 +25,8 @@ export default {
     /** Enable using HTML as rollup entrypoint */
     replace({
       'process.env.HC_PORT': '8000',
+      // 'process.env.HC_PORT': '8888',
+      // 'process.env.HC_PORT': '8001',
       delimiters: ['', ''],
     }),
     html({
