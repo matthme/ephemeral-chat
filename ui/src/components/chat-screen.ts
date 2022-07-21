@@ -22,11 +22,11 @@ export class ChatScreen extends LitElement {
   @contextProvided({ context: appInfoContext })
   appInfo!: InstalledAppInfo;
 
-  // @contextProvided({ context: burnerServiceContext })
-  // service!: BurnerService;
-
+  @contextProvided({ context: burnerServiceContext, subscribe: true })
   @state()
   service!: BurnerService;
+
+  // service!: BurnerService;
 
   @state()
   channelMembers!: string[];
@@ -41,15 +41,19 @@ export class ChatScreen extends LitElement {
   //   // alert(signalInput.data.payload.payload);
   // }
 
-  setService(service: BurnerService) {
-    console.log("assigning chat-screen service");
-    this.service = service;
-    console.log("this.service");
-    console.log(this.service);
-  }
+  // setService(service: BurnerService) {
+  //   console.log("assigning chat-screen service");
+  //   this.service = service;
+  //   console.log("this.service");
+  //   console.log(this.service);
+  // }
 
   async firstUpdated() {
     // do stuff
+    console.log("FIRST UPDATED CHAT_SCREEN");
+    console.log("this.service");
+    console.log(this.service);
+
   }
     
   // receiveSignal(signal: ) {

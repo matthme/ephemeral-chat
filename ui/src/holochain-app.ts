@@ -25,7 +25,7 @@ import { BurnerServiceContext } from './components/service-context';
 
 @customElement('holochain-app')
 export class HolochainApp extends LitElement {
-  @state() loading = false;
+  @state() loading = true;
   @state() entryHash: EntryHash | undefined;
 
   @contextProvider({ context: appWebsocketContext })
@@ -68,7 +68,6 @@ export class HolochainApp extends LitElement {
   activeChannelMembers: string[] = [];
 
   // service!: BurnerService;
-
   async dispatchTestSignal() {
     // get the input from the input text field
     const input = this.textInputField.value;
@@ -155,7 +154,6 @@ export class HolochainApp extends LitElement {
   }
 
   async firstUpdated() {
-    (window as any).chatScreen = this.chatScreen;
     this.activeChannel = "random";
 
     this.appWebsocket = await AppWebsocket.connect(
@@ -176,7 +174,8 @@ export class HolochainApp extends LitElement {
     const cellClient = new CellClient(client, cell!);
 
     this.service = new BurnerService(cellClient);
-    this.chatScreen.setService(this.service);
+    console.log("SETTING SERVICE INSIDE HOLOCH");
+    console.log(this.service);
 
     this.loading = false;
   }
@@ -221,14 +220,12 @@ export class HolochainApp extends LitElement {
     //    => my own buuble
 
     return html`
-      <burner-service-context .service=${this.service}>
-        <main>
-          ${this.activeChannel 
-            ? this.renderChatScreen()
-            : this.renderLandingPage()
-          }
-        </main>
-      </burner-service-context>
+      <main>
+        ${this.activeChannel 
+          ? this.renderChatScreen()
+          : this.renderLandingPage()
+        }
+      </main>
     `
     // return html`
     //   <main>
