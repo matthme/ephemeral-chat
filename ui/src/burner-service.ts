@@ -1,6 +1,6 @@
 import { CellClient } from '@holochain-open-dev/cell-client';
 import { ActionHash, AgentPubKey } from '@holochain/client';
-import { MessageInput } from './types/chat';
+import { ChannelMessageInput, MessageInput } from './types/chat';
 
 export class BurnerService {
   constructor(public cellClient: CellClient, public zomeName = 'chat') {}
@@ -26,8 +26,8 @@ export class BurnerService {
    * @param secret a secret string defining the shared channel
    * @returns action hash of the create_link action
    */
-  async joinChannel(secret: string): Promise<ActionHash> {
-    return this.callZome('join_channel', secret);
+  async joinChannel(input: ChannelMessageInput): Promise<ActionHash> {
+    return this.callZome('join_channel', input);
   }
 
   /**
@@ -47,8 +47,8 @@ export class BurnerService {
    * @param secret a secret string defining the shared channel
    * @returns void
    */
-  async burnChannel(secret: string): Promise<void> {
-    return this.callZome('burn_channel', secret);
+  async burnChannel(input: ChannelMessageInput): Promise<void> {
+    return this.callZome('burn_channel', input);
   }
 
 

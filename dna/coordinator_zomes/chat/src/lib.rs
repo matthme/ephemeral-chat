@@ -146,14 +146,23 @@ pub fn send_msg(input: MessageInput) -> ExternResult<()> {
 #[hdk_extern]
 fn recv_remote_signal(signal: SerializedBytes) -> ExternResult<()> {
   // decode and emit to the UI
-  let decoded_message = Message::try_from(signal)
-  .map_err(|err| wasm_error!(WasmErrorInner::Guest(err.into())))?;
-
-  debug!("+_+_+_+_+_+_+_+_+_+ JUST RECDEIVED A SIGNAL: {:?}", decoded_message);
-
-  emit_signal(decoded_message)?;
-
-  Ok(())
+  let maybe_decoded_message = Message::try_from(signal.clone());
+  match maybe_decoded_message {
+    Ok(message) => {
+      emit_signal(message)?;
+      Ok(())
+    },
+    Err(_) => {
+      let maybe_decoded_channel_message = ChannelMessage::try_from(signal);
+      match maybe_decoded_channel_message {
+        Ok(message) => {
+          emit_signal(message)?;
+          Ok(())
+        },
+        Err(err) => Err(wasm_error!(WasmErrorInner::Guest(err.into())))
+      }
+    }
+  }
 }
 
 
