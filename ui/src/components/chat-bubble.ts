@@ -168,7 +168,7 @@ export class ChatBubble extends LitElement {
             }
           </div>
 
-          <div class="chat-buttons">
+          <div class="chat-buttons ${this.isAdmin ? "" : "non-admin-chat-buttons"}">
             ${this.isAdmin ? html`
             <div class="emoji-container">
               ${this.emojis.map((e, i) => this.renderEmoji(e, i))}
@@ -265,6 +265,10 @@ export class ChatBubble extends LitElement {
     margin-top: -40px; // a hack
   }
 
+  .non-admin-chat-buttons {
+    flex-direction: row-reverse;
+  }
+
   .emoji-container {
     display: flex;
     position: relative;
@@ -274,7 +278,6 @@ export class ChatBubble extends LitElement {
     justify-content: space-evenly;
     margin-left: 30px;
   }
-
 
   .emoji-btn {
     background-color: rgb(126, 54, 54);
