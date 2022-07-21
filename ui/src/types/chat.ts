@@ -14,11 +14,13 @@ export interface Message {
 export interface JoinChannelMessage {
   signalType: string,
   agent: AgentPubKey,
+  channel: string,
 }
 
 export interface BurnChannelMessage {
   signalType: string,
   agent: AgentPubKey,
+  channel: string,
 }
 
 export interface MessageInput {
@@ -26,6 +28,6 @@ export interface MessageInput {
   payload: string,
   senderName: string,
   recipients: AgentPubKey[],
-  secret: string,
+  channel: string,
 }
 
