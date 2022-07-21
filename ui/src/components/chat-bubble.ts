@@ -27,7 +27,7 @@ export class ChatBubble extends LitElement {
   @contextProvided({ context: burnerServiceContext, subscribe: true })
   @state()
   service!: BurnerService;
-  
+
   @property()
   showEmoji: boolean = true;
 
@@ -124,7 +124,7 @@ export class ChatBubble extends LitElement {
   // }
 
   async firstUpdated() {
-    
+
   }
 
   renderEmoji(emoji: string, i: number) {
@@ -145,7 +145,7 @@ export class ChatBubble extends LitElement {
     const msgText = ev.key;
     const recipients = Object.keys(this.channelMembers).map(key => deserializeHash(key));
 
-    console.log(ev.key);
+    // console.log(ev.key);
     const msgInput: MessageInput = {
       signalType: "Message",
       payload: msgText,
@@ -153,7 +153,7 @@ export class ChatBubble extends LitElement {
       recipients: recipients,
       channel: this.channel.value!,
     }
-    console.log({msgInput});
+    console.log("sending message from chat-bubble", {msgInput});
     await this.service.sendMsg(msgInput);
   }
 
@@ -167,7 +167,7 @@ export class ChatBubble extends LitElement {
               : html`<textarea disabled rows="2" wrap="hard" maxlength="50"></textarea>`
             }
           </div>
-        
+
           <div class="chat-buttons">
             ${this.isAdmin ? html`
             <div class="emoji-container">
@@ -177,14 +177,14 @@ export class ChatBubble extends LitElement {
               <img src=${this.avatarUrl} width="50" height="50" class="avatar" />
               <div class="avatar-name">${this.username}</div>
             </div>
-        
+
           </div>
         </div>
     `
   }
 
   static styles = css`
-  
+
   .waving {
     animation-name: wave-animation;
     animation-duration: 3.0s;
