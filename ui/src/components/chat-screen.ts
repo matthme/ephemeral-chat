@@ -56,16 +56,24 @@ export class ChatScreen extends LitElement {
     console.log("FIRST UPDATED CHAT_SCREEN");
     console.log("this.service");
     console.log(this.service);
-
   }
   
+  receiveEmojiCannonSignal(signal: AppSignal) {
+    // @TODO: filter by agentPubKey, check if agent exist as chat-bubble
+  }
   
   receiveMessageSignal(signal: AppSignal) {
-
+    // @TODO: filter by agentPubKey, check if agent exist as chat-bubble
   }  
 
-  receiveJoiningSignal(signal: AppSignal) {
-    const joiningMember = signal.data.payload;
+  receiveJoinSignal(signal: AppSignal) {
+    const joiningMember = signal.data.payload.agent;
+    // @TODO => ensure that joining member is of type AgentPubKeyB64
+    // this.channelMembers = [...this.channelMembers, joiningMember];
+  }
+
+  receiveBurnSignal(signal: AppSignal) {
+    const memberWhoBurns = signal.data.payload.agent;
     // @TODO => ensure that joining member is of type AgentPubKeyB64
     // this.channelMembers = [...this.channelMembers, joiningMember];
   }
