@@ -1,11 +1,13 @@
 
-import { LitElement, html } from 'lit';
+import { LitElement, css, html, CSSResultGroup } from 'lit';
 import { state, customElement, property } from 'lit/decorators.js';
 import { InstalledCell, AppWebsocket, EntryHash, InstalledAppInfo, AgentPubKey, AppSignal } from '@holochain/client';
 import { contextProvided } from '@lit-labs/context';
 import { appInfoContext, appWebsocketContext } from '../contexts';
 import { serializeHash, deserializeHash } from '@holochain-open-dev/utils';
 import { Message } from '../types/chat';
+import JSConfetti from 'js-confetti';
+// import logo from '../components/images/bubble-big.png';
 
 interface ChatBufferElement {
   timestamp: number,
@@ -24,8 +26,14 @@ export class ChatBubble extends LitElement {
   @property()
   channel!: string | undefined;
 
+  @property()
+  showEmoji: boolean = true;
+
   @state()
   chatBuffer!: ChatBufferElement[];
+
+  @state()
+  emojis: string[] = ['🌈', '⚡️', '💥', '✨', '💫', '🌸'];
 
   @property()
   username!: string;
@@ -68,6 +76,12 @@ export class ChatBubble extends LitElement {
     console.log(this.bufferToString());
   }
 
+  _handleClick(emoji: string) {
+    const jsConfetti = new JSConfetti()
+    jsConfetti.addConfetti({
+      emojis: [emoji],
+   })
+  }
 
   async signalCallback(signalInput: AppSignal) {
 
@@ -98,13 +112,36 @@ export class ChatBubble extends LitElement {
 
   }
 
+  renderEmoji(emoji: string, i: number) {
+    return html`
+    <!-- ${i === 3 ? html`<br>` : ''} -->
+    <button @click="${() => this._handleClick(emoji)}" class="emoji-btn">
+        ${emoji}
+    </button>`
+  }
 
   render() {
     return html`
       <div class="chat-bubble">
+        
         <p>${this.channel} ${this.username}</p>
-        <p class="chat-area"></p>
-        <img src=${this.avatarUrl} width="50" height="50"/>
+        
+        <div class="chat-quote">
+          <textarea placeholder="Input your text" rows="2" wrap="hard" maxlength="50"></textarea>
+        </div>
+        
+        <!-- <p class="chat-area"></p> -->
+        <div class="chat-buttons">
+          <div class="emoji-container">
+            ${this.emojis.map((e, i) => this.renderEmoji(e, i))}
+          </div>
+          <div class="avatar-container">
+            <img src=${this.avatarUrl} width="50" height="50" class="avatar"/>
+          </div>
+        </div>
+        
+        <button @click="${this._handleClick}">Burnz</button>
+        
       </div>
     `
     // if (!this._entryDef0) {
@@ -133,5 +170,74 @@ export class ChatBubble extends LitElement {
 
     //   </div>
     // `;
+
+    
   }
+
+  // static styles = css`
+  //   .chat-bubble {
+  //     background-color: 'red';
+  //   }
+  //   ` 
+
+  static styles = css`
+  /* button { */
+    // all: unset;
+  /* } */
+  .chat-bubble {
+    background-color: white;
+    border: 1px solid gray;
+    padding: 8px;
+  }
+
+  .chat-quote {
+    display: flex;
+    background-image: url(public/bubble-big.png);
+    background-size: contain;
+    height: 140px;
+    background-repeat: no-repeat;
+    width: 100%;
+  }
+
+  .chat-quote > textarea {
+    all: unset;
+    /* width: 80%; */
+    align-self: flex-start;
+    margin-top: 10px;
+    margin-left: 10px;
+    margin-right: 10px;
+    max-height: 3rem;
+  }
+
+  .chat-buttons {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+  }
+  
+  .avatar-container {
+    display: flex;
+  }
+
+  .emoji-container {
+    display: flex;
+    flex-wrap: wrap;
+    /* flex: 1; */
+    /* width: 80%; */
+  }
+  
+  img.avatar {
+    border-radius: 50%;
+    background-color: blue;
+  }
+
+  .emoji-btn {
+    background-color: rgba(65, 29, 29, 1);
+    border: 1px solid rgba(65, 29, 29, 1);
+    border-radius: 9px;
+    margin: 4px;
+    padding: 10px;
+  }
+` as CSSResultGroup;
+
 }
