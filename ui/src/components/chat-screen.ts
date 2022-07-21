@@ -57,6 +57,9 @@ export class ChatScreen extends LitElement {
   @state()
   channelMembers: Record<AgentPubKeyB64, Username> = {};
 
+  @state()
+  chatBubbles: Record<AgentPubKeyB64, ChatBubble> = {};
+
 
   // async signalCallback(signalInput: AppSignal) {
   //   let msg: Message = signalInput.data.payload;
@@ -81,16 +84,16 @@ export class ChatScreen extends LitElement {
 
   receiveEmojiCannonSignal(signal: AppSignal) {
     // @TODO: filter by agentPubKey, check if agent exist as chat-bubble
+    if (Object.keys(this.channelMembers).includes(signal.data.payload.senderKey)) {
+      // propagate signal to the right bubble
+    }
   }
 
   receiveMessageSignal(signal: AppSignal) {
     // @TODO: filter by agentPubKey, check if agent exist as chat-bubble
-  }
-
-  receiveJoinSignal(signal: AppSignal) {
-    const joiningMember = signal.data.payload.agent;
-    // @TODO => ensure that joining member is of type AgentPubKeyB64
-    // this.channelMembers = [...this.channelMembers, joiningMember];
+    if (Object.keys(this.channelMembers).includes(signal.data.payload.senderKey)) {
+      // propagate signal to the right bubble
+    }
   }
 
   receiveBurnSignal(signal: AppSignal) {

@@ -66,7 +66,6 @@ export class HolochainApp extends LitElement {
   myAgentPubKey!: string;
 
 
-
   activeChannel = new TaskSubscriber(
     this,
     () => this.service.getChannel(),
@@ -180,8 +179,8 @@ export class HolochainApp extends LitElement {
 
     } else if (signalInput.type === "JoinChannel" && signal.channel === this.activeChannel.value) {
       // @TODO 1. check if join channel is === activeChannel
-      // 2. send join info to chat-screen
-      this.chatScreen.receiveJoinSignal(signalInput);
+      // update this.channelMembers
+
 
     } else if (signalInput.type === "BurnChannel" && signal.channel === this.activeChannel.value) {
       this.chatScreen.receiveBurnSignal(signalInput);
