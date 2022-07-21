@@ -51,7 +51,10 @@ export class ChatScreen extends LitElement {
   async firstUpdated() {
     // do stuff
   }
-      
+    
+  // receiveSignal(signal: ) {
+
+  // }
       
   render() {
     const chatBubbles: any[] = [
