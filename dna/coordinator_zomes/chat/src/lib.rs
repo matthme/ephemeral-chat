@@ -61,9 +61,11 @@ pub struct MessageInput{
 
 
 #[hdk_extern]
-pub fn join_channel(channel: ChannelMessageInput) -> ExternResult<ActionHash> {
+pub fn join_channel(input: ChannelMessageInput) -> ExternResult<ActionHash> {
   // 0. clean the channel from existing links to own public key
-  clean_channel_links(channel.channel.clone())?;
+  clean_channel_links(input.channel.clone())?;
+  let username = input.username;
+  let channel_to_join = input.channel;
 
   // 1. get our own pubkey
   let pubkey = agent_info()?.agent_initial_pubkey;
@@ -72,7 +74,7 @@ pub fn join_channel(channel: ChannelMessageInput) -> ExternResult<ActionHash> {
   let channel_anchor = anchor(
     LinkTypes::SecretAnchor,
     "channel_anchor".into(),
-    channel.channel.clone().into()
+    channel_to_join.clone().into(),
   )?;
 
   // 3. link from channel anchor to our own pubkey (for other agents to find us)
@@ -80,26 +82,31 @@ pub fn join_channel(channel: ChannelMessageInput) -> ExternResult<ActionHash> {
     channel_anchor,
     pubkey.clone(),
     LinkTypes::ChannelSecretToAgent,
-    ())?;
+    LinkTag::new(username))?;
 
   // 4. send remote signal to members of the group about your joining
-  let channel_members = get_channel_members(channel.channel.clone())?;
+  let channel_members = get_channel_members(channel_to_join.clone())?;
   let join_channel_message = ChannelMessage {
     signal_type: "JoinChannel".into(),
     agent: pubkey,
-    channel: channel.channel,
-    username: channel.username,
+    channel: channel_to_join,
+    username: username,
   };
   let encoded_input = ExternIO::encode(join_channel_message)
   .map_err(|err| wasm_error!(WasmErrorInner::Guest(err.into())))?;
-  remote_signal(encoded_input, channel_members)?;
+
+  // dispatch remote signal
+  let agents: Vec<AgentPubKey> = channel_members
+    .into_iter()
+    .map(|(agent_pub_key, _)| agent_pub_key).collect();
+  remote_signal(encoded_input, agents)?;
 
   Ok(create_link_hash)
 }
 
-#[hdk_extern]
-pub fn get_channel_members(channel: String) -> ExternResult<Vec<AgentPubKey>> {
 
+#[hdk_extern]
+pub fn get_channel_members(channel: String) -> ExternResult<Vec<(AgentPubKey, String)>> {
   // 1. Get links pointing away from the channel channel to member agents
   let links = get_channel_links(channel)?;
 
@@ -108,12 +115,17 @@ pub fn get_channel_members(channel: String) -> ExternResult<Vec<AgentPubKey>> {
   for link in links {
     let target = link.target;
     let pubkey = AgentPubKey::from(EntryHash::from(target));
-    // let pubkey= target.retype(hdk::prelude::holo_hash::hash_type::Agent);
-    members.push(pubkey);
+    let username: String = tag_to_string(link.tag)?;
+    members.push((pubkey, username));
   }
 
   Ok(members)
+}
 
+// @TODO how to convert from LinkTag to String
+pub fn tag_to_string(tag: LinkTag) -> ExternResult<String> {
+  String::from_utf8(tag.0)
+    .map_err(|err| wasm_error!(WasmErrorInner::Guest("asd".into())))
 }
 
 
@@ -247,7 +259,10 @@ pub fn burn_channel(channel: ChannelMessageInput) -> ExternResult<()> {
   let encoded_input = ExternIO::encode(burn_channel_message)
   .map_err(|err| wasm_error!(WasmErrorInner::Guest(err.into())))?;
 
-  remote_signal(encoded_input, channel_members)?;
+  let agents: Vec<AgentPubKey> = channel_members
+    .into_iter()
+    .map(|(agent_pub_key, _)| agent_pub_key).collect();
+  remote_signal(encoded_input, agents)?;
 
   Ok(())
 }
