@@ -124,11 +124,11 @@ export class ChatBubble extends LitElement {
     <!-- <div class="flex"> -->
         <div class="chat-bubble">
           <div class="chat-header">${this.username}</div>
-          
+
           <div class="chat-quote">
             <textarea placeholder="Insert your message" rows="2" wrap="hard" maxlength="50"></textarea>
           </div>
-          
+
           <div class="chat-buttons">
             <div class="emoji-container">
               ${this.emojis.map((e, i) => this.renderEmoji(e, i))}
@@ -138,7 +138,7 @@ export class ChatBubble extends LitElement {
               <div class="avatar-name">${this.username}</div>
             </div>
           </div>
-          
+
           <button @click="${this._handleClick}">Burnz</button>
         </div>
       <!-- </div> -->
@@ -170,11 +170,11 @@ export class ChatBubble extends LitElement {
     //   </div>
     // `;
 
-    
+
   }
 
   static styles = css`
-  
+
   /* @media screen and (min-width: 992px) { */
   /* @media screen and (min-width: 400px) {
     .flex {
@@ -186,10 +186,10 @@ export class ChatBubble extends LitElement {
     }
 
     .flex > *:nth-last-child(-n + 2) {  /* see note below */
-      flex-basis: calc(50% - 40px);
-    }
-  }  */
-  
+      /* flex-basis: calc(50% - 40px); */
+    /* }
+  }   */
+
   .chat-bubble {
     background-color: white;
     border: 1px solid gray;
@@ -225,15 +225,15 @@ export class ChatBubble extends LitElement {
     justify-content: space-between;
     margin-top: -40px; // a hack
   }
-  
+
   .emoji-container {
     display: flex;
     flex-wrap: wrap;
     /* flex: 1; */
     width: 60%;
   }
-  
-  
+
+
 
   .emoji-btn {
     background-color: rgba(65, 29, 29, 1);
@@ -242,13 +242,13 @@ export class ChatBubble extends LitElement {
     margin: 4px;
     padding: 10px;
   }
-  
+
   .avatar-container {
     display: flex;
     align-self: center;
     flex-direction: column;
   }
-  
+
   img.avatar {
     border-radius: 50%;
     background-color: blue;
@@ -263,7 +263,7 @@ export class ChatBubble extends LitElement {
     margin-top: 20px;
   }
 
-  
+
 ` as CSSResultGroup;
 
 }
