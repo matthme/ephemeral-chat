@@ -16,7 +16,7 @@ import '@material/mwc-circular-progress';
 import { get } from 'svelte/store';
 import { appWebsocketContext, appInfoContext, burnerServiceContext } from './contexts';
 import { serializeHash, deserializeHash } from '@holochain-open-dev/utils';
-import { MessageInput } from './types/chat';
+import { ChannelMessageInput, MessageInput } from './types/chat';
 import { ChatScreen } from './components/chat-screen';
 // import { BurnerStore } from './burner-store';
 import { BurnerService } from './burner-service';
@@ -146,7 +146,12 @@ export class HolochainApp extends LitElement {
       return;
     }
     const allMyChannelsFiltered = this.allMyChannels.filter(channel => channel !== channelToBurn);
-    await this.service.burnChannel(channelToBurn);
+    const burnChannelInput: ChannelMessageInput = {
+      signalType: "BurnChannel",
+      channel: channelToBurn,
+      username: this.myUsername!,
+    }
+    await this.service.burnChannel(burnChannelInput);
     this.allMyChannels = allMyChannelsFiltered;
     this.activeChannel = undefined;
   }
@@ -168,7 +173,7 @@ export class HolochainApp extends LitElement {
       // @TODO 1. check if join channel is === activeChannel
       // 2. send join info to chat-screen
       this.chatScreen.receiveJoinSignal(signalInput);
-      
+
     } else if (signalInput.type === "BurnChannel" && signal.channel === this.activeChannel) {
       this.chatScreen.receiveBurnSignal(signalInput);
     }
@@ -205,20 +210,24 @@ export class HolochainApp extends LitElement {
     this.myUsername = username;
     // get channel secret and join channel
     const channelToJoin = this.joinChannelInput.value;
-    await this.joinChannel(channelToJoin);
-    console.log("joined channel " + channelToJoin);
+    const channelMessageInput: ChannelMessageInput = {
+      signalType: "JoinChannel",
+      channel: channelToJoin,
+      username: this.myUsername,
+    }
+    await this.joinChannel(channelMessageInput);
   }
 
-  async joinChannel(channelToJoin: string): Promise<void> {
-    if (this.allMyChannels.includes(channelToJoin)) {
+  async joinChannel(input: ChannelMessageInput): Promise<void> {
+    if (this.allMyChannels.includes(input.channel)) {
       return;
     }
-    await this.service.joinChannel(channelToJoin);
-    const channelMembers = await this.service.getChannelMembers(channelToJoin);
+    await this.service.joinChannel(input);
+    const channelMembers = await this.service.getChannelMembers(input.channel);
     const channelMembersB64 = channelMembers.map(pubkey => serializeHash(pubkey));
     this.activeChannelMembers = channelMembersB64;
-    this.allMyChannels = [...this.allMyChannels, channelToJoin];
-    this.activeChannel = channelToJoin;
+    this.allMyChannels = [...this.allMyChannels, input.channel];
+    this.activeChannel = input.channel;
   }
 
   renderLandingPage() {
@@ -239,7 +248,7 @@ export class HolochainApp extends LitElement {
 
   renderChatScreen() {
     return html`
-      <chat-screen 
+      <chat-screen
         .channel=${this.activeChannel}
       ></chat-screen>
     `
@@ -261,7 +270,7 @@ export class HolochainApp extends LitElement {
 
     return html`
       <main>
-        ${this.activeChannel 
+        ${this.activeChannel
           ? this.renderChatScreen()
           : this.renderLandingPage()
         }

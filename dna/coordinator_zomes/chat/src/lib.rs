@@ -9,18 +9,19 @@ use chat_integrity::*;
 
 #[derive(Serialize, SerializedBytes, Deserialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
-pub struct JoinChannelMessage {
+pub struct ChannelMessage {
   signal_type: String,
   agent: AgentPubKey,
   channel: String,
+  username: String,
 }
 
 #[derive(Serialize, SerializedBytes, Deserialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
-pub struct BurnChannelMessage {
+pub struct ChannelMessageInput {
   signal_type: String,
-  agent: AgentPubKey,
   channel: String,
+  username: String,
 }
 
 
@@ -60,9 +61,9 @@ pub struct MessageInput{
 
 
 #[hdk_extern]
-pub fn join_channel(channel: String) -> ExternResult<ActionHash> {
+pub fn join_channel(channel: ChannelMessageInput) -> ExternResult<ActionHash> {
   // 0. clean the channel from existing links to own public key
-  clean_channel_links(channel.clone())?;
+  clean_channel_links(channel.channel.clone())?;
 
   // 1. get our own pubkey
   let pubkey = agent_info()?.agent_initial_pubkey;
@@ -71,7 +72,7 @@ pub fn join_channel(channel: String) -> ExternResult<ActionHash> {
   let channel_anchor = anchor(
     LinkTypes::SecretAnchor,
     "channel_anchor".into(),
-    channel.clone().into()
+    channel.channel.clone().into()
   )?;
 
   // 3. link from channel anchor to our own pubkey (for other agents to find us)
@@ -82,11 +83,12 @@ pub fn join_channel(channel: String) -> ExternResult<ActionHash> {
     ())?;
 
   // 4. send remote signal to members of the group about your joining
-  let channel_members = get_channel_members(channel.clone())?;
-  let join_channel_message = JoinChannelMessage {
+  let channel_members = get_channel_members(channel.channel.clone())?;
+  let join_channel_message = ChannelMessage {
     signal_type: "JoinChannel".into(),
     agent: pubkey,
-    channel,
+    channel: channel.channel,
+    username: channel.username,
   };
   let encoded_input = ExternIO::encode(join_channel_message)
   .map_err(|err| wasm_error!(WasmErrorInner::Guest(err.into())))?;
@@ -144,14 +146,23 @@ pub fn send_msg(input: MessageInput) -> ExternResult<()> {
 #[hdk_extern]
 fn recv_remote_signal(signal: SerializedBytes) -> ExternResult<()> {
   // decode and emit to the UI
-  let decoded_message = Message::try_from(signal)
-  .map_err(|err| wasm_error!(WasmErrorInner::Guest(err.into())))?;
-
-  debug!("+_+_+_+_+_+_+_+_+_+ JUST RECDEIVED A SIGNAL: {:?}", decoded_message);
-
-  emit_signal(decoded_message)?;
-
-  Ok(())
+  let maybe_decoded_message = Message::try_from(signal.clone());
+  match maybe_decoded_message {
+    Ok(message) => {
+      emit_signal(message)?;
+      Ok(())
+    },
+    Err(_) => {
+      let maybe_decoded_channel_message = ChannelMessage::try_from(signal);
+      match maybe_decoded_channel_message {
+        Ok(message) => {
+          emit_signal(message)?;
+          Ok(())
+        },
+        Err(err) => Err(wasm_error!(WasmErrorInner::Guest(err.into())))
+      }
+    }
+  }
 }
 
 
@@ -217,20 +228,21 @@ fn clean_channel_links(channel: String) -> ExternResult<()> {
 
 
 #[hdk_extern]
-pub fn burn_channel(channel: String) -> ExternResult<()> {
+pub fn burn_channel(channel: ChannelMessageInput) -> ExternResult<()> {
   // 1. deleta all links pointing away from this channel
-  let links = get_channel_links(channel.clone())?;
+  let links = get_channel_links(channel.channel.clone())?;
   for link in links {
     delete_link(link.create_link_hash)?;
   }
 
   // 2. send remote signal to members of the group about your joining
   let pubkey = agent_info()?.agent_initial_pubkey;
-  let channel_members = get_channel_members(channel.clone())?;
-  let burn_channel_message = BurnChannelMessage {
+  let channel_members = get_channel_members(channel.channel.clone())?;
+  let burn_channel_message = ChannelMessage {
     signal_type: "BurnChannel".into(),
     agent: pubkey,
-    channel,
+    channel: channel.channel,
+    username: channel.username,
   };
   let encoded_input = ExternIO::encode(burn_channel_message)
   .map_err(|err| wasm_error!(WasmErrorInner::Guest(err.into())))?;
