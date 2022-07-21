@@ -139,7 +139,7 @@ export class ChatBubble extends LitElement {
             </div>
           </div>
           
-          <button @click="${this._handleClick}">Burnz</button>
+          <button @click="${this._handleClick}">🔥</button>
         </div>
       <!-- </div> -->
     `
