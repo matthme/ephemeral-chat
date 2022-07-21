@@ -33,3 +33,6 @@ export interface ChannelMessageInput {
   username: string,
 }
 
+
+export type Username = string;
+export type AgentPubKeyB64 = string;

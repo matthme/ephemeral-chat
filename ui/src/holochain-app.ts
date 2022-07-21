@@ -16,7 +16,7 @@ import '@material/mwc-circular-progress';
 import { get } from 'svelte/store';
 import { appWebsocketContext, appInfoContext, burnerServiceContext } from './contexts';
 import { serializeHash, deserializeHash } from '@holochain-open-dev/utils';
-import { ChannelMessageInput, MessageInput } from './types/chat';
+import { AgentPubKeyB64, ChannelMessageInput, MessageInput, Username } from './types/chat';
 import { ChatScreen } from './components/chat-screen';
 // import { BurnerStore } from './burner-store';
 import { BurnerService } from './burner-service';
@@ -58,8 +58,8 @@ export class HolochainApp extends LitElement {
   @query("#channel-secret-input")
   channelSecretInputField!: HTMLInputElement;
 
-  @state()
-  allMyChannels: string[] = [];
+  // @state()
+  // allMyChannels: string[] = [];
 
   @state()
   myAgentPubKey!: string;
@@ -71,7 +71,7 @@ export class HolochainApp extends LitElement {
   activeChannel: string | undefined;
 
   @state()
-  activeChannelMembers: string[] = [];
+  activeChannelMembers: Record<AgentPubKeyB64, Username> = {};
 
   // service!: BurnerService;
   async dispatchTestSignal() {
@@ -145,14 +145,14 @@ export class HolochainApp extends LitElement {
     if (!channelToBurn) {
       return;
     }
-    const allMyChannelsFiltered = this.allMyChannels.filter(channel => channel !== channelToBurn);
+    // const allMyChannelsFiltered = this.allMyChannels.filter(channel => channel !== channelToBurn);
     const burnChannelInput: ChannelMessageInput = {
       signalType: "BurnChannel",
       channel: channelToBurn,
       username: this.myUsername!,
     }
     await this.service.burnChannel(burnChannelInput);
-    this.allMyChannels = allMyChannelsFiltered;
+    // this.allMyChannels = allMyChannelsFiltered;
     this.activeChannel = undefined;
   }
 
@@ -219,14 +219,17 @@ export class HolochainApp extends LitElement {
   }
 
   async joinChannel(input: ChannelMessageInput): Promise<void> {
-    if (this.allMyChannels.includes(input.channel)) {
-      return;
-    }
+    // if (this.allMyChannels.includes(input.channel)) {
+    //   return;
+    // }
     await this.service.joinChannel(input);
     const channelMembers = await this.service.getChannelMembers(input.channel);
-    const channelMembersB64 = channelMembers.map(pubkey => serializeHash(pubkey));
-    this.activeChannelMembers = channelMembersB64;
-    this.allMyChannels = [...this.allMyChannels, input.channel];
+    console.log(channelMembers);
+    channelMembers.forEach(([pubKey, username]) => {
+      this.activeChannelMembers[serializeHash(pubKey)] = username;
+    })
+    console.warn(this.activeChannelMembers);
+    // this.allMyChannels = [...this.allMyChannels, input.channel];
     this.activeChannel = input.channel;
   }
 
@@ -249,6 +252,7 @@ export class HolochainApp extends LitElement {
     return html`
       <chat-screen
         .channel=${this.activeChannel}
+        .channelMembers=${this.activeChannelMembers}
       ></chat-screen>
     `
   }

@@ -109,7 +109,6 @@ export class ChatBubble extends LitElement {
     this.appInfo = await this.appWebsocket.appInfo({
       installed_app_id: 'burner-chat',
     });
-
   }
 
   renderEmoji(emoji: string, i: number) {

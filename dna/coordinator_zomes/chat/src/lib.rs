@@ -82,7 +82,7 @@ pub fn join_channel(input: ChannelMessageInput) -> ExternResult<ActionHash> {
     channel_anchor,
     pubkey.clone(),
     LinkTypes::ChannelSecretToAgent,
-    LinkTag::new(username))?;
+    LinkTag::new(username.clone()))?;
 
   // 4. send remote signal to members of the group about your joining
   let channel_members = get_channel_members(channel_to_join.clone())?;
@@ -125,7 +125,7 @@ pub fn get_channel_members(channel: String) -> ExternResult<Vec<(AgentPubKey, St
 // @TODO how to convert from LinkTag to String
 pub fn tag_to_string(tag: LinkTag) -> ExternResult<String> {
   String::from_utf8(tag.0)
-    .map_err(|err| wasm_error!(WasmErrorInner::Guest("asd".into())))
+    .map_err(|_err| wasm_error!(WasmErrorInner::Guest("Could not convert tag to string".into())))
 }
 
 

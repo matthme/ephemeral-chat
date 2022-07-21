@@ -5,7 +5,7 @@ import { InstalledCell, AppWebsocket, EntryHash, InstalledAppInfo, AgentPubKey, 
 import { contextProvided } from '@lit-labs/context';
 import { appInfoContext, appWebsocketContext, burnerServiceContext } from '../contexts';
 import { serializeHash, deserializeHash } from '@holochain-open-dev/utils';
-import { Message } from '../types/chat';
+import { AgentPubKeyB64, Message, Username } from '../types/chat';
 import { TaskSubscriber } from 'lit-svelte-stores';
 import { ChatBubble } from './chat-bubble';
 import { BurnerService } from '../burner-service';
@@ -15,8 +15,7 @@ import { randomAvatar } from '../helpers/random-avatars';
 //   agentPubKey: AgentPubKey,
 //   username: string,
 // }
-type Username = string;
-type AgentPubKeyB64 = string;
+
 
 @customElement('chat-screen')
 export class ChatScreen extends LitElement {
@@ -37,7 +36,7 @@ export class ChatScreen extends LitElement {
   @state()
   service!: BurnerService;
 
-  @state()
+  @property({ type: Object })
   channelMembers: Record<AgentPubKeyB64, Username> = {};
 
   @property()
@@ -94,50 +93,20 @@ export class ChatScreen extends LitElement {
   }
       
   render() {
-    const chatBubbles: any[] = [
-      {
-        channel: this.channel,
-        username: "dcts",
-        avatarUrl: "https://img.seadn.io/files/66196dd65af5e25c2fac209b0e33bd8d.png?auto=format&fit=max&w=256",
-        agentPubKey: "ascou3v8asv8yx0984v0p7duzk"
-      },
-      {
-        channel: this.channel,
-        username: "Art Brock",
-        avatarUrl: "https://img.seadn.io/files/45e5b8384841b475e7411dafd6c6291a.png?auto=format&fit=max&w=256",
-        agentPubKey: "x7f33168savLSKJOIQzasd"
-      },
-      {
-        channel: this.channel,
-        username: "dcts",
-        avatarUrl: "https://img.seadn.io/files/4f809b585367ec71fa19daba04066cd0.png?auto=format&fit=max&w=256",
-        agentPubKey: "v8274sduv2874eva98dv0lki"
-      },
-      {
-        channel: this.channel,
-        username: "dcts",
-        avatarUrl: "https://img.seadn.io/files/4f809b585367ec71fa19daba04066cd0.png?auto=format&fit=max&w=256",
-        agentPubKey: "v8274sduv2874eva98dv0lki"
-      },
-      {
-        channel: this.channel,
-        username: "dcts",
-        avatarUrl: "https://img.seadn.io/files/4f809b585367ec71fa19daba04066cd0.png?auto=format&fit=max&w=256",
-        agentPubKey: "v8274sduv2874eva98dv0lki"
-      },
-    ]
+    console.log("this.channelMembers");
+    console.log(this.channelMembers);
     return html`
     <div class="chat-screen">
+      ${this.renderChannelSelector()}
       <!-- <div class="chat-name"> -->
         <!-- <h1>${this.channel}</h1> -->
       <!-- </div> -->
         <div class="chat-bubblez">
-          ${chatBubbles.map(chatBubbleObj => {
-            let { channel, username, avatarUrl, agentPubKey } = chatBubbleObj;
+          ${Object.entries(this.channelMembers).map(([agentPubKey, username]) => {
             return html`<chat-bubble
-              .channel=${channel}
+              .channel=${this.channel}
               .username=${username}
-              .avatarUrl=${avatarUrl}
+              .avatarUrl=${randomAvatar()}
               .agentPubKey=${agentPubKey}
             >${username}</chat-bubble>`
           })}

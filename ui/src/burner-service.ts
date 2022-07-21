@@ -1,6 +1,6 @@
 import { CellClient } from '@holochain-open-dev/cell-client';
 import { ActionHash, AgentPubKey } from '@holochain/client';
-import { ChannelMessageInput, MessageInput } from './types/chat';
+import { ChannelMessageInput, MessageInput, Username } from './types/chat';
 
 export class BurnerService {
   constructor(public cellClient: CellClient, public zomeName = 'chat') {}
@@ -10,13 +10,8 @@ export class BurnerService {
    * @param secret a secret string defining the shared channel
    * @returns array of AgentPubKeys
    */
-  async getChannelMembers(secret: string): Promise<AgentPubKey[]> {
+  async getChannelMembers(secret: string): Promise<[AgentPubKey, Username][]> {
     const channelMembers = await this.callZome('get_channel_members', secret);
-    // console.log("channelMembersWithDuplicates: ", channelMembersWithDuplicates);
-    // const channelMembers =  channelMembersWithDuplicates.filter((c: AgentPubKey, index: number, self: AgentPubKey[]) => {
-    //   return self.indexOf(c) === index;
-    // });
-    // console.log("channelMembers: ", channelMembers);
     return channelMembers;
   }
 
