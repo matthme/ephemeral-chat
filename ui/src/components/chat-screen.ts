@@ -136,7 +136,7 @@ export class ChatScreen extends LitElement {
       <drawer-menu></drawer-menu>
       <div class="chat-bubblez">
         ${Object.entries(this.channelMembers)
-          .concat(chatBubbles(this.channel as string) // comment out this and next line to disable demo data
+          .concat(chatBubbles(this.channel.value!) // comment out this and next line to disable demo data
             .map(e => [e.agentPubKey, e.username]))
           .map(([agentPubKey, username]) => {
           return html`<chat-bubble
