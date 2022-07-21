@@ -10,6 +10,7 @@ import { TaskSubscriber } from 'lit-svelte-stores';
 import { ChatBubble } from './chat-bubble';
 import { BurnerService } from '../burner-service';
 import { chatBubbles, randomAvatar } from '../helpers/random-avatars';
+import { Drawer } from './menu';
 
 // export interface MemberInfo {
 //   agentPubKey: AgentPubKey,
@@ -132,30 +133,34 @@ export class ChatScreen extends LitElement {
     console.warn(randomAvatar())
     return html`
     <div class="chat-screen">
-      <div class="chat-name">
+      <!-- <div class="chat-name">
         ${this.renderChannelSelector()}
+      </div> -->
+      <drawer-menu></drawer-menu>
+      <div class="chat-bubblez">
+        ${Object.entries(this.channelMembers)
+          .concat(chatBubbles(this.channel.value!) // comment out this and next line to disable demo data
+            .map(e => [e.agentPubKey, e.username]))
+          .map(([agentPubKey, username]) => {
+          return html`<chat-bubble
+            .channel=${this.channel.value}
+            .username=${username}
+            .avatarUrl=${randomAvatar()}
+            .agentPubKey=${agentPubKey}
+          >${username}</chat-bubble>`
+        })}
       </div>
-
-        <div class="chat-bubblez">
-          ${Object.entries(this.channelMembers)
-            .concat(chatBubbles(this.channel.value!) // comment out this and next line to disable demo data
-              .map(e => [e.agentPubKey, e.username]))
-            .map(([agentPubKey, username]) => {
-            return html`<chat-bubble
-              .channel=${this.channel.value}
-              .username=${username}
-              .avatarUrl=${randomAvatar()}
-              .agentPubKey=${agentPubKey}
-            >${username}</chat-bubble>`
-          })}
-        </div>
-      </div>
+    </div>
     `
   }
 
   static styles = css`
     .chat-screen {
       display: flex;
+      flex-direction: column;
+    }
+    .chat-name {
+      margin-bottom: 30px;
     }
 
     .chat-bubblez {
@@ -174,6 +179,7 @@ export class ChatScreen extends LitElement {
   static get scopedElements() {
     return {
       "chat-bubble": ChatBubble,
+      "drawer-menu": Drawer,
     }
   }
 }
