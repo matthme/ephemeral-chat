@@ -1,5 +1,5 @@
 
-import { LitElement, html } from 'lit';
+import { LitElement, html, css, CSSResultGroup } from 'lit';
 import { state, customElement, property } from 'lit/decorators.js';
 import { InstalledCell, AppWebsocket, EntryHash, InstalledAppInfo, AgentPubKey, AppSignal } from '@holochain/client';
 import { contextProvided } from '@lit-labs/context';
@@ -76,18 +76,36 @@ export class ChatScreen extends LitElement {
         avatarUrl: "https://img.seadn.io/files/4f809b585367ec71fa19daba04066cd0.png?auto=format&fit=max&w=256",
         agentPubKey: "v8274sduv2874eva98dv0lki"
       },
+      {
+        channel: this.channel,
+        username: "dcts",
+        avatarUrl: "https://img.seadn.io/files/4f809b585367ec71fa19daba04066cd0.png?auto=format&fit=max&w=256",
+        agentPubKey: "v8274sduv2874eva98dv0lki"
+      },
+      {
+        channel: this.channel,
+        username: "dcts",
+        avatarUrl: "https://img.seadn.io/files/4f809b585367ec71fa19daba04066cd0.png?auto=format&fit=max&w=256",
+        agentPubKey: "v8274sduv2874eva98dv0lki"
+      },
     ]
     return html`
-      <h1>${this.channel}</h1>
-      ${chatBubbles.map(chatBubbleObj => {
-        let { channel, username, avatarUrl, agentPubKey } = chatBubbleObj;
-        return html`<chat-bubble
-          .channel=${channel}
-          .username=${username}
-          .avatarUrl=${avatarUrl}
-          .agentPubKey=${agentPubKey}
-        >${username}</chat-bubble>`
-      })}
+    <div class="chat-screen">
+      <!-- <div class="chat-name"> -->
+        <!-- <h1>${this.channel}</h1> -->
+      <!-- </div> -->
+        <div class="chat-bubblez">
+          ${chatBubbles.map(chatBubbleObj => {
+            let { channel, username, avatarUrl, agentPubKey } = chatBubbleObj;
+            return html`<chat-bubble
+              .channel=${channel}
+              .username=${username}
+              .avatarUrl=${avatarUrl}
+              .agentPubKey=${agentPubKey}
+            >${username}</chat-bubble>`
+          })}
+        </div>
+      </div>
     `
     // if (!this._entryDef0) {
     //   return html`<div style="display: flex; flex: 1; align-items: center; justify-content: center">
@@ -116,6 +134,24 @@ export class ChatScreen extends LitElement {
     //   </div>
     // `;
   }
+
+  static styles = css`
+    .chat-screen {
+      display: flex;
+    }
+
+    .chat-bubblez {
+      width: 100%;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-evenly;
+    }
+    
+    /* .chat-bubblez > chat-bubble {
+      flex: 1 1 250px;
+    } */
+    
+  ` as CSSResultGroup;
 
   static get scopedElements() {
     return {
