@@ -25,7 +25,7 @@ import { BurnerServiceContext } from './components/service-context';
 
 @customElement('holochain-app')
 export class HolochainApp extends LitElement {
-  @state() loading = true;
+  @state() loading = false;
   @state() entryHash: EntryHash | undefined;
 
   @contextProvider({ context: appWebsocketContext })
@@ -201,10 +201,12 @@ export class HolochainApp extends LitElement {
 
   async start() {
     // get name and set as username
-    this.myUsername = this.enterNameInput.value;
+    let username = this.enterNameInput.value
+    this.myUsername = username;
     // get channel secret and join channel
     const channelToJoin = this.joinChannelInput.value;
     await this.joinChannel(channelToJoin);
+    console.log("joined channel " + channelToJoin);
   }
 
   async joinChannel(channelToJoin: string): Promise<void> {
@@ -221,10 +223,17 @@ export class HolochainApp extends LitElement {
 
   renderLandingPage() {
     return html`
-      <h1>Hello from landing Page</h1>
-      <input id="enter-name" type="text" placeholder="enter name"/>
-      <input id="join-channel" type="text" placeholder="join channel"/>
-      <button @click=${this.start}>START</button>
+      <h1 class="main-title">BURNER CHAT</h1>
+      <p class="tagline">
+        No Security<br>
+        No Persistance<br>
+        Just Signals
+      </p>
+      <div class="landing-form">
+        <input class="landing-input" id="enter-name" type="text" placeholder="enter name"/>
+        <input class="landing-input" id="join-channel" type="text" placeholder="join channel"/>
+        <button id="start-bttn" @click=${this.start}>START</button>
+      </div>
     `;
   }
 
@@ -258,47 +267,6 @@ export class HolochainApp extends LitElement {
         }
       </main>
     `
-    // return html`
-    //   <main>
-    //     <h1 class="main-title">🔥 BURNER CHAT</h1>
-    //     <chat-screen channel="my-random-channel"></chat-screen>
-    //     <input id="test-signal-text-input" type="text" placeholder="your message..." />
-    //     <input id="test-recipient-input" type="text" placeholder="recipient pubkey"/>
-    //     <div>My key: ${this.myAgentPubKey}</div>
-    //     <div>
-    //       <input id="channel-secret-input" type="text" placeholder="Channel secret"/>
-    //       <button @click=${this.joinChannel}>Join Channel</button>
-    //     </div>
-    //     <div>MEMBERS:
-    //     ${
-    //       this.channelMembers.forEach((member) => {
-    //         html`<div>${member}</div>`
-    //       })
-    //     }
-    //     </div>
-    //     <button @click=${this.burnChannel}>+ + + B U R N  + + +  C H A N N E L + + +</button>
-    //     <button class="bttn-test-signal"
-    //       @click=${this.sendRemoteSignal}>
-    //        Send Remote Signal
-    //     </button><br>
-    //     <br>
-    //     <button class="bttn-test-signal"
-    //       @click=${this.dispatchTestSignal}>
-    //         Signal Test
-    //     </button>
-
-    //     <br><br>
-    //     <p>realtime signals</p>
-    //     <input id="realtime-chat-test" type="text"
-    //     @keyup=${this.dispatchRealtimeSignal}/>
-    //     <h3>MESSAGE STREAM</h3>
-    //     <p class="message-stream"></p>
-    //     <create-entry-def-0 @entry-def-0-created=${(e: CustomEvent) => this.entryHash = e.detail.entryHash}></create-entry-def-0>
-    // ${this.entryHash ? html`
-    //   <entry-def-0-detail .entryHash=${this.entryHash}></entry-def-0-detail>
-    // ` : html``}
-    //   </main>
-    // `;
   }
 
   static styles = css`
@@ -314,6 +282,27 @@ export class HolochainApp extends LitElement {
       margin: 0 auto;
       text-align: center;
       background-color: var(--lit-element-background-color);
+      font-size: 25px;
+    }
+
+    button#start-bttn {
+      all: unset;
+      margin: 10px;
+      padding: 10px 20px;
+      color: red;
+      background-color: #2E354C;
+      color: #FBFAF8;
+      cursor: pointer;
+      width: 300px;
+      border-radius: 100px;
+      font-weight: bold;
+      font-family: 'Rubik';
+    }
+
+    .landing-form {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
     }
 
     main {
@@ -329,11 +318,46 @@ export class HolochainApp extends LitElement {
       margin-left: 5px;
     }
 
+    button#start {
+      all: unset;
+      background: #2E354C;
+      /* background: #2E354C; */
+      padding: 10px 40px;
+      border-radius: 100px;
+      color: #FBFAF8;
+      font-family: 'Rubik';
+      font-size: 30px;
+    }
+
+    .tagline {
+      font-family: Roboto Mono;
+      font-size: 30px;
+      margin-top: 80px;
+      margin-bottom: 80px;
+    }
+
+    input.landing-input {
+      all: unset;
+      background-color: white;
+      margin: 10px;
+      padding: 10px 20px;
+      box-shadow: 0 0 10px rgb(0 0 0 / 10%);
+      border-radius: 100px;
+      width: 300px;
+    }
+    input.landing-input::placeholder { /* Chrome, Firefox, Opera, Safari 10.1+ */
+      color: #ADADAD;
+    }
+
     .main-title {
-      font-family: 'Rubik', monospace;
+      /* font-family: 'Rubik', monospace;
       font-weight: bold;
+      color: #17E6B7; */
+      font-size: 70px;
+      font-family: RUBIK;
+      font-weight: bold;
+      color: #17E6B7;
       letter-spacing: 4px;
-      color: #6737FF;
     }
   `;
 

@@ -100,18 +100,19 @@ export class ChatScreen extends LitElement {
     //     agentPubKey: "v8274sduv2874eva98dv0lki"
     //   },
     // ]
+
+    // ${this.channelMembers.map(channelMember => {
+    //   let avatar = randomAvatar();
+    //   let { username, agentPubKey } = chatBubbleObj;
+    //   return html`<chat-bubble
+    //     .channel=${this.channel}
+    //     .username=${username}
+    //     .avatarUrl=${avatar}
+    //     .agentPubKey=${agentPubKey}
+    //   >${username}</chat-bubble>`
+    // })}
     return html`
       <h1>${this.channel}</h1>
-      <!-- ${this.channelMembers.map(channelMember => {
-        let avatar = randomAvatar();
-        let { username, agentPubKey } = chatBubbleObj;
-        return html`<chat-bubble
-          .channel=${this.channel}
-          .username=${username}
-          .avatarUrl=${avatar}
-          .agentPubKey=${agentPubKey}
-        >${username}</chat-bubble>`
-      })} -->
     `
     // if (!this._entryDef0) {
     //   return html`<div style="display: flex; flex: 1; align-items: center; justify-content: center">
