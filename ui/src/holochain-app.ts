@@ -16,7 +16,7 @@ import '@material/mwc-circular-progress';
 import { get } from 'svelte/store';
 import { appWebsocketContext, appInfoContext, burnerServiceContext } from './contexts';
 import { serializeHash, deserializeHash } from '@holochain-open-dev/utils';
-import { MessageInput } from './types/chat';
+import { ChannelMessageInput, MessageInput } from './types/chat';
 import { ChatScreen } from './components/chat-screen';
 // import { BurnerStore } from './burner-store';
 import { BurnerService } from './burner-service';
@@ -43,6 +43,12 @@ export class HolochainApp extends LitElement {
   @query("chat-screen")
   chatScreen!: ChatScreen;
 
+  @query("input#join-channel")
+  joinChannelInput!: HTMLInputElement;
+
+  @query("input#enter-name")
+  enterNameInput!: HTMLInputElement;
+
   @query("#test-signal-text-input")
   textInputField!: HTMLInputElement;
 
@@ -53,7 +59,7 @@ export class HolochainApp extends LitElement {
   channelSecretInputField!: HTMLInputElement;
 
   @state()
-  allMyChannels!: string[];
+  allMyChannels: string[] = [];
 
   @state()
   myAgentPubKey!: string;
@@ -68,7 +74,6 @@ export class HolochainApp extends LitElement {
   activeChannelMembers: string[] = [];
 
   // service!: BurnerService;
-
   async dispatchTestSignal() {
     // get the input from the input text field
     const input = this.textInputField.value;
@@ -96,10 +101,11 @@ export class HolochainApp extends LitElement {
     const msgText = this.textInputField.value;
     const recipient = this.recipientInputField.value;
     const msgInput: MessageInput = {
+      signalType: "Message",
       payload: msgText,
       senderName: "sender",
       recipients: [deserializeHash(recipient)],
-      secret: "secret",
+      channel: this.activeChannel!,
     }
     const cellData = this.appInfo.cell_data.find((c: InstalledCell) => c.role_id === 'burner_chat')!;
     await this.appWebsocket.callZome({
@@ -116,10 +122,11 @@ export class HolochainApp extends LitElement {
     const msgText = this.textInputField.value;
     const recipient = this.recipientInputField.value;
     const msgInput: MessageInput = {
+      signalType: "Message",
       payload: msgText,
       senderName: "sender",
       recipients: [deserializeHash(recipient)],
-      secret: "secret",
+      channel: this.activeChannel!,
     }
 
     const cellData = this.appInfo.cell_data.find((c: InstalledCell) => c.role_id === 'burner_chat')!;
@@ -139,7 +146,12 @@ export class HolochainApp extends LitElement {
       return;
     }
     const allMyChannelsFiltered = this.allMyChannels.filter(channel => channel !== channelToBurn);
-    await this.service.burnChannel(channelToBurn);
+    const burnChannelInput: ChannelMessageInput = {
+      signalType: "BurnChannel",
+      channel: channelToBurn,
+      username: this.myUsername!,
+    }
+    await this.service.burnChannel(burnChannelInput);
     this.allMyChannels = allMyChannelsFiltered;
     this.activeChannel = undefined;
   }
@@ -147,17 +159,27 @@ export class HolochainApp extends LitElement {
   // filter signals
   async signalCallback(signalInput: AppSignal) {
     // filter only current room
+    const signal = signalInput.data.payload;
+    const signalType = signalInput.data.payload.signalType;
+    if (signalType === "EmojiCannon") {
+      // propagate and let chat-screen decide if emoji cannon should be fired
+      this.chatScreen.receiveEmojiCannonSignal(signalInput);
 
-    //
+    } else if (signalType === "Message" && signal.secret === this.activeChannel) {
+      // propagate only when in active room
+      this.chatScreen.receiveMessageSignal(signalInput);
 
-    // console.log(signalInput);
-    // (window as any).signalInput = signalInput;
+    } else if (signalInput.type === "JoinChannel" && signal.channel === this.activeChannel) {
+      // @TODO 1. check if join channel is === activeChannel
+      // 2. send join info to chat-screen
+      this.chatScreen.receiveJoinSignal(signalInput);
+
+    } else if (signalInput.type === "BurnChannel" && signal.channel === this.activeChannel) {
+      this.chatScreen.receiveBurnSignal(signalInput);
+    }
   }
 
   async firstUpdated() {
-    (window as any).chatScreen = this.chatScreen;
-    this.activeChannel = "random";
-
     this.appWebsocket = await AppWebsocket.connect(
       `ws://localhost:${process.env.HC_PORT}`,
       undefined, // timeout
@@ -176,31 +198,56 @@ export class HolochainApp extends LitElement {
     const cellClient = new CellClient(client, cell!);
 
     this.service = new BurnerService(cellClient);
-    this.chatScreen.setService(this.service);
+    console.log("SETTING SERVICE INSIDE HOLOCH");
+    console.log(this.service);
 
     this.loading = false;
   }
 
-  async joinChannel(channelToJoin: string): Promise<void> {
-    if (this.allMyChannels.includes(channelToJoin)) {
+  async start() {
+    // get name and set as username
+    let username = this.enterNameInput.value
+    this.myUsername = username;
+    // get channel secret and join channel
+    const channelToJoin = this.joinChannelInput.value;
+    const channelMessageInput: ChannelMessageInput = {
+      signalType: "JoinChannel",
+      channel: channelToJoin,
+      username: this.myUsername,
+    }
+    await this.joinChannel(channelMessageInput);
+  }
+
+  async joinChannel(input: ChannelMessageInput): Promise<void> {
+    if (this.allMyChannels.includes(input.channel)) {
       return;
     }
-    await this.service.joinChannel(channelToJoin);
-    const channelMembers = await this.service.getChannelMembers(channelToJoin);
+    await this.service.joinChannel(input);
+    const channelMembers = await this.service.getChannelMembers(input.channel);
     const channelMembersB64 = channelMembers.map(pubkey => serializeHash(pubkey));
     this.activeChannelMembers = channelMembersB64;
-    this.allMyChannels = [...this.allMyChannels, channelToJoin];
+    this.allMyChannels = [...this.allMyChannels, input.channel];
+    this.activeChannel = input.channel;
   }
 
   renderLandingPage() {
     return html`
-      <h1>Hello from landing Page</h1>
+      <p class="tagline">
+        No Security<br>
+        No Persistance<br>
+        Just Signals
+      </p>
+      <div class="landing-form">
+        <input class="landing-input" id="enter-name" type="text" placeholder="enter name"/>
+        <input class="landing-input" id="join-channel" type="text" placeholder="join channel"/>
+        <button id="start-bttn" @click=${this.start}>START</button>
+      </div>
     `;
   }
 
   renderChatScreen() {
     return html`
-      <chat-screen 
+      <chat-screen
         .channel=${this.activeChannel}
       ></chat-screen>
     `
@@ -221,56 +268,14 @@ export class HolochainApp extends LitElement {
     //    => my own buuble
 
     return html`
-      <burner-service-context .service=${this.service}>
-        <main>
-          ${this.activeChannel 
-            ? this.renderChatScreen()
-            : this.renderLandingPage()
-          }
-        </main>
-      </burner-service-context>
+      <main>
+        <h1 class="main-title">BURNER CHAT</h1>
+        ${this.activeChannel
+          ? this.renderChatScreen()
+          : this.renderLandingPage()
+        }
+      </main>
     `
-    // return html`
-    //   <main>
-    //     <h1 class="main-title">🔥 BURNER CHAT</h1>
-    //     <chat-screen channel="my-random-channel"></chat-screen>
-    //     <input id="test-signal-text-input" type="text" placeholder="your message..." />
-    //     <input id="test-recipient-input" type="text" placeholder="recipient pubkey"/>
-    //     <div>My key: ${this.myAgentPubKey}</div>
-    //     <div>
-    //       <input id="channel-secret-input" type="text" placeholder="Channel secret"/>
-    //       <button @click=${this.joinChannel}>Join Channel</button>
-    //     </div>
-    //     <div>MEMBERS:
-    //     ${
-    //       this.channelMembers.forEach((member) => {
-    //         html`<div>${member}</div>`
-    //       })
-    //     }
-    //     </div>
-    //     <button @click=${this.burnChannel}>+ + + B U R N  + + +  C H A N N E L + + +</button>
-    //     <button class="bttn-test-signal"
-    //       @click=${this.sendRemoteSignal}>
-    //        Send Remote Signal
-    //     </button><br>
-    //     <br>
-    //     <button class="bttn-test-signal"
-    //       @click=${this.dispatchTestSignal}>
-    //         Signal Test
-    //     </button>
-
-    //     <br><br>
-    //     <p>realtime signals</p>
-    //     <input id="realtime-chat-test" type="text"
-    //     @keyup=${this.dispatchRealtimeSignal}/>
-    //     <h3>MESSAGE STREAM</h3>
-    //     <p class="message-stream"></p>
-    //     <create-entry-def-0 @entry-def-0-created=${(e: CustomEvent) => this.entryHash = e.detail.entryHash}></create-entry-def-0>
-    // ${this.entryHash ? html`
-    //   <entry-def-0-detail .entryHash=${this.entryHash}></entry-def-0-detail>
-    // ` : html``}
-    //   </main>
-    // `;
   }
 
   static styles = css`
@@ -286,6 +291,27 @@ export class HolochainApp extends LitElement {
       margin: 0 auto;
       text-align: center;
       background-color: var(--lit-element-background-color);
+      font-size: 25px;
+    }
+
+    button#start-bttn {
+      all: unset;
+      margin: 10px;
+      padding: 10px 20px;
+      color: red;
+      background-color: #2E354C;
+      color: #FBFAF8;
+      cursor: pointer;
+      width: 300px;
+      border-radius: 100px;
+      font-weight: bold;
+      font-family: 'Rubik';
+    }
+
+    .landing-form {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
     }
 
     main {
@@ -301,11 +327,46 @@ export class HolochainApp extends LitElement {
       margin-left: 5px;
     }
 
+    button#start {
+      all: unset;
+      background: #2E354C;
+      /* background: #2E354C; */
+      padding: 10px 40px;
+      border-radius: 100px;
+      color: #FBFAF8;
+      font-family: 'Rubik';
+      font-size: 30px;
+    }
+
+    .tagline {
+      font-family: Roboto Mono;
+      font-size: 30px;
+      margin-top: 80px;
+      margin-bottom: 80px;
+    }
+
+    input.landing-input {
+      all: unset;
+      background-color: white;
+      margin: 10px;
+      padding: 10px 20px;
+      box-shadow: 0 0 10px rgb(0 0 0 / 10%);
+      border-radius: 100px;
+      width: 300px;
+    }
+    input.landing-input::placeholder { /* Chrome, Firefox, Opera, Safari 10.1+ */
+      color: #ADADAD;
+    }
+
     .main-title {
-      font-family: 'Rubik', monospace;
+      /* font-family: 'Rubik', monospace;
       font-weight: bold;
+      color: #17E6B7; */
+      font-size: 70px;
+      font-family: RUBIK;
+      font-weight: bold;
+      color: #17E6B7;
       letter-spacing: 4px;
-      color: #6737FF;
     }
   `;
 
