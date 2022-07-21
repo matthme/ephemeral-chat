@@ -60,6 +60,8 @@ export class ChatScreen extends LitElement {
   @state()
   chatBubbles: Record<AgentPubKeyB64, ChatBubble> = {};
 
+  @property()
+  myAgentPubKey!: string;
 
   // async signalCallback(signalInput: AppSignal) {
   //   let msg: Message = signalInput.data.payload;
@@ -91,8 +93,11 @@ export class ChatScreen extends LitElement {
 
   receiveMessageSignal(signal: AppSignal) {
     // @TODO: filter by agentPubKey, check if agent exist as chat-bubble
-    if (Object.keys(this.channelMembers).includes(signal.data.payload.senderKey)) {
+    let senderPubKey = serializeHash(signal.data.payload.senderKey);
+    if (Object.keys(this.channelMembers).includes(senderPubKey)) {
       // propagate signal to the right bubble
+      const chatBubble = this.shadowRoot?.getElementById(senderPubKey);
+      // chatBubble
     }
   }
 
@@ -142,7 +147,7 @@ export class ChatScreen extends LitElement {
           .concat(chatBubbles(this.channel.value!) // comment out this and next line to disable demo data
             .map(e => [e.agentPubKey, e.username]))
           .map(([agentPubKey, username]) => {
-          return html`<chat-bubble
+          return html`<chat-bubble id=${agentPubKey}
             .channel=${this.channel.value}
             .username=${username}
             .avatarUrl=${randomAvatar()}
@@ -150,6 +155,13 @@ export class ChatScreen extends LitElement {
           >${username}</chat-bubble>`
         })}
       </div>
+      <h1>ADMIN CHATBUBBLE</h1>
+      <chat-bubble id=${this.myAgentPubKey}
+        .channel=${this.channel.value}
+        .username=${this.username.value!}
+        .avatarUrl=${randomAvatar()}
+        .agentPubKey=${this.myAgentPubKey}
+      >${this.username.value!}</chat-bubble>
     </div>
     `
   }

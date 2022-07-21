@@ -44,6 +44,9 @@ export class ChatBubble extends LitElement {
   @property()
   agentPubKey!: string;
 
+  @property()
+  isAdmin: boolean = false;
+
   addToBuffer(msg: Message) {
     let chatBufferElement = {
       timestamp: msg.timestamp,
@@ -80,6 +83,13 @@ export class ChatBubble extends LitElement {
     jsConfetti.addConfetti({
       emojis: [emoji],
    })
+  }
+
+  recieveSignal(signal: AppSignal) {
+    const str = signal.data.payload.payload;
+    const timestamp = signal.data.payload.timestamp;
+    console.log({str});
+    console.log({timestamp});
   }
 
   async signalCallback(signalInput: AppSignal) {
