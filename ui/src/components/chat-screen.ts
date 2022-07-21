@@ -40,7 +40,6 @@ export class ChatScreen extends LitElement {
   @query("input#current-channel")
   currentChannelInput!: HTMLInputElement;
 
-
   channel = new TaskSubscriber(
     this,
     () => this.service.getChannel(),
@@ -96,8 +95,9 @@ export class ChatScreen extends LitElement {
     let senderPubKey = serializeHash(signal.data.payload.senderKey);
     if (Object.keys(this.channelMembers).includes(senderPubKey)) {
       // propagate signal to the right bubble
-      const chatBubble = this.shadowRoot?.getElementById(senderPubKey);
+      const chatBubble = this.shadowRoot?.getElementById(senderPubKey) as ChatBubble;
       // chatBubble
+      chatBubble.recieveSignal(signal);
     }
   }
 
@@ -116,8 +116,9 @@ export class ChatScreen extends LitElement {
       <drawer-menu></drawer-menu>
       <div class="chat-bubblez">
         ${Object.entries(this.channelMembers)
-          .concat(chatBubbles(this.channel.value!) // comment out this and next line to disable demo data
-            .map(e => [e.agentPubKey, e.username]))
+          // .concat(chatBubbles(this.channel.value!) // comment out this and next line to disable demo data
+          //   .map(e => [e.agentPubKey, e.username]))
+          .filter(([myAgentPubKey, _]) => this.myAgentPubKey !== myAgentPubKey)
           .map(([agentPubKey, username]) => {
           return html`<chat-bubble id=${agentPubKey}
             .username=${username}

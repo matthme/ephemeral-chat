@@ -65,7 +65,6 @@ export class HolochainApp extends LitElement {
   @state()
   myAgentPubKey!: string;
 
-
   activeChannel = new TaskSubscriber(
     this,
     () => this.service.getChannel(),
@@ -135,7 +134,7 @@ export class HolochainApp extends LitElement {
     this.service.setChannel(undefined);
   }
 
-  signalCallback = (signal: AppSignal) => {
+  signalCallback = async (signal: AppSignal) => {
     console.log("HOLOCHAIN-APP: RECEIVED SIGNAL: ", signal.data.payload);
     // filter only current room
     const signalPayload = signal.data.payload;
@@ -149,9 +148,14 @@ export class HolochainApp extends LitElement {
       this.chatScreen.receiveMessageSignal(signal);
 
     } else if (signalType === "JoinChannel" && signalPayload.channel === this.activeChannel.value) {
+      console.log("signal of joining arrived");
       // @TODO 1. check if join channel is === activeChannel
-      // update this.channelMembers
-
+      const allChatMembers = await this.service.getChannelMembers(signalPayload.channel);
+      const activeChannelMembers: Record<AgentPubKeyB64, Username> = {};
+      allChatMembers.forEach(([pubKey, username]) => {
+        activeChannelMembers[serializeHash(pubKey)] = username;
+      })
+      this.activeChannelMembers = activeChannelMembers;
 
     } else if (signalType === "BurnChannel" && signalPayload.channel === this.activeChannel.value) {
       this.chatScreen.receiveBurnSignal(signal);
