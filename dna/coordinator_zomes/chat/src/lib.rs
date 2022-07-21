@@ -157,12 +157,12 @@ pub fn send_msg(input: MessageInput) -> ExternResult<()> {
 // CALLBACK WHEN SIGNAL IS RECIEVED
 #[hdk_extern]
 fn recv_remote_signal(signal: SerializedBytes) -> ExternResult<()> {
-  
+
   // decode and emit to the UI
   let maybe_decoded_message = Message::try_from(signal.clone());
   match maybe_decoded_message {
     Ok(message) => {
-      debug!("💌💌💌💌 RECEIVED SIGNAL: ${:?}", message);
+      debug!("💌💌💌💌 Agent {:?} RECEIVED SIGNAL: {:?}", agent_info()?.agent_initial_pubkey,  message);
       emit_signal(message)?;
       Ok(())
     },
@@ -170,7 +170,7 @@ fn recv_remote_signal(signal: SerializedBytes) -> ExternResult<()> {
       let maybe_decoded_channel_message = ChannelMessage::try_from(signal);
       match maybe_decoded_channel_message {
         Ok(message) => {
-          debug!("💌💌💌💌 RECEIVED CHANNEL MESSAGE SIGNAL: ${:?}", message);
+          debug!("💌💌💌💌 Agent {:?} RECEIVED CHANNEL MESSAGE SIGNAL: {:?}", agent_info()?.agent_initial_pubkey, message);
           emit_signal(message)?;
           Ok(())
         },

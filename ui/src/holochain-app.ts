@@ -135,34 +135,35 @@ export class HolochainApp extends LitElement {
     this.service.setChannel(undefined);
   }
 
-  // filter signals
-  async signalCallback(signalInput: AppSignal) {
+  signalCallback = (signal: AppSignal) => {
+    console.log("HOLOCHAIN-APP: RECEIVED SIGNAL: ", signal.data.payload);
     // filter only current room
-    const signal = signalInput.data.payload;
-    const signalType = signalInput.data.payload.signalType;
+    const signalPayload = signal.data.payload;
+    const signalType = signal.data.payload.signalType;
     if (signalType === "EmojiCannon") {
       // propagate and let chat-screen decide if emoji cannon should be fired
-      this.chatScreen.receiveEmojiCannonSignal(signalInput);
+      this.chatScreen.receiveEmojiCannonSignal(signal);
 
-    } else if (signalType === "Message" && signal.secret === this.activeChannel.value) {
+    } else if (signalType === "Message" && signalPayload.channel === this.activeChannel.value) {
       // propagate only when in active room
-      this.chatScreen.receiveMessageSignal(signalInput);
+      this.chatScreen.receiveMessageSignal(signal);
 
-    } else if (signalInput.type === "JoinChannel" && signal.channel === this.activeChannel.value) {
+    } else if (signalType === "JoinChannel" && signalPayload.channel === this.activeChannel.value) {
       // @TODO 1. check if join channel is === activeChannel
       // update this.channelMembers
 
 
-    } else if (signalInput.type === "BurnChannel" && signal.channel === this.activeChannel.value) {
-      this.chatScreen.receiveBurnSignal(signalInput);
+    } else if (signalType === "BurnChannel" && signalPayload.channel === this.activeChannel.value) {
+      this.chatScreen.receiveBurnSignal(signal);
     }
   }
 
+
   async firstUpdated() {
+
     this.appWebsocket = await AppWebsocket.connect(
       `ws://localhost:${process.env.HC_PORT}`,
       undefined, // timeout
-      this.signalCallback,
     );
 
     this.appInfo = await this.appWebsocket.appInfo({
@@ -175,9 +176,10 @@ export class HolochainApp extends LitElement {
     const cell = this.appInfo.cell_data.find(c => c.role_id === 'burner_chat');
     const client = new HolochainClient(this.appWebsocket);
     const cellClient = new CellClient(client, cell!);
+    cellClient.addSignalHandler(this.signalCallback);
 
     this.service = new BurnerService(cellClient);
-    console.log("SETTING SERVICE INSIDE HOLOCH");
+    console.log("SETTING SERVICE INSIDE HOLOCHAIN");
     console.log(this.service);
 
     this.loading = false;
