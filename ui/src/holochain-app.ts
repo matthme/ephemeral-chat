@@ -271,7 +271,6 @@ export class HolochainApp extends LitElement {
     console.log("new channel value: ", this.activeChannel.value);
   }
 
-
   renderChatScreen() {
     return html`
       <chat-screen
