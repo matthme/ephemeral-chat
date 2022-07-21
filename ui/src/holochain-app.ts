@@ -18,9 +18,10 @@ import { appWebsocketContext, appInfoContext } from './contexts';
 import { serializeHash, deserializeHash } from '@holochain-open-dev/utils';
 import { MessageInput } from './types/chat';
 import { ChatScreen } from './components/chat-screen';
-import { BurnerStore } from './burner-store';
+// import { BurnerStore } from './burner-store';
 import { BurnerService } from './burner-service';
 import { CellClient, HolochainClient } from '@holochain-open-dev/cell-client';
+
 
 @customElement('holochain-app')
 export class HolochainApp extends LitElement {
@@ -39,6 +40,9 @@ export class HolochainApp extends LitElement {
   // @property({ type: Object })
   // store!: BurnerStore;
 
+
+  @query("chat-screen")
+  chatScreen!: ChatScreen;
 
   @query("#test-signal-text-input")
   textInputField!: HTMLInputElement;
@@ -141,6 +145,8 @@ export class HolochainApp extends LitElement {
   }
 
   async firstUpdated() {
+    (window as any).chatScreen = this.chatScreen;
+
     this.appWebsocket = await AppWebsocket.connect(
       `ws://localhost:${process.env.HC_PORT}`,
       undefined, // timeout

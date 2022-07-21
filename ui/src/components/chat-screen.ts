@@ -22,18 +22,18 @@ export class ChatScreen extends LitElement {
   @contextProvided({ context: appInfoContext })
   appInfo!: InstalledAppInfo;
 
-  @property()
-  channel!: string;
-
   @state()
 
 
   _channelMembersTask = new TaskSubscriber(
     this,
-    () => this.store.fetchChannelMembers(this.channel),
-    () => [this.channel]
+    () => this.store.fetchChannelMembers(this.store.channel),
+    () => [this.store]
   );
 
+  // setChannel(newChannel: string) {
+  //   this.channel = newChannel;
+  // }
 
   async signalCallback(signalInput: AppSignal) {
     let msg: Message = signalInput.data.payload;
