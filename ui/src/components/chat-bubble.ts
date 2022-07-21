@@ -244,7 +244,6 @@ export class ChatBubble extends LitElement {
 
   img.avatar {
     border-radius: 50%;
-    background-color: blue;
     align-self: center; // maybe align all to center?
   }
 
