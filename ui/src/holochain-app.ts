@@ -330,6 +330,10 @@ export class HolochainApp extends LitElement {
 
     .main-title-container {
       position: relative;
+      max-width: 700px;
+      margin: 0 auto;
+      margin-top: 20px;
+      margin-bottom: 20px;
     }
     .powered-by-holochain {
       position: absolute;

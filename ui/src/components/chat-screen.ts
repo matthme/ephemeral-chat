@@ -153,6 +153,10 @@ export class ChatScreen extends LitElement {
   static styles = css`
     .chat-screen {
       display: flex;
+      flex-direction: column;
+    }
+    .chat-name {
+      margin-bottom: 30px;
     }
 
     .chat-bubblez {
