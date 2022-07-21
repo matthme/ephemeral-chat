@@ -122,27 +122,27 @@ export class ChatBubble extends LitElement {
 
   render() {
     return html`
-      <div class="chat-bubble">
-        
-        <p>${this.channel} ${this.username}</p>
-        
-        <div class="chat-quote">
-          <textarea placeholder="Input your text" rows="2" wrap="hard" maxlength="50"></textarea>
-        </div>
-        
-        <!-- <p class="chat-area"></p> -->
-        <div class="chat-buttons">
-          <div class="emoji-container">
-            ${this.emojis.map((e, i) => this.renderEmoji(e, i))}
+    <!-- <div class="flex"> -->
+        <div class="chat-bubble">
+          <div class="chat-header">${this.username}</div>
+          
+          <div class="chat-quote">
+            <textarea placeholder="Insert your message" rows="2" wrap="hard" maxlength="50"></textarea>
           </div>
-          <div class="avatar-container">
-            <img src=${this.avatarUrl} width="50" height="50" class="avatar"/>
+          
+          <div class="chat-buttons">
+            <div class="emoji-container">
+              ${this.emojis.map((e, i) => this.renderEmoji(e, i))}
+            </div>
+            <div class="avatar-container">
+              <img src=${this.avatarUrl} width="50" height="50" class="avatar"/>
+              <div class="avatar-name">${this.username}</div>
+            </div>
           </div>
+          
+          <button @click="${this._handleClick}">Burnz</button>
         </div>
-        
-        <button @click="${this._handleClick}">Burnz</button>
-        
-      </div>
+      <!-- </div> -->
     `
     // if (!this._entryDef0) {
     //   return html`<div style="display: flex; flex: 1; align-items: center; justify-content: center">
@@ -174,20 +174,31 @@ export class ChatBubble extends LitElement {
     
   }
 
-  // static styles = css`
-  //   .chat-bubble {
-  //     background-color: 'red';
-  //   }
-  //   ` 
-
   static styles = css`
-  /* button { */
-    // all: unset;
-  /* } */
+  
+  /* @media screen and (min-width: 992px) { */
+  /* @media screen and (min-width: 400px) {
+    .flex {
+      flex-direction: row;
+    }
+
+    .flex > *:nth-child(-n + 3) {
+      flex-basis: calc(33.33% - 40px);
+    }
+
+    .flex > *:nth-last-child(-n + 2) {  /* see note below */
+      flex-basis: calc(50% - 40px);
+    }
+  }  */
+  
   .chat-bubble {
     background-color: white;
     border: 1px solid gray;
     padding: 8px;
+  }
+
+  .chat-header {
+    margin: 0.2rem;
   }
 
   .chat-quote {
@@ -201,9 +212,9 @@ export class ChatBubble extends LitElement {
 
   .chat-quote > textarea {
     all: unset;
-    /* width: 80%; */
+    width: 100%;
     align-self: flex-start;
-    margin-top: 10px;
+    margin-top: 20px; // or flex shrink 2
     margin-left: 10px;
     margin-right: 10px;
     max-height: 3rem;
@@ -213,23 +224,17 @@ export class ChatBubble extends LitElement {
     display: flex;
     flex-direction: row;
     justify-content: space-between;
+    margin-top: -40px; // a hack
   }
   
-  .avatar-container {
-    display: flex;
-  }
-
   .emoji-container {
     display: flex;
     flex-wrap: wrap;
     /* flex: 1; */
-    /* width: 80%; */
+    width: 60%;
   }
   
-  img.avatar {
-    border-radius: 50%;
-    background-color: blue;
-  }
+  
 
   .emoji-btn {
     background-color: rgba(65, 29, 29, 1);
@@ -238,6 +243,28 @@ export class ChatBubble extends LitElement {
     margin: 4px;
     padding: 10px;
   }
+  
+  .avatar-container {
+    display: flex;
+    align-self: center;
+    flex-direction: column;
+  }
+  
+  img.avatar {
+    border-radius: 50%;
+    background-color: blue;
+    align-self: center; // maybe align all to center?
+  }
+
+  .avatar-container > .avatar-name {
+    display: flex;
+    align-self: center;  // maybe align all to center?
+  }
+  .avatar-name {
+    margin-top: 20px;
+  }
+
+  
 ` as CSSResultGroup;
 
 }

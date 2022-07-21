@@ -1,5 +1,5 @@
 
-import { LitElement, html } from 'lit';
+import { LitElement, html, css, CSSResultGroup } from 'lit';
 import { state, customElement, property } from 'lit/decorators.js';
 import { InstalledCell, AppWebsocket, EntryHash, InstalledAppInfo, AgentPubKey, AppSignal } from '@holochain/client';
 import { contextProvided } from '@lit-labs/context';
@@ -79,6 +79,57 @@ export class ChatScreen extends LitElement {
     // this.channelMembers = [...this.channelMembers, joiningMember];
   }
       
+  render() {
+    const chatBubbles: any[] = [
+      {
+        channel: this.channel,
+        username: "dcts",
+        avatarUrl: "https://img.seadn.io/files/66196dd65af5e25c2fac209b0e33bd8d.png?auto=format&fit=max&w=256",
+        agentPubKey: "ascou3v8asv8yx0984v0p7duzk"
+      },
+      {
+        channel: this.channel,
+        username: "Art Brock",
+        avatarUrl: "https://img.seadn.io/files/45e5b8384841b475e7411dafd6c6291a.png?auto=format&fit=max&w=256",
+        agentPubKey: "x7f33168savLSKJOIQzasd"
+      },
+      {
+        channel: this.channel,
+        username: "dcts",
+        avatarUrl: "https://img.seadn.io/files/4f809b585367ec71fa19daba04066cd0.png?auto=format&fit=max&w=256",
+        agentPubKey: "v8274sduv2874eva98dv0lki"
+      },
+      {
+        channel: this.channel,
+        username: "dcts",
+        avatarUrl: "https://img.seadn.io/files/4f809b585367ec71fa19daba04066cd0.png?auto=format&fit=max&w=256",
+        agentPubKey: "v8274sduv2874eva98dv0lki"
+      },
+      {
+        channel: this.channel,
+        username: "dcts",
+        avatarUrl: "https://img.seadn.io/files/4f809b585367ec71fa19daba04066cd0.png?auto=format&fit=max&w=256",
+        agentPubKey: "v8274sduv2874eva98dv0lki"
+      },
+    ]
+    return html`
+    <div class="chat-screen">
+      <!-- <div class="chat-name"> -->
+        <!-- <h1>${this.channel}</h1> -->
+      <!-- </div> -->
+        <div class="chat-bubblez">
+          ${chatBubbles.map(chatBubbleObj => {
+            let { channel, username, avatarUrl, agentPubKey } = chatBubbleObj;
+            return html`<chat-bubble
+              .channel=${channel}
+              .username=${username}
+              .avatarUrl=${avatarUrl}
+              .agentPubKey=${agentPubKey}
+            >${username}</chat-bubble>`
+          })}
+        </div>
+      </div>
+    `
   // render() {
     // const chatBubbles: any[] = [
     //   {
@@ -138,7 +189,7 @@ export class ChatScreen extends LitElement {
   }
 
   render() {
-
+    
     return html`
      ${this.renderChannelSelector()}
     `;
@@ -202,6 +253,24 @@ export class ChatScreen extends LitElement {
     // //   </div>
     // // `;
   }
+
+  static styles = css`
+    .chat-screen {
+      display: flex;
+    }
+
+    .chat-bubblez {
+      width: 100%;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-evenly;
+    }
+    
+    /* .chat-bubblez > chat-bubble {
+      flex: 1 1 250px;
+    } */
+    
+  ` as CSSResultGroup;
 
   static get scopedElements() {
     return {
