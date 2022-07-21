@@ -14,7 +14,7 @@ import { contextProvider } from '@lit-labs/context';
 import '@material/mwc-circular-progress';
 
 import { get } from 'svelte/store';
-import { appWebsocketContext, appInfoContext, burnerStoreContext } from './contexts';
+import { appWebsocketContext, appInfoContext } from './contexts';
 import { serializeHash, deserializeHash } from '@holochain-open-dev/utils';
 import { MessageInput } from './types/chat';
 import { ChatScreen } from './components/chat-screen';
@@ -35,9 +35,9 @@ export class HolochainApp extends LitElement {
   @property({ type: Object })
   appInfo!: InstalledAppInfo;
 
-  @contextProvider({ context: burnerStoreContext })
-  @property({ type: Object })
-  store!: BurnerStore;
+  // @contextProvider({ context: burnerStoreContext })
+  // @property({ type: Object })
+  // store!: BurnerStore;
 
 
   @query("#test-signal-text-input")
@@ -53,7 +53,12 @@ export class HolochainApp extends LitElement {
   myAgentPubKey!: String;
 
   @state()
+  activeChannel!: String;
+
+  @state()
   channelMembers: string[] = [];
+
+  service!: BurnerService;
 
   async dispatchTestSignal() {
     // get the input from the input text field
@@ -71,7 +76,7 @@ export class HolochainApp extends LitElement {
   }
 
   async dispatchRealtimeSignal(ev: KeyboardEvent) {
-    // get character from  
+    // get character from
     (window as any).ev = ev;
     if (!ev.key.match(/^[A-Za-z0-9_.+/><\\?!$-:;]$/g)) {
       return;
@@ -119,17 +124,17 @@ export class HolochainApp extends LitElement {
       payload: msgInput,
       provenance: cellData.cell_id[1]
     });
-    
+
   }
 
   async burnChannel() {
-    await this.store.burnChannel();
+    await this.service.burnChannel();
   }
   //
   async signalCallback(signalInput: AppSignal) {
     // filter only current room
 
-    // 
+    //
 
     // console.log(signalInput);
     // (window as any).signalInput = signalInput;
@@ -153,7 +158,7 @@ export class HolochainApp extends LitElement {
     const client = new HolochainClient(this.appWebsocket);
     const cellClient = new CellClient(client, cell!);
 
-    this.store = new BurnerStore(new BurnerService(cellClient));
+    this.service = new BurnerService(cellClient);
 
     this.loading = false;
   }
@@ -205,7 +210,7 @@ export class HolochainApp extends LitElement {
 
         <br><br>
         <p>realtime signals</p>
-        <input id="realtime-chat-test" type="text" 
+        <input id="realtime-chat-test" type="text"
         @keyup=${this.dispatchRealtimeSignal}/>
         <h3>MESSAGE STREAM</h3>
         <p class="message-stream"></p>
