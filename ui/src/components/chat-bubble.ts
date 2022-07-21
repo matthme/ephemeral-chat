@@ -1,4 +1,3 @@
-
 import { LitElement, css, html, CSSResultGroup } from 'lit';
 import { state, customElement, property } from 'lit/decorators.js';
 import { InstalledCell, AppWebsocket, EntryHash, InstalledAppInfo, AgentPubKey, AppSignal } from '@holochain/client';
@@ -162,7 +161,7 @@ export class ChatBubble extends LitElement {
   render() {
     return html`
         <div class="chat-bubble">
-          <div class="chat-quote">
+          <div class="chat-quote ${this.isAdmin ? 'admin': ''}">
             ${this.isAdmin 
               ? html`<textarea @keyup=${this.dispatchRealtimeSignal} placeholder="Insert your message" rows="2" wrap="hard" maxlength="50"></textarea>`
               : html`<textarea disabled rows="2" wrap="hard" maxlength="50"></textarea>`
@@ -170,9 +169,10 @@ export class ChatBubble extends LitElement {
           </div>
         
           <div class="chat-buttons">
+            ${this.isAdmin ? html`
             <div class="emoji-container">
               ${this.emojis.map((e, i) => this.renderEmoji(e, i))}
-            </div>
+            </div>` : ''}
             <div class="avatar-container">
               <img src=${this.avatarUrl} width="50" height="50" class="avatar" />
               <div class="avatar-name">${this.username}</div>
@@ -223,6 +223,8 @@ export class ChatBubble extends LitElement {
     background-color: white;
     border: 1px solid gray;
     padding: 8px;
+    margin: 8px;
+    max-width: 500px;
   }
 
   .chat-header {
@@ -235,7 +237,17 @@ export class ChatBubble extends LitElement {
     background-size: contain;
     height: 140px;
     background-repeat: no-repeat;
+    background-position: center;
     width: 100%;
+    /* transition: width 1s;  */
+    transition: linear 0.5s;
+  }
+
+  /* .chat-quote:hover { */
+  .admin.chat-quote:hover {
+    transform: scale(1.3);
+    transition: transform 0.5s ease-in-out;
+    z-index: 1;
   }
 
   .chat-quote > textarea {
@@ -257,10 +269,12 @@ export class ChatBubble extends LitElement {
 
   .emoji-container {
     display: flex;
+    position: relative;
     flex-wrap: wrap;
-    /* flex: 1; */
-    width: 55%;
+    max-width: 200px;
+    width: 55%; 
     justify-content: space-evenly;
+    margin-left: 30px;
   }
 
 
@@ -278,6 +292,7 @@ export class ChatBubble extends LitElement {
     display: flex;
     align-self: center;
     flex-direction: column;
+    margin-right: 30px;
   }
 
   img.avatar {

@@ -9,7 +9,7 @@ import { AgentPubKeyB64, Message, Username } from '../types/chat';
 import { TaskSubscriber } from 'lit-svelte-stores';
 import { ChatBubble } from './chat-bubble';
 import { BurnerService } from '../burner-service';
-import { randomAvatar } from '../helpers/random-avatars';
+import { chatBubbles, randomAvatar } from '../helpers/random-avatars';
 import { Drawer } from './menu';
 
 // export interface MemberInfo {
@@ -132,8 +132,6 @@ export class ChatScreen extends LitElement {
     `
   }
 
-
-
   render() {
     console.log("this.channelMembers");
     console.log(this.channelMembers);
@@ -146,8 +144,8 @@ export class ChatScreen extends LitElement {
       <drawer-menu></drawer-menu>
       <div class="chat-bubblez">
         ${Object.entries(this.channelMembers)
-          // .concat(chatBubbles(this.channel.value!) // comment out this and next line to disable demo data
-            // .map(e => [e.agentPubKey, e.username]))
+          .concat(chatBubbles(this.channel.value!) // comment out this and next line to disable demo data
+            .map(e => [e.agentPubKey, e.username]))
           .map(([agentPubKey, username]) => {
           return html`<chat-bubble id=${agentPubKey}
             .username=${username}
@@ -156,14 +154,21 @@ export class ChatScreen extends LitElement {
           >${username}</chat-bubble>`
         })}
       </div>
-      <h1>ADMIN CHATBUBBLE</h1>
-      <chat-bubble id=${this.myAgentPubKey}
-        .username=${this.username.value!}
-        .avatarUrl=${randomAvatar()}
-        .agentPubKey=${this.myAgentPubKey}
-        .isAdmin=${true}
-        .channelMembers=${this.channelMembers}
-      >${this.username.value!}</chat-bubble>
+      <div style='display: flex;
+        justify-items: center;
+        align-items: center;
+        flex-direction: column;'>
+        <h1>ADMIN CHATBUBBLE</h1>
+        <chat-bubble id=${this.myAgentPubKey}
+          .username=${this.username.value!}
+          .avatarUrl=${randomAvatar()}
+          .agentPubKey=${this.myAgentPubKey}
+          .isAdmin=${true}
+          .channelMembers=${this.channelMembers}
+        >${this.username.value!}
+        </chat-bubble>
+      </div>
+      
     </div>
     `
   }
