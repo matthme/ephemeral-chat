@@ -66,6 +66,8 @@ export class HolochainApp extends LitElement {
   @state()
   myAgentPubKey!: string;
 
+  @state() startBttnLoading = false;
+
   activeChannel = new TaskSubscriber(
     this,
     () => this.service.getChannel(),
@@ -188,12 +190,24 @@ export class HolochainApp extends LitElement {
   async start() {
     // get name and set as username
     let username = this.enterNameInput.value
+    const channelToJoin = this.joinChannelInput.value;
+    
+    if (!username) {
+      alert("🚧 Plase set a username!");
+      return;
+    }
+    if (!channelToJoin) {
+      alert("🚧 You need to set a channel");
+      return;
+    }
+    this.startBttnLoading = true;
+
     if (username.toLocaleLowerCase() === 'wesley') {
       this.isWesley = true;
     }
     this.service.setUsername(username);
+
     // get channel secret and join channel
-    const channelToJoin = this.joinChannelInput.value;
     const channelMessageInput: ChannelMessageInput = {
       signalType: "JoinChannel",
       channel: channelToJoin,
@@ -228,7 +242,12 @@ export class HolochainApp extends LitElement {
       <div class="landing-form">
         <input class="landing-input" id="enter-name" type="text" placeholder="enter name"/>
         <input class="landing-input" id="join-channel" type="text" placeholder="join channel"/>
-        <button id="start-bttn" @click=${this.start}>START</button>
+        <button id="start-bttn" @click=${this.start}>
+          ${this.startBttnLoading 
+            ? html`<div class="lds-ellipsis"><div></div><div></div><div></div><div></div></div>`
+            : html`<div>START</div>`
+          }
+        </button>
       </div>
     `;
   }
@@ -274,15 +293,15 @@ export class HolochainApp extends LitElement {
     //    => my own buuble
 
     return html`
-      <main class=${this.isWesley ? 'isWesley': ""}>
+      <main class=${this.isWesley ? 'isWesley' : ""}>
         <div class="main-title-container">
           <h1 class="main-title">BURNER CHAT</h1>
           <p class="powered-by-holochain">powered by holochain</p>
         </div>
         ${this.activeChannel.value
-          ? this.renderChatScreen()
-          : this.renderLandingPage()
-        }
+        ? this.renderChatScreen()
+        : this.renderLandingPage()
+      }
       </main>
     `
   }
@@ -301,6 +320,9 @@ export class HolochainApp extends LitElement {
       text-align: center;
       background-color: var(--lit-element-background-color);
       font-size: 25px;
+    }
+    main {
+      min-width: 100vw;
     }
 
     .isWesley {
@@ -323,6 +345,7 @@ export class HolochainApp extends LitElement {
       color: #2E354C;
     }
     button#start-bttn {
+      position: relative;
       all: unset;
       margin: 10px;
       padding: 10px 20px;
@@ -334,6 +357,7 @@ export class HolochainApp extends LitElement {
       border-radius: 100px;
       font-weight: bold;
       font-family: 'Rubik';
+      height: 38px;
     }
 
     .landing-form {
@@ -355,18 +379,7 @@ export class HolochainApp extends LitElement {
       margin-left: 5px;
     }
 
-    button#start {
-      all: unset;
-      background: #2E354C;
-      /* background: #2E354C; */
-      padding: 10px 40px;
-      border-radius: 100px;
-      color: #FBFAF8;
-      font-family: 'Rubik';
-      font-size: 30px;
-    }
-
-    .tagline {
+      .tagline {
       font-family: Roboto Mono;
       font-size: 30px;
       margin-top: 80px;
@@ -396,6 +409,71 @@ export class HolochainApp extends LitElement {
       color: #17E6B7;
       letter-spacing: 4px;
     }
+
+
+    /**CSS LOADING SPINNER */
+    .lds-ellipsis {
+      top: -15px;
+      display: inline-block;
+      width: 80px;
+      height: 80px;
+      margin-left: auto;
+      margin-right: auto;
+      left: 0;
+      right: 0;
+      text-align: center;
+      position: relative;
+    }
+    .lds-ellipsis div {
+      position: absolute;
+      top: 33px;
+      width: 13px;
+      height: 13px;
+      border-radius: 50%;
+      background: #fff;
+      animation-timing-function: cubic-bezier(0, 1, 1, 0);
+    }
+    .lds-ellipsis div:nth-child(1) {
+      left: 8px;
+      animation: lds-ellipsis1 0.6s infinite;
+    }
+    .lds-ellipsis div:nth-child(2) {
+      left: 8px;
+      animation: lds-ellipsis2 0.6s infinite;
+    }
+    .lds-ellipsis div:nth-child(3) {
+      left: 32px;
+      animation: lds-ellipsis2 0.6s infinite;
+    }
+    .lds-ellipsis div:nth-child(4) {
+      left: 56px;
+      animation: lds-ellipsis3 0.6s infinite;
+    }
+    @keyframes lds-ellipsis1 {
+      0% {
+        transform: scale(0);
+      }
+      100% {
+        transform: scale(1);
+      }
+    }
+    @keyframes lds-ellipsis3 {
+      0% {
+        transform: scale(1);
+      }
+      100% {
+        transform: scale(0);
+      }
+    }
+    @keyframes lds-ellipsis2 {
+      0% {
+        transform: translate(0, 0);
+      }
+      100% {
+        transform: translate(24px, 0);
+      }
+    }
+
   `;
 
   static get scopedElements() {
