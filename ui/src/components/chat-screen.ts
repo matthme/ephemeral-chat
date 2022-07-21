@@ -108,8 +108,8 @@ export class ChatScreen extends LitElement {
   }
 
   render() {
-    console.log("this.channelMembers");
-    console.log(this.channelMembers);
+    // console.log("this.channelMembers");
+    // console.log(this.channelMembers);
     console.warn(randomAvatar())
     return html`
     <div class="chat-screen">

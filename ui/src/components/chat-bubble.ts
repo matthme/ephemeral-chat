@@ -56,6 +56,9 @@ export class ChatBubble extends LitElement {
   @state()
   channelMembers: Record<AgentPubKeyB64, Username> = {};
 
+  @state()
+  timer: any = null;
+
   channel = new TaskSubscriber(
     this,
     () => this.service.getChannel(),
@@ -74,10 +77,8 @@ export class ChatBubble extends LitElement {
       const timestamp = chatBufferElement.timestamp;
       const writeDate = new Date(timestamp/1000);
       const delta = Number(now)-Number(writeDate)
-      console.log(delta);
       return delta < 3500;
     });
-    console.log("updating buffer.")
     this.chatBufferString = this.bufferToString();
     // (this.shadowRoot?.getElementById("on-admin-text-bubble") as HTMLTextAreaElement).value = this.chatBufferString;
   }
@@ -106,14 +107,13 @@ export class ChatBubble extends LitElement {
     })
   }
 
+
   recieveSignal(signal: AppSignal) {
     if (this.isAdmin) {
       return; // no logic for admin
     }
     const str = signal.data.payload.payload;
     const timestamp = signal.data.payload.timestamp;
-    console.log({ str });
-    console.log({ timestamp });
     // const
     const newChatBufferElement: ChatBufferElement = {
       timestamp,
@@ -142,11 +142,22 @@ export class ChatBubble extends LitElement {
   // }
 
   async firstUpdated() {
-    setInterval(() => {
-      this.updateBuffer();
-      this.printBuffer();
-      console.log("fixing buffer");
-    }, 200);
+    if (this.isAdmin) {
+      setInterval(() => {
+        const currentValue = (this.shadowRoot?.getElementById("admin-text-bubble") as HTMLTextAreaElement).value;
+        const dropN = Math.floor(currentValue.length * 0.2) + 1;
+        const textField = (this.shadowRoot?.getElementById("admin-text-bubble") as HTMLTextAreaElement)
+
+        const newValue = currentValue.slice(dropN);
+        textField.value = newValue;
+
+      }, 1000);
+    } else {
+      setInterval(() => {
+          this.updateBuffer();
+          this.printBuffer();
+      }, 200);
+    }
   }
 
   renderEmoji(emoji: string, i: number) {
@@ -156,7 +167,9 @@ export class ChatBubble extends LitElement {
     </button>`
   }
 
+
   async dispatchRealtimeSignal(ev: KeyboardEvent) {
+    clearTimeout(this.timer);
     // only admin type can send messages
     // get character from keystroke
     const isNotAdmin = !this.isAdmin;
@@ -175,8 +188,12 @@ export class ChatBubble extends LitElement {
       recipients: recipients,
       channel: this.channel.value!,
     }
-    console.log("sending message from chat-bubble", {msgInput});
     await this.service.sendMsg(msgInput);
+
+
+
+    // this.timer = setTimeout(() => {(this.shadowRoot?.getElementById("admin-text-bubble") as HTMLTextAreaElement).value = ""; console.log("proof", ev.target)}, 3500);
+
   }
 
 
@@ -185,7 +202,7 @@ export class ChatBubble extends LitElement {
         <div class="chat-bubble">
           <div class="chat-quote ${this.isAdmin ? 'admin': ''}">
             ${this.isAdmin
-              ? html`<textarea @keyup=${this.dispatchRealtimeSignal} placeholder="Insert your message" rows="2" wrap="hard" maxlength="50"></textarea>`
+              ? html`<textarea id="admin-text-bubble" @keyup=${this.dispatchRealtimeSignal} placeholder="Insert your message" rows="2" wrap="hard" maxlength="50"></textarea>`
               : html`<textarea id="non-admin-text-bubble" disabled rows="2" wrap="hard" maxlength="50" .value=${this.chatBufferString}></textarea>`
             }
           </div>

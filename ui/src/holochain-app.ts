@@ -136,7 +136,6 @@ export class HolochainApp extends LitElement {
   }
 
   signalCallback = async (signal: AppSignal) => {
-    console.log("HOLOCHAIN-APP: RECEIVED SIGNAL: ", signal.data.payload);
     // filter only current room
     const signalPayload = signal.data.payload;
     const signalType = signal.data.payload.signalType;
@@ -149,7 +148,6 @@ export class HolochainApp extends LitElement {
       this.chatScreen.receiveMessageSignal(signal);
 
     } else if (signalType === "JoinChannel" && signalPayload.channel === this.activeChannel.value) {
-      console.log("signal of joining arrived");
       // @TODO 1. check if join channel is === activeChannel
       const allChatMembers = await this.service.getChannelMembers(signalPayload.channel);
       const activeChannelMembers: Record<AgentPubKeyB64, Username> = {};
@@ -184,9 +182,6 @@ export class HolochainApp extends LitElement {
     cellClient.addSignalHandler(this.signalCallback);
 
     this.service = new BurnerService(cellClient);
-    console.log("SETTING SERVICE INSIDE HOLOCHAIN");
-    console.log(this.service);
-
     this.loading = false;
   }
 
