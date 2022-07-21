@@ -21,6 +21,7 @@ pub struct BurnChannelMessage {
   agent: AgentPubKey,
 }
 
+
 #[derive(Serialize, SerializedBytes, Deserialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct Message {
@@ -31,6 +32,8 @@ pub struct Message {
   sender_name: String,
   secret: String,
 }
+
+
 
 #[allow(dead_code)]
 impl Message {
@@ -43,6 +46,7 @@ impl Message {
 #[derive(Serialize, Deserialize, Debug, SerializedBytes)]
 #[serde(rename_all = "camelCase")]
 pub struct MessageInput{
+  signal_type: String,
   payload: String,
   sender_name: String,
   recipients: Vec<AgentPubKey>,
@@ -114,7 +118,7 @@ pub fn send_msg(input: MessageInput) -> ExternResult<()> {
   let sender_key = agent_info()?.agent_initial_pubkey;
   let timestamp = sys_time()?;
   let msg = Message {
-    signal_type: "Message".into(),
+    signal_type: input.signal_type,
     payload: input.payload,
     timestamp,
     sender_key,
@@ -130,6 +134,7 @@ pub fn send_msg(input: MessageInput) -> ExternResult<()> {
   debug!("+_+_+_+_+_+_+_+_+ SENT SIGNAL WITH PAYLOAD: {:?}", msg);
   Ok(())
 }
+
 
 
 // CALLBACK WHEN SIGNAL IS RECIEVED
@@ -219,11 +224,11 @@ pub fn burn_channel(secret: String) -> ExternResult<()> {
   // 2. send remote signal to members of the group about your joining
   let pubkey = agent_info()?.agent_initial_pubkey;
   let channel_members = get_channel_members(secret)?;
-  let join_channel_message = JoinChannelMessage {
+  let burn_channel_message = BurnChannelMessage {
     signal_type: "BurnChannel".into(),
     agent: pubkey,
   };
-  let encoded_input = ExternIO::encode(join_channel_message)
+  let encoded_input = ExternIO::encode(burn_channel_message)
   .map_err(|err| wasm_error!(WasmErrorInner::Guest(err.into())))?;
 
   remote_signal(encoded_input, channel_members)?;
