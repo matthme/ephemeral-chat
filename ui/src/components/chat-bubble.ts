@@ -32,7 +32,7 @@ export class ChatBubble extends LitElement {
   showEmoji: boolean = true;
 
   @state()
-  chatBuffer!: ChatBufferElement[];
+  chatBuffer: ChatBufferElement[] = [];
 
   @state()
   emojis: string[] = ['🌈', '⚡️', '💥', '✨', '💫', '🌸', '🦄', '🔥'];
@@ -59,11 +59,7 @@ export class ChatBubble extends LitElement {
     () => [this.service]
   );
 
-  addToBuffer(msg: Message) {
-    let chatBufferElement = {
-      timestamp: msg.timestamp,
-      payload: msg.payload
-    };
+  addToBuffer(chatBufferElement: ChatBufferElement) {
     // let newBuffer = this.chatBuffer.concat(chatBufferElement);
     this.chatBuffer = [...this.chatBuffer, chatBufferElement];
     this.printBuffer();
@@ -105,6 +101,15 @@ export class ChatBubble extends LitElement {
     const timestamp = signal.data.payload.timestamp;
     console.log({ str });
     console.log({ timestamp });
+    // const 
+    const newChatBufferElement: ChatBufferElement = {
+      timestamp,
+      payload: str,
+    };
+    this.addToBuffer(newChatBufferElement);
+
+    const textarea = this.shadowRoot?.getElementById("non-admin-text-bubble") as HTMLTextAreaElement;
+    textarea.value += str;
   }
 
   // async signalCallback(signalInput: AppSignal) {
@@ -124,7 +129,10 @@ export class ChatBubble extends LitElement {
   // }
 
   async firstUpdated() {
-
+    // setInterval(() => {
+    //   this.printBuffer();
+    //   console.log("fixing buffer");
+    // }, 200);
   }
 
   renderEmoji(emoji: string, i: number) {
@@ -164,7 +172,7 @@ export class ChatBubble extends LitElement {
           <div class="chat-quote ${this.isAdmin ? 'admin': ''}">
             ${this.isAdmin 
               ? html`<textarea @keyup=${this.dispatchRealtimeSignal} placeholder="Insert your message" rows="2" wrap="hard" maxlength="50"></textarea>`
-              : html`<textarea disabled rows="2" wrap="hard" maxlength="50"></textarea>`
+              : html`<textarea id="non-admin-text-bubble" disabled rows="2" wrap="hard" maxlength="50" value=""></textarea>`
             }
           </div>
 
