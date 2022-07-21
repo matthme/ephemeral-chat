@@ -27,6 +27,7 @@ import { TaskSubscriber } from 'lit-svelte-stores';
 @customElement('holochain-app')
 export class HolochainApp extends LitElement {
   @state() loading = false;
+  @state() isWesley = false;
   @state() entryHash: EntryHash | undefined;
 
   @contextProvider({ context: appWebsocketContext })
@@ -188,6 +189,9 @@ export class HolochainApp extends LitElement {
   async start() {
     // get name and set as username
     let username = this.enterNameInput.value
+    if (username.toLocaleLowerCase() === 'wesley') {
+      this.isWesley = true;
+    }
     this.service.setUsername(username);
     // get channel secret and join channel
     const channelToJoin = this.joinChannelInput.value;
@@ -271,7 +275,7 @@ export class HolochainApp extends LitElement {
     //    => my own buuble
 
     return html`
-      <main>
+      <main class=${this.isWesley ? 'isWesley': ""}>
         <div class="main-title-container">
           <h1 class="main-title">BURNER CHAT</h1>
           <p class="powered-by-holochain">powered by holochain</p>
@@ -298,6 +302,10 @@ export class HolochainApp extends LitElement {
       text-align: center;
       background-color: var(--lit-element-background-color);
       font-size: 25px;
+    }
+
+    .isWesley {
+      background-color: magenta;
     }
 
     .main-title-container {

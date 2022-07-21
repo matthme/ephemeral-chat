@@ -306,7 +306,6 @@ export class ChatBubble extends LitElement {
     margin-top: 20px;
   }
 
-
 ` as CSSResultGroup;
 
 }
