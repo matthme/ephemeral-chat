@@ -80,10 +80,10 @@ export class ChatScreen extends LitElement {
       ${chatBubbles.map(chatBubbleObj => {
         let { channel, username, avatarUrl, agentPubKey } = chatBubbleObj;
         return html`<chat-bubble
-          channel="${channel}"
-          username="${username}"
-          avatarUrl="${avatarUrl}"
-          agentPubKey="${agentPubKey}"
+          .channel=${channel}
+          .username=${username}
+          .avatarUrl=${avatarUrl}
+          .agentPubKey=${agentPubKey}
         >${username}</chat-bubble>`
       })}
     `

@@ -40,7 +40,6 @@ export class HolochainApp extends LitElement {
   // @property({ type: Object })
   // store!: BurnerStore;
 
-
   @query("chat-screen")
   chatScreen!: ChatScreen;
 
@@ -54,13 +53,19 @@ export class HolochainApp extends LitElement {
   channelSecretInputField!: HTMLInputElement;
 
   @state()
-  myAgentPubKey!: String;
+  allMyChannels!: string[];
 
   @state()
-  activeChannel!: String;
+  myAgentPubKey!: string;
 
   @state()
-  channelMembers: string[] = [];
+  myUsername: string | undefined;
+
+  @state()
+  activeChannel: string | undefined;
+
+  @state()
+  activeChannelMembers: string[] = [];
 
   service!: BurnerService;
 
@@ -107,11 +112,9 @@ export class HolochainApp extends LitElement {
     });
   }
 
-
   async sendRemoteSignal() {
     const msgText = this.textInputField.value;
     const recipient = this.recipientInputField.value;
-
     const msgInput: MessageInput = {
       payload: msgText,
       senderName: "sender",
@@ -128,13 +131,17 @@ export class HolochainApp extends LitElement {
       payload: msgInput,
       provenance: cellData.cell_id[1]
     });
-
   }
 
   async burnChannel() {
-    await this.service.burnChannel();
+    const channelToBurn = this.activeChannel;
+    const allMyChannelsFiltered = this.allMyChannels.filter(channel => channel !== channelToBurn);
+    await this.service.burnChannel(channelToBurn);
+    this.allMyChannels = allMyChannelsFiltered;
+    this.activeChannel = undefined;
   }
-  //
+
+  // filter signals
   async signalCallback(signalInput: AppSignal) {
     // filter only current room
 
@@ -169,63 +176,90 @@ export class HolochainApp extends LitElement {
     this.loading = false;
   }
 
-  async joinChannel(): Promise<void> {
-    const secret = this.channelSecretInputField.value;
-    await this.store.joinChannel(secret);
-    const channelMembers = await this.store.fetchChannelMembers(secret);
-    const channelMembersB64 = get(channelMembers).map(pubkey => serializeHash(pubkey));
-    this.channelMembers = channelMembersB64;
+  async joinChannel(channelToJoin: string): Promise<void> {
+    if (this.allMyChannels.includes(channelToJoin)) {
+      return;
+    }
+    await this.service.joinChannel(channelToJoin);
+    const channelMembers = await this.service.getChannelMembers(channelToJoin);
+    const channelMembersB64 = channelMembers.map(pubkey => serializeHash(pubkey));
+    this.activeChannelMembers = channelMembersB64;
+    this.allMyChannels = [...this.allMyChannels, channelToJoin];
+  }
+
+  renderLandingPage() {
+    return html`
+      <h1>Hello from landing Page</h1>
+    `;
   }
 
   render() {
-    if (this.loading)
+    if (this.loading) {
       return html`
         <mwc-circular-progress indeterminate></mwc-circular-progress>
       `;
+    }
 
-    console.log("CHANNEL MEMBERS: ", this.channelMembers);
+    // console.log("CHANNEL MEMBERS: ", this.channelMembers);
+
+    // Landing Page
+    // Chat Screen
+    //    => bubbles
+    //    => my own buuble
 
     return html`
       <main>
-        <h1 class="main-title">🔥 BURNER CHAT</h1>
-        <chat-screen channel="my-random-channel"></chat-screen>
-        <input id="test-signal-text-input" type="text" placeholder="your message..." />
-        <input id="test-recipient-input" type="text" placeholder="recipient pubkey"/>
-        <div>My key: ${this.myAgentPubKey}</div>
-        <div>
-          <input id="channel-secret-input" type="text" placeholder="Channel secret"/>
-          <button @click=${this.joinChannel}>Join Channel</button>
-        </div>
-        <div>MEMBERS:
-        ${
-          this.channelMembers.forEach((member) => {
-            html`<div>${member}</div>`
-          })
-        }
-        </div>
-        <button @click=${this.burnChannel}>+ + + B U R N  + + +  C H A N N E L + + +</button>
-        <button class="bttn-test-signal"
-          @click=${this.sendRemoteSignal}>
-           Send Remote Signal
-        </button><br>
-        <br>
-        <button class="bttn-test-signal"
-          @click=${this.dispatchTestSignal}>
-            Signal Test
-        </button>
-
-        <br><br>
-        <p>realtime signals</p>
-        <input id="realtime-chat-test" type="text"
-        @keyup=${this.dispatchRealtimeSignal}/>
-        <h3>MESSAGE STREAM</h3>
-        <p class="message-stream"></p>
-        <create-entry-def-0 @entry-def-0-created=${(e: CustomEvent) => this.entryHash = e.detail.entryHash}></create-entry-def-0>
-    ${this.entryHash ? html`
-      <entry-def-0-detail .entryHash=${this.entryHash}></entry-def-0-detail>
-    ` : html``}
+        ${this.activeChannel 
+          ? this.renderLandingPage()
+          : html`
+          <chat-screen 
+            .channel=${this.activeChannel}
+            .activeChannelMembers=${this.activeChannelMembers}
+          ></chat-screen>
+        `}
       </main>
-    `;
+    `
+    // return html`
+    //   <main>
+    //     <h1 class="main-title">🔥 BURNER CHAT</h1>
+    //     <chat-screen channel="my-random-channel"></chat-screen>
+    //     <input id="test-signal-text-input" type="text" placeholder="your message..." />
+    //     <input id="test-recipient-input" type="text" placeholder="recipient pubkey"/>
+    //     <div>My key: ${this.myAgentPubKey}</div>
+    //     <div>
+    //       <input id="channel-secret-input" type="text" placeholder="Channel secret"/>
+    //       <button @click=${this.joinChannel}>Join Channel</button>
+    //     </div>
+    //     <div>MEMBERS:
+    //     ${
+    //       this.channelMembers.forEach((member) => {
+    //         html`<div>${member}</div>`
+    //       })
+    //     }
+    //     </div>
+    //     <button @click=${this.burnChannel}>+ + + B U R N  + + +  C H A N N E L + + +</button>
+    //     <button class="bttn-test-signal"
+    //       @click=${this.sendRemoteSignal}>
+    //        Send Remote Signal
+    //     </button><br>
+    //     <br>
+    //     <button class="bttn-test-signal"
+    //       @click=${this.dispatchTestSignal}>
+    //         Signal Test
+    //     </button>
+
+    //     <br><br>
+    //     <p>realtime signals</p>
+    //     <input id="realtime-chat-test" type="text"
+    //     @keyup=${this.dispatchRealtimeSignal}/>
+    //     <h3>MESSAGE STREAM</h3>
+    //     <p class="message-stream"></p>
+    //     <create-entry-def-0 @entry-def-0-created=${(e: CustomEvent) => this.entryHash = e.detail.entryHash}></create-entry-def-0>
+    // ${this.entryHash ? html`
+    //   <entry-def-0-detail .entryHash=${this.entryHash}></entry-def-0-detail>
+    // ` : html``}
+    //   </main>
+    // `;
   }
 
   static styles = css`
