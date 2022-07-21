@@ -9,7 +9,7 @@ import { AgentPubKeyB64, Message, Username } from '../types/chat';
 import { TaskSubscriber } from 'lit-svelte-stores';
 import { ChatBubble } from './chat-bubble';
 import { BurnerService } from '../burner-service';
-import { randomAvatar } from '../helpers/random-avatars';
+import { chatBubbles, randomAvatar } from '../helpers/random-avatars';
 import { Drawer } from './menu';
 
 // export interface MemberInfo {
@@ -106,33 +106,6 @@ export class ChatScreen extends LitElement {
     // @TODO => ensure that joining member is of type AgentPubKeyB64
     // this.channelMembers = [...this.channelMembers, joiningMember];
   }
-  submitChannelChange(ev: SubmitEvent) {
-    ev.preventDefault();
-    const newChannel = this.currentChannelInput.value;
-    console.log("requesting channel change to " + newChannel);
-    // this.channel = newChannel;
-    this.dispatchEvent(
-      new CustomEvent("switchChannel", {
-        detail: newChannel,
-        bubbles: true,
-        composed: true,
-      })
-    );
-  }
-
-
-  renderChannelSelector() {
-    return html`
-      <div style="display: flex; flex-direction: column; align-items: center;">
-        <div>Current Channel</div>
-        <form @submit=${this.submitChannelChange}>
-          <input id="current-channel" .value=${this.channel.value!} style="all: unset; border-bottom: 2px solid black;"/>
-        </form>
-      </div>
-    `
-  }
-
-
 
   render() {
     console.log("this.channelMembers");
@@ -140,14 +113,11 @@ export class ChatScreen extends LitElement {
     console.warn(randomAvatar())
     return html`
     <div class="chat-screen">
-      <!-- <div class="chat-name">
-        ${this.renderChannelSelector()}
-      </div> -->
       <drawer-menu></drawer-menu>
       <div class="chat-bubblez">
         ${Object.entries(this.channelMembers)
-          // .concat(chatBubbles(this.channel.value!) // comment out this and next line to disable demo data
-            // .map(e => [e.agentPubKey, e.username]))
+          .concat(chatBubbles(this.channel.value!) // comment out this and next line to disable demo data
+            .map(e => [e.agentPubKey, e.username]))
           .map(([agentPubKey, username]) => {
           return html`<chat-bubble id=${agentPubKey}
             .username=${username}
@@ -156,14 +126,20 @@ export class ChatScreen extends LitElement {
           >${username}</chat-bubble>`
         })}
       </div>
-      <h1>ADMIN CHATBUBBLE</h1>
-      <chat-bubble id=${this.myAgentPubKey}
-        .username=${this.username.value!}
-        .avatarUrl=${randomAvatar()}
-        .agentPubKey=${this.myAgentPubKey}
-        .isAdmin=${true}
-        .channelMembers=${this.channelMembers}
-      >${this.username.value!}</chat-bubble>
+      <div style='display: flex;
+        justify-items: center;
+        align-items: center;
+        flex-direction: column;'>
+        <h1>ADMIN CHATBUBBLE</h1>
+        <chat-bubble id=${this.myAgentPubKey}
+          .username=${this.username.value!}
+          .avatarUrl=${randomAvatar()}
+          .agentPubKey=${this.myAgentPubKey}
+          .isAdmin=${true}
+          .channelMembers=${this.channelMembers}
+        >${this.username.value!}
+        </chat-bubble>
+      </div>
     </div>
     `
   }
