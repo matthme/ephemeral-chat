@@ -1,7 +1,8 @@
 import { createContext } from '@lit-labs/context';
 import { AppWebsocket, InstalledAppInfo } from '@holochain/client';
-import { BurnerStore } from './burner-store';
+import { BurnerService } from './burner-service';
 
 export const appWebsocketContext = createContext<AppWebsocket>('appWebsocket');
 export const appInfoContext = createContext<InstalledAppInfo>('appInfo');
-export const burnerStoreContext = createContext<BurnerStore>('burner-store')
+export const burnerServiceContext = createContext<BurnerService>('burner-service');
+

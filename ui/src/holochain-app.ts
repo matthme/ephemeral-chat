@@ -14,14 +14,14 @@ import { contextProvider } from '@lit-labs/context';
 import '@material/mwc-circular-progress';
 
 import { get } from 'svelte/store';
-import { appWebsocketContext, appInfoContext } from './contexts';
+import { appWebsocketContext, appInfoContext, burnerServiceContext } from './contexts';
 import { serializeHash, deserializeHash } from '@holochain-open-dev/utils';
 import { MessageInput } from './types/chat';
 import { ChatScreen } from './components/chat-screen';
 // import { BurnerStore } from './burner-store';
 import { BurnerService } from './burner-service';
 import { CellClient, HolochainClient } from '@holochain-open-dev/cell-client';
-
+import { BurnerServiceContext } from './components/service-context';
 
 @customElement('holochain-app')
 export class HolochainApp extends LitElement {
@@ -36,9 +36,9 @@ export class HolochainApp extends LitElement {
   @property({ type: Object })
   appInfo!: InstalledAppInfo;
 
-  // @contextProvider({ context: burnerStoreContext })
-  // @property({ type: Object })
-  // store!: BurnerStore;
+  @contextProvider({ context: burnerServiceContext })
+  @property({ type: Object })
+  service!: BurnerService;
 
   @query("chat-screen")
   chatScreen!: ChatScreen;
@@ -67,7 +67,7 @@ export class HolochainApp extends LitElement {
   @state()
   activeChannelMembers: string[] = [];
 
-  service!: BurnerService;
+  // service!: BurnerService;
 
   async dispatchTestSignal() {
     // get the input from the input text field
@@ -135,6 +135,9 @@ export class HolochainApp extends LitElement {
 
   async burnChannel() {
     const channelToBurn = this.activeChannel;
+    if (!channelToBurn) {
+      return;
+    }
     const allMyChannelsFiltered = this.allMyChannels.filter(channel => channel !== channelToBurn);
     await this.service.burnChannel(channelToBurn);
     this.allMyChannels = allMyChannelsFiltered;
@@ -153,6 +156,7 @@ export class HolochainApp extends LitElement {
 
   async firstUpdated() {
     (window as any).chatScreen = this.chatScreen;
+    this.activeChannel = "random";
 
     this.appWebsocket = await AppWebsocket.connect(
       `ws://localhost:${process.env.HC_PORT}`,
@@ -172,6 +176,7 @@ export class HolochainApp extends LitElement {
     const cellClient = new CellClient(client, cell!);
 
     this.service = new BurnerService(cellClient);
+    this.chatScreen.setService(this.service);
 
     this.loading = false;
   }
@@ -193,6 +198,14 @@ export class HolochainApp extends LitElement {
     `;
   }
 
+  renderChatScreen() {
+    return html`
+      <chat-screen 
+        .channel=${this.activeChannel}
+      ></chat-screen>
+    `
+  }
+
   render() {
     if (this.loading) {
       return html`
@@ -208,16 +221,14 @@ export class HolochainApp extends LitElement {
     //    => my own buuble
 
     return html`
-      <main>
-        ${this.activeChannel 
-          ? this.renderLandingPage()
-          : html`
-          <chat-screen 
-            .channel=${this.activeChannel}
-            .activeChannelMembers=${this.activeChannelMembers}
-          ></chat-screen>
-        `}
-      </main>
+      <burner-service-context .service=${this.service}>
+        <main>
+          ${this.activeChannel 
+            ? this.renderChatScreen()
+            : this.renderLandingPage()
+          }
+        </main>
+      </burner-service-context>
     `
     // return html`
     //   <main>
@@ -301,6 +312,7 @@ export class HolochainApp extends LitElement {
   static get scopedElements() {
     return {
       "chat-screen": ChatScreen,
+      "burner-service-context": BurnerServiceContext,
     }
   }
 }

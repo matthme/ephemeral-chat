@@ -3,8 +3,7 @@ import { LitElement, html } from 'lit';
 import { state, customElement, property } from 'lit/decorators.js';
 import { InstalledCell, AppWebsocket, EntryHash, InstalledAppInfo, AgentPubKey, AppSignal } from '@holochain/client';
 import { contextProvided } from '@lit-labs/context';
-import { appInfoContext, appWebsocketContext, burnerStoreContext } from '../contexts';
-import { BurnerStore } from '../burner-store';
+import { appInfoContext, appWebsocketContext } from '../contexts';
 import { serializeHash, deserializeHash } from '@holochain-open-dev/utils';
 import { Message } from '../types/chat';
 
@@ -15,9 +14,6 @@ interface ChatBufferElement {
 
 @customElement('chat-bubble')
 export class ChatBubble extends LitElement {
-
-  @contextProvided({ context: burnerStoreContext, subscribe: true })
-  store!: BurnerStore;
 
   @contextProvided({ context: appWebsocketContext })
   appWebsocket!: AppWebsocket;

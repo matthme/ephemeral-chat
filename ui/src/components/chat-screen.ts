@@ -3,18 +3,18 @@ import { LitElement, html } from 'lit';
 import { state, customElement, property } from 'lit/decorators.js';
 import { InstalledCell, AppWebsocket, EntryHash, InstalledAppInfo, AgentPubKey, AppSignal } from '@holochain/client';
 import { contextProvided } from '@lit-labs/context';
-import { appInfoContext, appWebsocketContext, burnerStoreContext } from '../contexts';
-import { BurnerStore } from '../burner-store';
+import { appInfoContext, appWebsocketContext, burnerServiceContext } from '../contexts';
 import { serializeHash, deserializeHash } from '@holochain-open-dev/utils';
 import { Message } from '../types/chat';
 import { TaskSubscriber } from 'lit-svelte-stores';
 import { ChatBubble } from './chat-bubble';
+import { BurnerService } from '../burner-service';
 
 @customElement('chat-screen')
 export class ChatScreen extends LitElement {
-
-  @contextProvided({ context: burnerStoreContext, subscribe: true })
-  store!: BurnerStore;
+  constructor() {
+    super();
+  }
 
   @contextProvided({ context: appWebsocketContext })
   appWebsocket!: AppWebsocket;
@@ -22,39 +22,37 @@ export class ChatScreen extends LitElement {
   @contextProvided({ context: appInfoContext })
   appInfo!: InstalledAppInfo;
 
+  // @contextProvided({ context: burnerServiceContext })
+  // service!: BurnerService;
+
   @state()
+  service!: BurnerService;
 
+  @state()
+  channelMembers!: string[];
 
-  _channelMembersTask = new TaskSubscriber(
-    this,
-    () => this.store.fetchChannelMembers(this.store.channel),
-    () => [this.store]
-  );
+  @property()
+  channel: string | undefined;
 
-  // setChannel(newChannel: string) {
-  //   this.channel = newChannel;
+  // async signalCallback(signalInput: AppSignal) {
+  //   let msg: Message = signalInput.data.payload;
+  //   console.log(signalInput);
+  //   (window as any).signalInput = signalInput;
+  //   // alert(signalInput.data.payload.payload);
   // }
 
-  async signalCallback(signalInput: AppSignal) {
-    let msg: Message = signalInput.data.payload;
-    console.log(signalInput);
-    (window as any).signalInput = signalInput;
-    // alert(signalInput.data.payload.payload);
+  setService(service: BurnerService) {
+    console.log("assigning chat-screen service");
+    this.service = service;
+    console.log("this.service");
+    console.log(this.service);
   }
 
   async firstUpdated() {
-    this.appWebsocket = await AppWebsocket.connect(
-      `ws://localhost:${process.env.HC_PORT}`,
-      undefined, // timeout
-      this.signalCallback,
-    );
-
-    this.appInfo = await this.appWebsocket.appInfo({
-      installed_app_id: 'burner-chat',
-    });
+    // do stuff
   }
-
-
+      
+      
   render() {
     const chatBubbles: any[] = [
       {
@@ -77,6 +75,7 @@ export class ChatScreen extends LitElement {
       },
     ]
     return html`
+      <h1>${this.channel}</h1>
       ${chatBubbles.map(chatBubbleObj => {
         let { channel, username, avatarUrl, agentPubKey } = chatBubbleObj;
         return html`<chat-bubble
