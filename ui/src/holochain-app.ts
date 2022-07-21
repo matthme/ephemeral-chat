@@ -70,6 +70,34 @@ export class HolochainApp extends LitElement {
     });
   }
 
+  async dispatchRealtimeSignal(ev: KeyboardEvent) {
+    // get character from  
+    (window as any).ev = ev;
+    if (!ev.key.match(/^[A-Za-z0-9_.+/><\\?!$-:;]$/g)) {
+      return;
+    }
+    // const msgText = this.textInputField.value;
+    // const recipient = this.recipientInputField.value;
+    console.log(ev.key);
+    const msgText = this.textInputField.value;
+    const recipient = this.recipientInputField.value;
+    const msgInput: MessageInput = {
+      payload: msgText,
+      senderName: "sender",
+      recipients: [deserializeHash(recipient)],
+      secret: "secret",
+    }
+    const cellData = this.appInfo.cell_data.find((c: InstalledCell) => c.role_id === 'burner_chat')!;
+    await this.appWebsocket.callZome({
+      cap_secret: null,
+      cell_id: cellData.cell_id,
+      zome_name: 'chat',
+      fn_name: 'send_msg',
+      payload: msgInput,
+      provenance: cellData.cell_id[1]
+    });
+  }
+
 
   async sendRemoteSignal() {
     const msgText = this.textInputField.value;
@@ -91,7 +119,7 @@ export class HolochainApp extends LitElement {
       payload: msgInput,
       provenance: cellData.cell_id[1]
     });
-
+    
   }
 
   async burnChannel() {
@@ -99,9 +127,12 @@ export class HolochainApp extends LitElement {
   }
   //
   async signalCallback(signalInput: AppSignal) {
-    console.log(signalInput);
-    (window as any).signalInput = signalInput;
-    alert(signalInput.data.payload.payload);
+    // filter only current room
+
+    // 
+
+    // console.log(signalInput);
+    // (window as any).signalInput = signalInput;
   }
 
   async firstUpdated() {
@@ -171,6 +202,13 @@ export class HolochainApp extends LitElement {
           @click=${this.dispatchTestSignal}>
             Signal Test
         </button>
+
+        <br><br>
+        <p>realtime signals</p>
+        <input id="realtime-chat-test" type="text" 
+        @keyup=${this.dispatchRealtimeSignal}/>
+        <h3>MESSAGE STREAM</h3>
+        <p class="message-stream"></p>
         <create-entry-def-0 @entry-def-0-created=${(e: CustomEvent) => this.entryHash = e.detail.entryHash}></create-entry-def-0>
     ${this.entryHash ? html`
       <entry-def-0-detail .entryHash=${this.entryHash}></entry-def-0-detail>
