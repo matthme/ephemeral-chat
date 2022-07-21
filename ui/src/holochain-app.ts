@@ -97,56 +97,27 @@ export class HolochainApp extends LitElement {
     });
   }
 
-  async dispatchRealtimeSignal(ev: KeyboardEvent) {
-    // get character from
-    (window as any).ev = ev;
-    if (!ev.key.match(/^[A-Za-z0-9_.+/><\\?!$-:;]$/g)) {
-      return;
-    }
-    // const msgText = this.textInputField.value;
-    // const recipient = this.recipientInputField.value;
-    console.log(ev.key);
-    const msgText = this.textInputField.value;
-    const recipient = this.recipientInputField.value;
-    const msgInput: MessageInput = {
-      signalType: "Message",
-      payload: msgText,
-      senderName: "sender",
-      recipients: [deserializeHash(recipient)],
-      channel: this.activeChannel.value!,
-    }
-    const cellData = this.appInfo.cell_data.find((c: InstalledCell) => c.role_id === 'burner_chat')!;
-    await this.appWebsocket.callZome({
-      cap_secret: null,
-      cell_id: cellData.cell_id,
-      zome_name: 'chat',
-      fn_name: 'send_msg',
-      payload: msgInput,
-      provenance: cellData.cell_id[1]
-    });
-  }
+  // async sendRemoteSignal() {
+  //   const msgText = this.textInputField.value;
+  //   const recipient = this.recipientInputField.value;
+  //   const msgInput: MessageInput = {
+  //     signalType: "Message",
+  //     payload: msgText,
+  //     senderName: "sender",
+  //     recipients: [deserializeHash(recipient)],
+  //     channel: this.activeChannel.value!,
+  //   }
 
-  async sendRemoteSignal() {
-    const msgText = this.textInputField.value;
-    const recipient = this.recipientInputField.value;
-    const msgInput: MessageInput = {
-      signalType: "Message",
-      payload: msgText,
-      senderName: "sender",
-      recipients: [deserializeHash(recipient)],
-      channel: this.activeChannel.value!,
-    }
-
-    const cellData = this.appInfo.cell_data.find((c: InstalledCell) => c.role_id === 'burner_chat')!;
-    await this.appWebsocket.callZome({
-      cap_secret: null,
-      cell_id: cellData.cell_id,
-      zome_name: 'chat',
-      fn_name: 'send_msg',
-      payload: msgInput,
-      provenance: cellData.cell_id[1]
-    });
-  }
+  //   const cellData = this.appInfo.cell_data.find((c: InstalledCell) => c.role_id === 'burner_chat')!;
+  //   await this.appWebsocket.callZome({
+  //     cap_secret: null,
+  //     cell_id: cellData.cell_id,
+  //     zome_name: 'chat',
+  //     fn_name: 'send_msg',
+  //     payload: msgInput,
+  //     provenance: cellData.cell_id[1]
+  //   });
+  // }
 
   async burnChannel() {
     const channelToBurn = this.activeChannel.value;

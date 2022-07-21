@@ -9,7 +9,7 @@ import { AgentPubKeyB64, Message, Username } from '../types/chat';
 import { TaskSubscriber } from 'lit-svelte-stores';
 import { ChatBubble } from './chat-bubble';
 import { BurnerService } from '../burner-service';
-import { chatBubbles, randomAvatar } from '../helpers/random-avatars';
+import { randomAvatar } from '../helpers/random-avatars';
 import { Drawer } from './menu';
 
 // export interface MemberInfo {
@@ -132,6 +132,8 @@ export class ChatScreen extends LitElement {
     `
   }
 
+
+
   render() {
     console.log("this.channelMembers");
     console.log(this.channelMembers);
@@ -144,11 +146,10 @@ export class ChatScreen extends LitElement {
       <drawer-menu></drawer-menu>
       <div class="chat-bubblez">
         ${Object.entries(this.channelMembers)
-          .concat(chatBubbles(this.channel.value!) // comment out this and next line to disable demo data
-            .map(e => [e.agentPubKey, e.username]))
+          // .concat(chatBubbles(this.channel.value!) // comment out this and next line to disable demo data
+            // .map(e => [e.agentPubKey, e.username]))
           .map(([agentPubKey, username]) => {
           return html`<chat-bubble id=${agentPubKey}
-            .channel=${this.channel.value}
             .username=${username}
             .avatarUrl=${randomAvatar()}
             .agentPubKey=${agentPubKey}
@@ -157,10 +158,11 @@ export class ChatScreen extends LitElement {
       </div>
       <h1>ADMIN CHATBUBBLE</h1>
       <chat-bubble id=${this.myAgentPubKey}
-        .channel=${this.channel.value}
         .username=${this.username.value!}
         .avatarUrl=${randomAvatar()}
         .agentPubKey=${this.myAgentPubKey}
+        .isAdmin=${true}
+        .channelMembers=${this.channelMembers}
       >${this.username.value!}</chat-bubble>
     </div>
     `

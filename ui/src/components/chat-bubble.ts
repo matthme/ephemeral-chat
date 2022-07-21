@@ -3,10 +3,12 @@ import { LitElement, css, html, CSSResultGroup } from 'lit';
 import { state, customElement, property } from 'lit/decorators.js';
 import { InstalledCell, AppWebsocket, EntryHash, InstalledAppInfo, AgentPubKey, AppSignal } from '@holochain/client';
 import { contextProvided } from '@lit-labs/context';
-import { appInfoContext, appWebsocketContext } from '../contexts';
+import { appInfoContext, appWebsocketContext, burnerServiceContext } from '../contexts';
 import { serializeHash, deserializeHash } from '@holochain-open-dev/utils';
-import { Message } from '../types/chat';
+import { AgentPubKeyB64, Message, MessageInput, Username } from '../types/chat';
 import JSConfetti from 'js-confetti';
+import { BurnerService } from '../burner-service';
+import { TaskSubscriber } from 'lit-svelte-stores';
 // import logo from '../components/images/bubble-big.png';
 
 interface ChatBufferElement {
@@ -23,9 +25,10 @@ export class ChatBubble extends LitElement {
   @contextProvided({ context: appInfoContext })
   appInfo!: InstalledAppInfo;
 
-  @property()
-  channel!: string | undefined;
-
+  @contextProvided({ context: burnerServiceContext, subscribe: true })
+  @state()
+  service!: BurnerService;
+  
   @property()
   showEmoji: boolean = true;
 
@@ -46,6 +49,16 @@ export class ChatBubble extends LitElement {
 
   @property()
   isAdmin: boolean = false;
+
+  @property({ type: Object })
+  @state()
+  channelMembers: Record<AgentPubKeyB64, Username> = {};
+
+  channel = new TaskSubscriber(
+    this,
+    () => this.service.getChannel(),
+    () => [this.service]
+  );
 
   addToBuffer(msg: Message) {
     let chatBufferElement = {
@@ -86,38 +99,33 @@ export class ChatBubble extends LitElement {
   }
 
   recieveSignal(signal: AppSignal) {
+    if (this.isAdmin) {
+      return; // no logic for admin
+    }
     const str = signal.data.payload.payload;
     const timestamp = signal.data.payload.timestamp;
     console.log({ str });
     console.log({ timestamp });
   }
 
-  async signalCallback(signalInput: AppSignal) {
+  // async signalCallback(signalInput: AppSignal) {
 
-    let msg: Message = signalInput.data.payload;
+  //   let msg: Message = signalInput.data.payload;
 
-    const sameAgent = serializeHash(msg.senderKey) == this.agentPubKey;
-    const sameChannel = this.channel == msg.secret;
-    if (sameAgent && sameChannel) {
-      this.addToBuffer(msg);
-      console.log(this.bufferToString());
-    }
+  //   const sameAgent = serializeHash(msg.senderKey) === this.agentPubKey;
+  //   const sameChannel = this.channel.value === msg.secret;
+  //   if (sameAgent && sameChannel) {
+  //     this.addToBuffer(msg);
+  //     console.log(this.bufferToString());
+  //   }
 
-    console.log(signalInput);
-    (window as any).signalInput = signalInput;
-    // alert(signalInput.data.payload.payload);
-  }
+  //   console.log(signalInput);
+  //   (window as any).signalInput = signalInput;
+  //   // alert(signalInput.data.payload.payload);
+  // }
 
   async firstUpdated() {
-    this.appWebsocket = await AppWebsocket.connect(
-      `ws://localhost:${process.env.HC_PORT}`,
-      undefined, // timeout
-      this.signalCallback,
-    );
-
-    this.appInfo = await this.appWebsocket.appInfo({
-      installed_app_id: 'burner-chat',
-    });
+    
   }
 
   renderEmoji(emoji: string, i: number) {
@@ -127,11 +135,38 @@ export class ChatBubble extends LitElement {
     </button>`
   }
 
+  async dispatchRealtimeSignal(ev: KeyboardEvent) {
+    // only admin type can send messages
+    // get character from keystroke
+    const isNotAdmin = !this.isAdmin;
+    const isInvalidKey = !ev.key.match(/^[A-Za-z0-9_.+/><\\?!$-:;]$/g);
+    if (isNotAdmin || isInvalidKey) {
+      return;
+    }
+    const msgText = ev.key;
+    const recipients = Object.keys(this.channelMembers).map(key => deserializeHash(key));
+
+    console.log(ev.key);
+    const msgInput: MessageInput = {
+      signalType: "Message",
+      payload: msgText,
+      senderName: this.username,
+      recipients: recipients,
+      channel: this.channel.value!,
+    }
+    console.log({msgInput});
+    await this.service.sendMsg(msgInput);
+  }
+
+
   render() {
     return html`
         <div class="chat-bubble">
           <div class="chat-quote">
-            <textarea placeholder="Insert your message" rows="2" wrap="hard" maxlength="50"></textarea>
+            ${this.isAdmin 
+              ? html`<textarea @keyup=${this.dispatchRealtimeSignal} placeholder="Insert your message" rows="2" wrap="hard" maxlength="50"></textarea>`
+              : html`<textarea disabled rows="2" wrap="hard" maxlength="50"></textarea>`
+            }
           </div>
         
           <div class="chat-buttons">
@@ -247,7 +282,6 @@ export class ChatBubble extends LitElement {
 
   img.avatar {
     border-radius: 50%;
-    background-color: blue;
     align-self: center; // maybe align all to center?
   }
 
