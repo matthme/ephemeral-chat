@@ -39,7 +39,7 @@ export class ChatScreen extends LitElement {
     let msg: Message = signalInput.data.payload;
     console.log(signalInput);
     (window as any).signalInput = signalInput;
-    alert(signalInput.data.payload.payload);
+    // alert(signalInput.data.payload.payload);
   }
 
   async firstUpdated() {

@@ -48,7 +48,7 @@ export class ChatBubble extends LitElement {
     };
     // let newBuffer = this.chatBuffer.concat(chatBufferElement);
     this.chatBuffer = [...this.chatBuffer, chatBufferElement];
-
+    this.printBuffer();
   }
 
   updateBuffer() {
@@ -68,19 +68,25 @@ export class ChatBubble extends LitElement {
     }).join("");
   }
 
+  printBuffer() {
+    console.log(this.bufferToString());
+  }
+
 
   async signalCallback(signalInput: AppSignal) {
 
     let msg: Message = signalInput.data.payload;
 
-    if (serializeHash(msg.senderKey) == this.agentPubKey && this.channel == msg.secret) {
+    const sameAgent = serializeHash(msg.senderKey) == this.agentPubKey;
+    const sameChannel = this.channel == msg.secret;
+    if (sameAgent && sameChannel) {
       this.addToBuffer(msg);
+      console.log(this.bufferToString());
     }
-
 
     console.log(signalInput);
     (window as any).signalInput = signalInput;
-    alert(signalInput.data.payload.payload);
+    // alert(signalInput.data.payload.payload);
   }
 
   async firstUpdated() {
