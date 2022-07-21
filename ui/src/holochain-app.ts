@@ -232,7 +232,6 @@ export class HolochainApp extends LitElement {
 
   renderLandingPage() {
     return html`
-      <h1 class="main-title">BURNER CHAT</h1>
       <p class="tagline">
         No Security<br>
         No Persistance<br>
@@ -270,6 +269,7 @@ export class HolochainApp extends LitElement {
 
     return html`
       <main>
+        <h1 class="main-title">BURNER CHAT</h1>
         ${this.activeChannel
           ? this.renderChatScreen()
           : this.renderLandingPage()

@@ -79,7 +79,7 @@ export class ChatScreen extends LitElement {
     // this.channelMembers = [...this.channelMembers, joiningMember];
   }
       
-  render() {
+  // render() {
     // const chatBubbles: any[] = [
     //   {
     //     channel: this.channel,
@@ -111,9 +111,9 @@ export class ChatScreen extends LitElement {
     //     .agentPubKey=${agentPubKey}
     //   >${username}</chat-bubble>`
     // })}
-    return html`
-      <h1>${this.channel}</h1>
-    `
+    // return html`
+    //   <h1>${this.channel}</h1>
+    // `
     // if (!this._entryDef0) {
     //   return html`<div style="display: flex; flex: 1; align-items: center; justify-content: center">
     //     <mwc-circular-progress indeterminate></mwc-circular-progress>
@@ -125,9 +125,9 @@ export class ChatScreen extends LitElement {
     //     <span style="font-size: 18px">EntryDef0</span>
 
 
-if (this.allMyChannels.includes(channelToJoin)) {
-      return;
-    }
+// if (this.allMyChannels.includes(channelToJoin)) {
+//       return;
+//     }
   renderChannelSelector() {
     return html`
       <div style="display: flex; flex-direction: column; align-items: center;">
