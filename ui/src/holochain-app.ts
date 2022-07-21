@@ -277,6 +277,7 @@ export class HolochainApp extends LitElement {
       <chat-screen
         .channelMembers=${this.activeChannelMembers}
         @switchChannel=${this.switchChannel}
+        .myAgentPubKey=${this.myAgentPubKey}
       ></chat-screen>
     `
   }
