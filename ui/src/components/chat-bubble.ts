@@ -22,7 +22,7 @@ export class ChatBubble extends LitElement {
   appInfo!: InstalledAppInfo;
 
   @property()
-  channel!: string;
+  channel!: string | undefined;
 
   @state()
   chatBuffer!: ChatBufferElement[];

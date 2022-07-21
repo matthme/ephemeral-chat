@@ -43,6 +43,12 @@ export class HolochainApp extends LitElement {
   @query("chat-screen")
   chatScreen!: ChatScreen;
 
+  @query("input#join-channel")
+  joinChannelInput!: HTMLInputElement;
+
+  @query("input#enter-name")
+  enterNameInput!: HTMLInputElement;
+
   @query("#test-signal-text-input")
   textInputField!: HTMLInputElement;
 
@@ -53,7 +59,7 @@ export class HolochainApp extends LitElement {
   channelSecretInputField!: HTMLInputElement;
 
   @state()
-  allMyChannels!: string[];
+  allMyChannels: string[] = [];
 
   @state()
   myAgentPubKey!: string;
@@ -95,10 +101,11 @@ export class HolochainApp extends LitElement {
     const msgText = this.textInputField.value;
     const recipient = this.recipientInputField.value;
     const msgInput: MessageInput = {
+      signalType: "Message",
       payload: msgText,
       senderName: "sender",
       recipients: [deserializeHash(recipient)],
-      secret: "secret",
+      channel: this.activeChannel!,
     }
     const cellData = this.appInfo.cell_data.find((c: InstalledCell) => c.role_id === 'burner_chat')!;
     await this.appWebsocket.callZome({
@@ -115,10 +122,11 @@ export class HolochainApp extends LitElement {
     const msgText = this.textInputField.value;
     const recipient = this.recipientInputField.value;
     const msgInput: MessageInput = {
+      signalType: "Message",
       payload: msgText,
       senderName: "sender",
       recipients: [deserializeHash(recipient)],
-      secret: "secret",
+      channel: this.activeChannel!,
     }
 
     const cellData = this.appInfo.cell_data.find((c: InstalledCell) => c.role_id === 'burner_chat')!;
@@ -167,8 +175,6 @@ export class HolochainApp extends LitElement {
   }
 
   async firstUpdated() {
-    this.activeChannel = "random";
-
     this.appWebsocket = await AppWebsocket.connect(
       `ws://localhost:${process.env.HC_PORT}`,
       undefined, // timeout
@@ -193,6 +199,14 @@ export class HolochainApp extends LitElement {
     this.loading = false;
   }
 
+  async start() {
+    // get name and set as username
+    this.myUsername = this.enterNameInput.value;
+    // get channel secret and join channel
+    const channelToJoin = this.joinChannelInput.value;
+    await this.joinChannel(channelToJoin);
+  }
+
   async joinChannel(channelToJoin: string): Promise<void> {
     if (this.allMyChannels.includes(channelToJoin)) {
       return;
@@ -202,11 +216,15 @@ export class HolochainApp extends LitElement {
     const channelMembersB64 = channelMembers.map(pubkey => serializeHash(pubkey));
     this.activeChannelMembers = channelMembersB64;
     this.allMyChannels = [...this.allMyChannels, channelToJoin];
+    this.activeChannel = channelToJoin;
   }
 
   renderLandingPage() {
     return html`
       <h1>Hello from landing Page</h1>
+      <input id="enter-name" type="text" placeholder="enter name"/>
+      <input id="join-channel" type="text" placeholder="join channel"/>
+      <button @click=${this.start}>START</button>
     `;
   }
 

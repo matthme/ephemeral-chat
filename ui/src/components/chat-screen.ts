@@ -9,6 +9,7 @@ import { Message } from '../types/chat';
 import { TaskSubscriber } from 'lit-svelte-stores';
 import { ChatBubble } from './chat-bubble';
 import { BurnerService } from '../burner-service';
+import { randomAvatar } from '../helpers/random-avatars';
 
 @customElement('chat-screen')
 export class ChatScreen extends LitElement {
@@ -79,37 +80,38 @@ export class ChatScreen extends LitElement {
   }
       
   render() {
-    const chatBubbles: any[] = [
-      {
-        channel: this.channel,
-        username: "dcts",
-        avatarUrl: "https://img.seadn.io/files/66196dd65af5e25c2fac209b0e33bd8d.png?auto=format&fit=max&w=256",
-        agentPubKey: "ascou3v8asv8yx0984v0p7duzk"
-      },
-      {
-        channel: this.channel,
-        username: "Art Brock",
-        avatarUrl: "https://img.seadn.io/files/45e5b8384841b475e7411dafd6c6291a.png?auto=format&fit=max&w=256",
-        agentPubKey: "x7f33168savLSKJOIQzasd"
-      },
-      {
-        channel: this.channel,
-        username: "dcts",
-        avatarUrl: "https://img.seadn.io/files/4f809b585367ec71fa19daba04066cd0.png?auto=format&fit=max&w=256",
-        agentPubKey: "v8274sduv2874eva98dv0lki"
-      },
-    ]
+    // const chatBubbles: any[] = [
+    //   {
+    //     channel: this.channel,
+    //     username: "dcts",
+    //     avatarUrl: "https://img.seadn.io/files/66196dd65af5e25c2fac209b0e33bd8d.png?auto=format&fit=max&w=256",
+    //     agentPubKey: "ascou3v8asv8yx0984v0p7duzk"
+    //   },
+    //   {
+    //     channel: this.channel,
+    //     username: "Art Brock",
+    //     avatarUrl: "https://img.seadn.io/files/45e5b8384841b475e7411dafd6c6291a.png?auto=format&fit=max&w=256",
+    //     agentPubKey: "x7f33168savLSKJOIQzasd"
+    //   },
+    //   {
+    //     channel: this.channel,
+    //     username: "dcts",
+    //     avatarUrl: "https://img.seadn.io/files/4f809b585367ec71fa19daba04066cd0.png?auto=format&fit=max&w=256",
+    //     agentPubKey: "v8274sduv2874eva98dv0lki"
+    //   },
+    // ]
     return html`
       <h1>${this.channel}</h1>
-      ${chatBubbles.map(chatBubbleObj => {
-        let { channel, username, avatarUrl, agentPubKey } = chatBubbleObj;
+      <!-- ${this.channelMembers.map(channelMember => {
+        let avatar = randomAvatar();
+        let { username, agentPubKey } = chatBubbleObj;
         return html`<chat-bubble
-          .channel=${channel}
+          .channel=${this.channel}
           .username=${username}
-          .avatarUrl=${avatarUrl}
+          .avatarUrl=${avatar}
           .agentPubKey=${agentPubKey}
         >${username}</chat-bubble>`
-      })}
+      })} -->
     `
     // if (!this._entryDef0) {
     //   return html`<div style="display: flex; flex: 1; align-items: center; justify-content: center">
