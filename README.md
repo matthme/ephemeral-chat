@@ -1,6 +1,17 @@
 # Burner Chat
 
-## Environment Setup
+Think of it like burner phones, but for chat. Makes sense?
+
+We, the burner chat core team are living our lives with this very simple ruleset:
+- No Security
+- No Consistency
+- Just Signals
+
+![Bildschirmfoto vom 2022-07-22 09-16-59](https://user-images.githubusercontent.com/44790691/180385441-b21f359b-51ed-4b5a-9c31-53ee5c0a5f23.jpg)
+
+### built during holochain immersive july 2022 in Tirol, Austria.
+
+# Environment Setup
 
 1. Install the holochain dev environment (only nix-shell is required): https://developer.holochain.org/docs/install/
 2. Enable Holochain cachix with:
