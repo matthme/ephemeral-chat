@@ -231,6 +231,7 @@ export class HolochainApp extends LitElement {
     console.warn(this.activeChannelMembers);
     // this.allMyChannels = [...this.allMyChannels, input.channel];
     this.service.setChannel(input.channel);
+    this.startBttnLoading = false;
   }
 
   renderLandingPage() {
@@ -241,7 +242,7 @@ export class HolochainApp extends LitElement {
         Just Signals
       </p>
       <div class="landing-form">
-        <input class="landing-input"  .value=${this.username.value ? this.username.value : ""} id="enter-name" type="text" placeholder="enter name"/>
+        <input class="landing-input" .value=${this.username.value ? this.username.value : ""} id="enter-name" type="text" placeholder="enter name"/>
         <input class="landing-input" id="join-channel" type="text" placeholder="join channel"/>
         <button id="start-bttn" @click=${this.start}>
           ${this.startBttnLoading 
@@ -265,6 +266,18 @@ export class HolochainApp extends LitElement {
     this.joinChannel(join_channel_input);
 
     console.log("new channel value: ", this.activeChannel.value);
+  }
+
+  fetchMembers = async () => {
+    console.warn('fetching members');
+    const members = await this.service.getChannelMembers(this.activeChannel.value!);
+    const newActiveChannelMembers: Record<AgentPubKeyB64, Username> = {};
+    
+    members.forEach(([pubKey, username]) => {
+      newActiveChannelMembers[serializeHash(pubKey)] = username;
+    });
+    this.activeChannelMembers = newActiveChannelMembers;
+    console.warn('fetching members', this.activeChannelMembers);
   }
 
   renderChatScreen() {
@@ -297,7 +310,7 @@ export class HolochainApp extends LitElement {
       <main class=${this.isWesley ? 'isWesley' : ""}>
         <div class="main-title-container">
           <h1 class="main-title">BURNER CHAT</h1>
-          <p class="powered-by-holochain">powered by holochain</p>
+          <p class="powered-by-holochain" @click=${this.fetchMembers}>powered by holochain</p>
         </div>
         ${this.activeChannel.value
         ? this.renderChatScreen()

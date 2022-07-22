@@ -11,6 +11,7 @@ import { ChatBubble } from './chat-bubble';
 import { BurnerService } from '../burner-service';
 import { chatBubbles, randomAvatar } from '../helpers/random-avatars';
 import { Drawer } from './menu';
+import JSConfetti from 'js-confetti';
 
 // export interface MemberInfo {
 //   agentPubKey: AgentPubKey,
@@ -63,9 +64,6 @@ export class ChatScreen extends LitElement {
   isBURNT: boolean = false;
 
   @state()
-  playAlone: boolean = false;
-
-  @state()
   memberWhoBurns: string = "";
 
   @property()
@@ -111,8 +109,6 @@ export class ChatScreen extends LitElement {
   }
 
   async burnChannel() {
-
-    console.log("BURNING CHANNEL!!!!")
     const msgInput: ChannelMessageInput = {
       signalType: "BurnChannel",
       channel: this.channel.value!,
@@ -130,7 +126,6 @@ export class ChatScreen extends LitElement {
     // this.channelMembers = [...this.channelMembers, joiningMember];
   }
 
-
   renderBurnScreen() {
     return html`
       <div style="display: flex: flex-direction: column: align-items: center">
@@ -138,40 +133,34 @@ export class ChatScreen extends LitElement {
         <div style="margin-bottom: 60px;">just <strong>🔥 BURRRRNNT 🔥</strong> the channel :-(</div>
       </div>
       <div style="display: flex; flex-direction: column; align-items: center;">
-        <button id="go-home" @click=${() => { this.service.setChannel(undefined); this.isBURNT = false;}}>Go Home</button>
-        <button id="play-alone" @click=${() => { this.playAlone = true; this.isBURNT = false;}}>Play Alone</button>
+        <button id="go-home" 
+          @click=${() => { 
+            this.service.setChannel(undefined); 
+            this.isBURNT = false;}}>Go Home
+        </button>
+        <button id="play-alone" @click=${() => { 
+            const jsConfetti = new JSConfetti()
+            jsConfetti.addConfetti({
+              emojis: ['🌈', '⚡️', '💥', '✨', '💫', '🌸', '🦄', '🔥'],
+            })
+          }
+        }
+        >Play Alone</button>
       </div>
     `
   }
 
 
-  renderPlayAlone() {
-    return html`
-    <button id="party">Party</button>
-    `
-  }
-
   render() {
-    // console.log("this.channelMembers");
-    // console.log(this.channelMembers);
-
     if (this.isBURNT) {
       return html`
         ${this.renderBurnScreen()}
       `
     }
 
-    if (this.playAlone) {
-      return html`
-        ${this.renderPlayAlone()}
-      `
-    }
-
-
-    console.warn(randomAvatar())
     return html`
     <div class="chat-screen">
-      <button @click=${() => this.burnChannel()}>B U R R R R N</button>
+      <button id="burn-btn" @click=${() => this.burnChannel()}>🔥 B U R R R R N 🔥</button>
       <drawer-menu></drawer-menu>
       <div class="chat-bubblez">
         ${Object.entries(this.channelMembers)
@@ -207,6 +196,17 @@ export class ChatScreen extends LitElement {
   }
 
   static styles = css`
+    #burn-btn {
+      all: unset;
+      border-radius: 30px;
+      background-color: rgb(46, 53, 76);
+      max-width: 50%;
+      margin: auto;
+      padding: 10px 30px;
+      font-weight: bold;
+      color: rgb(245, 245, 245);
+    }
+
     .bottom-chat-container {
       position:fixed;
       bottom: 0;
