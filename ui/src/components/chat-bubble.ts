@@ -340,6 +340,7 @@ export class ChatBubble extends LitElement {
     align-self: center;
     flex-direction: column;
     margin-right: 30px;
+    position: relative !important;
   }
 
   img.avatar {
@@ -350,12 +351,16 @@ export class ChatBubble extends LitElement {
   .avatar-container > .avatar-name {
     display: flex;
     align-self: center;  // maybe align all to center?
+    /* position: relative; */
   }
   .avatar-name {
     margin-top: 2px;
     font-family: 'Roboto Mono';
     font-size: 22px;
     font-weight: bold;
+    position: absolute;
+    bottom: -28px;
+    /* bottom: -7px; */
   }
 
 ` as CSSResultGroup;

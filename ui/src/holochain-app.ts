@@ -239,7 +239,7 @@ export class HolochainApp extends LitElement {
     return html`
       <p class="tagline">
         No Security<br>
-        No Persistance<br>
+        No Persistence<br>
         Just Signals
       </p>
       <div class="landing-form">
