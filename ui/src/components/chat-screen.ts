@@ -107,7 +107,7 @@ export class ChatScreen extends LitElement {
       chatBubble.recieveSignal(signal);
     }
   }
-
+  
   async burnChannel() {
     const msgInput: ChannelMessageInput = {
       signalType: "BurnChannel",
@@ -145,7 +145,7 @@ export class ChatScreen extends LitElement {
             })
           }
         }
-        >Play Alone</button>
+        >Party Alone</button>
       </div>
     `
   }
@@ -160,7 +160,6 @@ export class ChatScreen extends LitElement {
 
     return html`
     <div class="chat-screen">
-      <button id="burn-btn" @click=${() => this.burnChannel()}>🔥 B U R R R R N 🔥</button>
       <drawer-menu></drawer-menu>
       <div class="chat-bubblez">
         ${Object.entries(this.channelMembers)
@@ -176,18 +175,21 @@ export class ChatScreen extends LitElement {
         })}
       </div>
       <div class="bottom-chat-container">
-        <div style='display: flex;
-          justify-items: center;
-          align-items: center;
-          flex-direction: column;'>
-          <chat-bubble id=${this.myAgentPubKey}
-            .username=${this.username.value!}
-            .avatarUrl=${randomAvatar()}
-            .agentPubKey=${this.myAgentPubKey}
-            .isAdmin=${true}
-            .channelMembers=${this.channelMembers}
-          >${this.username.value!}
-          </chat-bubble>
+        <div class="admin-chat-cointainer">
+          <div style='display: flex;
+            justify-items: center;
+            align-items: center;
+            flex-direction: column;'>
+            <chat-bubble id=${this.myAgentPubKey}
+              .username=${this.username.value!}
+              .avatarUrl=${randomAvatar()}
+              .agentPubKey=${this.myAgentPubKey}
+              .isAdmin=${true}
+              .channelMembers=${this.channelMembers}
+            >${this.username.value!}
+            </chat-bubble>
+          </div>
+          <button id="burn-btn" @click=${() => this.burnChannel()}>🔥</button>
         </div>
 
       </div>
@@ -205,6 +207,15 @@ export class ChatScreen extends LitElement {
       padding: 10px 30px;
       font-weight: bold;
       color: rgb(245, 245, 245);
+      position: absolute;
+      padding: 5px;
+      right: 140px;
+      bottom: 16px;
+    }
+    .admin-chat-cointainer {
+      max-width: 360px;
+      margin: 0 auto;
+      position: relative;
     }
 
     .bottom-chat-container {
