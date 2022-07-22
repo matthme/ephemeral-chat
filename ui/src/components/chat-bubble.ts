@@ -279,23 +279,24 @@ export class ChatBubble extends LitElement {
     background-position: center;
     width: 100%;
     transition: ease-in-out 0.5s;
+    z-index: 1;
   }
 
   .admin.chat-quote:hover {
-    transform: scale(1.3);
+    transform: scale(1.2);
     transition: transform 0.5s ease-in-out;
     z-index: 1;
   }
 
   .chat-quote > textarea {
     all: unset;
-    width: 100%;
+    width: 92%;
     align-self: flex-start;
-    margin-top: 20px; // or flex shrink 2
+    margin-top: 27px;
+    max-height: 3.6rem;
     margin-left: 10px;
     margin-right: 10px;
-    max-height: 3rem;
-    overflow-y: hidden;
+    overflow: hidden;
   }
 
   .chat-buttons {
@@ -314,19 +315,23 @@ export class ChatBubble extends LitElement {
     position: relative;
     flex-wrap: wrap;
     max-width: 200px;
-    width: 55%;
     justify-content: space-evenly;
-    margin-left: 30px;
+    margin-left: 10px;
   }
 
   .emoji-btn {
-    background-color: rgb(126, 54, 54);
-    border: 1px solid rgb(126, 54, 54);
+    background-color: rgb(255 255 255);
+    border: 1px solid rgb(234 234 234);
+    
     border-radius: 9px;
     margin: 5px;
     /* padding: 10px; */
     font-size: large;
     font-weight: bolder;
+  }
+
+  .emoji-btn:nth-child(4) {
+    opacity: 0;
   }
 
   .avatar-container {
