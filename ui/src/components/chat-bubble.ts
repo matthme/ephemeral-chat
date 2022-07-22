@@ -124,7 +124,7 @@ export class ChatBubble extends LitElement {
     const textarea = this.shadowRoot?.getElementById("non-admin-text-bubble") as HTMLTextAreaElement;
     textarea.value += str;
   }
-
+  
   // async signalCallback(signalInput: AppSignal) {
 
   //   let msg: Message = signalInput.data.payload;
