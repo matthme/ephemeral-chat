@@ -264,6 +264,7 @@ export class ChatBubble extends LitElement {
     padding: 8px;
     margin: 8px;
     max-width: 500px;
+    position: relative;
   }
 
   .chat-header {
@@ -308,6 +309,8 @@ export class ChatBubble extends LitElement {
 
   .non-admin-chat-buttons {
     flex-direction: row-reverse;
+    position: absolute;
+    right:0;
   }
 
   .emoji-container {
