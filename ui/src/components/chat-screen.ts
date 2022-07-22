@@ -5,7 +5,7 @@ import { InstalledCell, AppWebsocket, EntryHash, InstalledAppInfo, AgentPubKey, 
 import { contextProvided } from '@lit-labs/context';
 import { appInfoContext, appWebsocketContext, burnerServiceContext } from '../contexts';
 import { serializeHash, deserializeHash } from '@holochain-open-dev/utils';
-import { AgentPubKeyB64, Message, Username } from '../types/chat';
+import { AgentPubKeyB64, ChannelMessageInput, Message, Username } from '../types/chat';
 import { TaskSubscriber } from 'lit-svelte-stores';
 import { ChatBubble } from './chat-bubble';
 import { BurnerService } from '../burner-service';
@@ -59,6 +59,15 @@ export class ChatScreen extends LitElement {
   @state()
   chatBubbles: Record<AgentPubKeyB64, ChatBubble> = {};
 
+  @state()
+  isBURNT: boolean = false;
+
+  @state()
+  playAlone: boolean = false;
+
+  @state()
+  memberWhoBurns: string = "";
+
   @property()
   myAgentPubKey!: string;
 
@@ -101,18 +110,68 @@ export class ChatScreen extends LitElement {
     }
   }
 
-  receiveBurnSignal(signal: AppSignal) {
-    const memberWhoBurns = signal.data.payload.agent;
+  async burnChannel() {
+
+    console.log("BURNING CHANNEL!!!!")
+    const msgInput: ChannelMessageInput = {
+      signalType: "BurnChannel",
+      channel: this.channel.value!,
+      username: this.username.value!,
+    };
+    await this.service.burnChannel(msgInput);
+  }
+
+
+  async receiveBurnSignal(signal: AppSignal) {
+    this.memberWhoBurns = signal.data.payload.username;
+    this.isBURNT = true;
+
     // @TODO => ensure that joining member is of type AgentPubKeyB64
     // this.channelMembers = [...this.channelMembers, joiningMember];
+  }
+
+
+  renderBurnScreen() {
+    return html`
+      <div style="display: flex: flex-direction: column: align-items: center">
+        <div style="margin-top: 60px; margin-bottom: 30px;"><strong>${this.memberWhoBurns}</strong></div>
+        <div style="margin-bottom: 60px;">just <strong>🔥 BURRRRNNT 🔥</strong> the channel :-(</div>
+      </div>
+      <div style="display: flex; flex-direction: column; align-items: center;">
+        <button id="go-home" @click=${() => { this.service.setChannel(undefined); this.isBURNT = false;}}>Go Home</button>
+        <button id="play-alone" @click=${() => { this.playAlone = true; this.isBURNT = false;}}>Play Alone</button>
+      </div>
+    `
+  }
+
+
+  renderPlayAlone() {
+    return html`
+    <button id="party">Party</button>
+    `
   }
 
   render() {
     // console.log("this.channelMembers");
     // console.log(this.channelMembers);
+
+    if (this.isBURNT) {
+      return html`
+        ${this.renderBurnScreen()}
+      `
+    }
+
+    if (this.playAlone) {
+      return html`
+        ${this.renderPlayAlone()}
+      `
+    }
+
+
     console.warn(randomAvatar())
     return html`
     <div class="chat-screen">
+      <button @click=${() => this.burnChannel()}>B U R R R R N</button>
       <drawer-menu></drawer-menu>
       <div class="chat-bubblez">
         ${Object.entries(this.channelMembers)
@@ -169,6 +228,61 @@ export class ChatScreen extends LitElement {
       display: flex;
       flex-wrap: wrap;
       justify-content: space-evenly;
+    }
+
+    button#go-home {
+      all: unset;
+      margin: 10px;
+      padding: 10px 20px;
+      color: red;
+      background-color: #313a58;
+      color: #FBFAF8;
+      cursor: pointer;
+      width: 300px;
+      border-radius: 100px;
+      font-weight: bold;
+      font-family: 'Rubik';
+    }
+
+    button#party {
+      all: unset;
+      margin: 10px;
+      padding: 10px 20px;
+      color: red;
+      background-color: #2E354C;
+      color: #FBFAF8;
+      cursor: pointer;
+      width: 300px;
+      border-radius: 100px;
+      font-weight: bold;
+      font-family: 'Rubik';
+    }
+
+    button#play-alone {
+      all: unset;
+      margin: 10px;
+      padding: 10px 20px;
+      color: red;
+      background-color: #2E354C;
+      color: #FBFAF8;
+      cursor: pointer;
+      width: 300px;
+      border-radius: 100px;
+      font-weight: bold;
+      font-family: 'Rubik';
+    }
+
+    input.join-channel {
+      all: unset;
+      background-color: white;
+      margin: 10px;
+      padding: 10px 20px;
+      box-shadow: 0 0 10px rgb(0 0 0 / 10%);
+      border-radius: 100px;
+      width: 300px;
+    }
+    input.join-channel::placeholder { /* Chrome, Firefox, Opera, Safari 10.1+ */
+      color: #ADADAD;
     }
 
     /* .chat-bubblez > chat-bubble {

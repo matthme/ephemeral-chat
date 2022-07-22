@@ -121,21 +121,21 @@ export class HolochainApp extends LitElement {
   //   });
   // }
 
-  async burnChannel() {
-    const channelToBurn = this.activeChannel.value;
-    if (!channelToBurn) {
-      return;
-    }
-    // const allMyChannelsFiltered = this.allMyChannels.filter(channel => channel !== channelToBurn);
-    const burnChannelInput: ChannelMessageInput = {
-      signalType: "BurnChannel",
-      channel: channelToBurn,
-      username: this.username.value!,
-    }
-    await this.service.burnChannel(burnChannelInput);
-    // this.allMyChannels = allMyChannelsFiltered;
-    this.service.setChannel(undefined);
-  }
+  // async burnChannel() {
+  //   const channelToBurn = this.activeChannel.value;
+  //   if (!channelToBurn) {
+  //     return;
+  //   }
+  //   // const allMyChannelsFiltered = this.allMyChannels.filter(channel => channel !== channelToBurn);
+  //   const burnChannelInput: ChannelMessageInput = {
+  //     signalType: "BurnChannel",
+  //     channel: channelToBurn,
+  //     username: this.username.value!,
+  //   }
+  //   await this.service.burnChannel(burnChannelInput);
+  //   // this.allMyChannels = allMyChannelsFiltered;
+  //   this.service.setChannel(undefined);
+  // }
 
   signalCallback = async (signal: AppSignal) => {
     // filter only current room
@@ -159,6 +159,7 @@ export class HolochainApp extends LitElement {
       this.activeChannelMembers = activeChannelMembers;
 
     } else if (signalType === "BurnChannel" && signalPayload.channel === this.activeChannel.value) {
+      console.log("BURNING SIGNAL RECEIVED")
       this.chatScreen.receiveBurnSignal(signal);
     }
   }
@@ -240,7 +241,7 @@ export class HolochainApp extends LitElement {
         Just Signals
       </p>
       <div class="landing-form">
-        <input class="landing-input" id="enter-name" type="text" placeholder="enter name"/>
+        <input class="landing-input"  .value=${this.username.value ? this.username.value : ""} id="enter-name" type="text" placeholder="enter name"/>
         <input class="landing-input" id="join-channel" type="text" placeholder="join channel"/>
         <button id="start-bttn" @click=${this.start}>
           ${this.startBttnLoading 

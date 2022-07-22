@@ -109,7 +109,6 @@ pub fn join_channel(input: ChannelMessageInput) -> ExternResult<ActionHash> {
 pub fn get_channel_members(channel: String) -> ExternResult<Vec<(AgentPubKey, String)>> {
   // 1. Get links pointing away from the channel channel to member agents
   let links = get_channel_links(channel)?;
-
   // 2. Add link targets to vector and return
   let mut members = Vec::new();
   for link in links {
@@ -243,28 +242,31 @@ fn clean_channel_links(channel: String) -> ExternResult<()> {
 
 
 #[hdk_extern]
-pub fn burn_channel(channel: ChannelMessageInput) -> ExternResult<()> {
-  // 1. deleta all links pointing away from this channel
-  let links = get_channel_links(channel.channel.clone())?;
+pub fn burn_channel(input: ChannelMessageInput) -> ExternResult<()> {
+  let channel_members = get_channel_members(input.channel.clone())?;
+
+  // 1. delete all links pointing away from this channel
+  let links = get_channel_links(input.channel.clone())?;
   for link in links {
     delete_link(link.create_link_hash)?;
   }
 
   // 2. send remote signal to members of the group about your joining
   let pubkey = agent_info()?.agent_initial_pubkey;
-  let channel_members = get_channel_members(channel.channel.clone())?;
   let burn_channel_message = ChannelMessage {
     signal_type: "BurnChannel".into(),
     agent: pubkey,
-    channel: channel.channel,
-    username: channel.username,
+    channel: input.channel,
+    username: input.username,
   };
   let encoded_input = ExternIO::encode(burn_channel_message)
   .map_err(|err| wasm_error!(WasmErrorInner::Guest(err.into())))?;
 
+
   let agents: Vec<AgentPubKey> = channel_members
     .into_iter()
     .map(|(agent_pub_key, _)| agent_pub_key).collect();
+
   remote_signal(encoded_input, agents)?;
 
   Ok(())
