@@ -132,7 +132,6 @@ export class ChatScreen extends LitElement {
           justify-items: center;
           align-items: center;
           flex-direction: column;'>
-          <h1>ADMIN CHATBUBBLE</h1>
           <chat-bubble id=${this.myAgentPubKey}
             .username=${this.username.value!}
             .avatarUrl=${randomAvatar()}
@@ -153,8 +152,8 @@ export class ChatScreen extends LitElement {
       position:fixed;
       bottom: 0;
       width: 100%;
-      background-color: magenta;
-      height: 330px;
+      /* background-color: green; */
+      height: 228px;
     }
 
     .chat-screen {
