@@ -280,6 +280,11 @@ export class HolochainApp extends LitElement {
     console.warn('fetching members', this.activeChannelMembers);
   }
 
+  goHome() {
+    console.log("GOING HOME");
+    this.service.setChannel(undefined);
+  }
+
   renderChatScreen() {
     return html`
       <chat-screen
@@ -312,6 +317,7 @@ export class HolochainApp extends LitElement {
           <h1 class="main-title">BURNER CHAT</h1>
           <p class="powered-by-holochain" @click=${this.fetchMembers}>powered by holochain</p>
         </div>
+        <div id="go-home-menu-bttn" @click=${this.goHome}>🏠️</div>
         ${this.activeChannel.value
         ? this.renderChatScreen()
         : this.renderLandingPage()
@@ -334,6 +340,16 @@ export class HolochainApp extends LitElement {
       text-align: center;
       background-color: var(--lit-element-background-color);
       font-size: 25px;
+    }
+    #go-home-menu-bttn {
+      padding: 20px;
+      background-color: coral;
+      cursor: pointer;
+      position: absolute;
+      right: 41px;
+      top: 51px;
+      background: rgb(23, 230, 183);
+      border-radius: 50%;
     }
     main {
       min-width: 100vw;
@@ -427,7 +443,7 @@ export class HolochainApp extends LitElement {
 
     /**CSS LOADING SPINNER */
     .lds-ellipsis {
-      top: -15px;
+      top: -19px;
       display: inline-block;
       width: 80px;
       height: 80px;
