@@ -109,12 +109,18 @@ export class ChatScreen extends LitElement {
   }
   
   async burnChannel() {
-    const msgInput: ChannelMessageInput = {
-      signalType: "BurnChannel",
-      channel: this.channel.value!,
-      username: this.username.value!,
-    };
-    await this.service.burnChannel(msgInput);
+    const jsConfetti = new JSConfetti()
+    jsConfetti.addConfetti({
+      emojis: ['🔥', '💥', '🔥', '🔥'],
+    })
+    setTimeout(() => {
+      const msgInput: ChannelMessageInput = {
+        signalType: "BurnChannel",
+        channel: this.channel.value!,
+        username: this.username.value!,
+      };
+      this.service.burnChannel(msgInput);
+    }, 500);
   }
 
 
