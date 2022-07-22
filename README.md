@@ -1,6 +1,6 @@
 # Burner Chat
 
-Think of it like burner phones, but for chat. Makes sense?
+Think of it like burner phones, but for chat. Makes sense?!
 
 We, the burner chat core team are living our lives with this very simple ruleset:
 - No Security
