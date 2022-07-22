@@ -128,9 +128,10 @@ export class ChatScreen extends LitElement {
 
   renderBurnScreen() {
     return html`
-      <div style="display: flex: flex-direction: column: align-items: center">
-        <div style="margin-top: 60px; margin-bottom: 30px;"><strong>${this.memberWhoBurns}</strong></div>
-        <div style="margin-bottom: 60px;">just <strong>🔥 BURRRRNNT 🔥</strong> the channel :-(</div>
+      <div class="burnt-text-container" style="display: flex: flex-direction: column: align-items: center">
+        <p class="new-burned-text">🔥🔥🔥 ${this.memberWhoBurns} buuuuuuurrnt the channel !</p>
+        <!-- <div style="margin-top: 60px; margin-bottom: 30px;"><strong>${this.memberWhoBurns}</strong></div>
+        <div style="margin-bottom: 60px;">just <strong>🔥 BURRRRNNT 🔥</strong> the channel :-(</div> -->
       </div>
       <div style="display: flex; flex-direction: column; align-items: center;">
         <button id="go-home" 
@@ -198,6 +199,16 @@ export class ChatScreen extends LitElement {
   }
 
   static styles = css`
+    .burnt-text-container {
+      max-width: 500px;
+      font-family: Roboto Mono;
+      font-size: 35px; 
+      margin: 0 auto;
+    }
+    p.new-burned-text {
+      margin-top: 100px;
+      margin-bottom: 50px;
+    }
     #burn-btn {
       all: unset;
       border-radius: 30px;
@@ -211,6 +222,7 @@ export class ChatScreen extends LitElement {
       padding: 5px;
       right: 140px;
       bottom: 16px;
+      cursor: pointer;
     }
     .admin-chat-cointainer {
       max-width: 360px;
@@ -253,6 +265,7 @@ export class ChatScreen extends LitElement {
       border-radius: 100px;
       font-weight: bold;
       font-family: 'Rubik';
+      padding: 14px 20px;
     }
 
     button#party {
@@ -281,6 +294,9 @@ export class ChatScreen extends LitElement {
       border-radius: 100px;
       font-weight: bold;
       font-family: 'Rubik';
+      background: #17e6b73b;
+      color: black;
+      padding: 14px 20px;
     }
 
     input.join-channel {
