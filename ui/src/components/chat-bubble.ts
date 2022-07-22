@@ -330,7 +330,8 @@ export class ChatBubble extends LitElement {
     font-weight: bolder;
   }
 
-  .emoji-btn:nth-child(4) {
+  .emoji-btn:nth-child(4),
+  .emoji-btn:nth-child(8) {
     opacity: 0;
   }
 

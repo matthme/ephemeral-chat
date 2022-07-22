@@ -23,6 +23,7 @@ import { BurnerService } from './burner-service';
 import { CellClient, HolochainClient } from '@holochain-open-dev/cell-client';
 import { BurnerServiceContext } from './components/service-context';
 import { TaskSubscriber } from 'lit-svelte-stores';
+import JSConfetti from 'js-confetti';
 
 @customElement('holochain-app')
 export class HolochainApp extends LitElement {
@@ -269,7 +270,11 @@ export class HolochainApp extends LitElement {
   }
 
   fetchMembers = async () => {
-    console.warn('fetching members');
+    const jsConfetti = new JSConfetti();
+    jsConfetti.addConfetti({
+      emojis: ['⚡️'],
+    })
+
     const members = await this.service.getChannelMembers(this.activeChannel.value!);
     const newActiveChannelMembers: Record<AgentPubKeyB64, Username> = {};
     
