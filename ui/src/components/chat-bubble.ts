@@ -80,7 +80,6 @@ export class ChatBubble extends LitElement {
       return delta < 3500;
     });
     this.chatBufferString = this.bufferToString();
-    // (this.shadowRoot?.getElementById("on-admin-text-bubble") as HTMLTextAreaElement).value = this.chatBufferString;
   }
 
   sortBuffer() {
@@ -189,11 +188,6 @@ export class ChatBubble extends LitElement {
       channel: this.channel.value!,
     }
     await this.service.sendMsg(msgInput);
-
-
-
-    // this.timer = setTimeout(() => {(this.shadowRoot?.getElementById("admin-text-bubble") as HTMLTextAreaElement).value = ""; console.log("proof", ev.target)}, 3500);
-
   }
 
 
@@ -259,8 +253,6 @@ export class ChatBubble extends LitElement {
   }
 
   .chat-bubble {
-    /* background-color: white;
-    border: 1px solid gray; */
     padding: 8px;
     margin: 8px;
     max-width: 500px;
