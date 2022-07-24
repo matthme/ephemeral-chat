@@ -91,23 +91,34 @@ export class ChatScreen extends LitElement {
   }
 
   receiveEmojiCannonSignal(signal: AppSignal) {
-    // @TODO: filter by agentPubKey, check if agent exist as chat-bubble
-    if (Object.keys(this.channelMembers).includes(signal.data.payload.senderKey)) {
+    // filter by agentPubKey, check if agent exist as chat-bubble
+    console.log("RECEIVED AN EMOJI SIGNAL: ", signal);
+    let senderPubKey = serializeHash(signal.data.payload.senderKey);
+    if (Object.keys(this.channelMembers).includes(senderPubKey)) {
       // propagate signal to the right bubble
+      const chatBubble = this.shadowRoot?.getElementById(senderPubKey) as ChatBubble;
+      chatBubble.causedEmojiCannon();
+      // extract emoji from payload and go confetti
+      const emoji = signal.data.payload.payload;
+      console.log("RECEIVED THE FOLLOWING EMOJI: ", emoji);
+      const jsConfetti = new JSConfetti()
+      jsConfetti.addConfetti({
+        emojis: [emoji],
+      })
     }
   }
 
   receiveMessageSignal(signal: AppSignal) {
-    // @TODO: filter by agentPubKey, check if agent exist as chat-bubble
+    // filter by agentPubKey, check if agent exist as chat-bubble
     let senderPubKey = serializeHash(signal.data.payload.senderKey);
     if (Object.keys(this.channelMembers).includes(senderPubKey)) {
       // propagate signal to the right bubble
       const chatBubble = this.shadowRoot?.getElementById(senderPubKey) as ChatBubble;
       // chatBubble
-      chatBubble.recieveSignal(signal);
+      chatBubble.receiveSignal(signal);
     }
   }
-  
+
   async burnChannel() {
     const jsConfetti = new JSConfetti()
     jsConfetti.addConfetti({
@@ -140,12 +151,12 @@ export class ChatScreen extends LitElement {
         <div style="margin-bottom: 60px;">just <strong>🔥 BURRRRNNT 🔥</strong> the channel :-(</div> -->
       </div>
       <div style="display: flex; flex-direction: column; align-items: center;">
-        <button id="go-home" 
-          @click=${() => { 
-            this.service.setChannel(undefined); 
+        <button id="go-home"
+          @click=${() => {
+            this.service.setChannel(undefined);
             this.isBURNT = false;}}>Go Home
         </button>
-        <button id="play-alone" @click=${() => { 
+        <button id="play-alone" @click=${() => {
             const jsConfetti = new JSConfetti()
             jsConfetti.addConfetti({
               emojis: ['🌈', '⚡️', '💥', '✨', '💫', '🌸', '🦄', '🔥'],
@@ -208,7 +219,7 @@ export class ChatScreen extends LitElement {
     .burnt-text-container {
       max-width: 500px;
       font-family: Roboto Mono;
-      font-size: 35px; 
+      font-size: 35px;
       margin: 0 auto;
     }
     p.new-burned-text {

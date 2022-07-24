@@ -59,6 +59,9 @@ export class ChatBubble extends LitElement {
   @state()
   timer: any = null;
 
+  @state()
+  isConfettiSource: boolean = false;
+
   channel = new TaskSubscriber(
     this,
     () => this.service.getChannel(),
@@ -99,7 +102,22 @@ export class ChatBubble extends LitElement {
     console.log(this.bufferToString());
   }
 
-  _handleClick(emoji: string) {
+  async _handleEmojiClick(emoji: string) {
+    console.log("HANDLING EMOJI CLICK");
+
+    const recipients = Object.keys(this.channelMembers).map(key => deserializeHash(key));
+
+    const msgInput: MessageInput = {
+      signalType: "EmojiCannon",
+      payload: emoji,
+      senderName: this.username,
+      recipients: recipients,
+      channel: this.channel.value!,
+    }
+
+    console.log("msgInput: ", msgInput);
+    await this.service.sendMsg(msgInput);
+
     const jsConfetti = new JSConfetti()
     jsConfetti.addConfetti({
       emojis: [emoji],
@@ -107,7 +125,7 @@ export class ChatBubble extends LitElement {
   }
 
 
-  recieveSignal(signal: AppSignal) {
+  receiveSignal(signal: AppSignal) {
     if (this.isAdmin) {
       return; // no logic for admin
     }
@@ -123,7 +141,23 @@ export class ChatBubble extends LitElement {
     const textarea = this.shadowRoot?.getElementById("non-admin-text-bubble") as HTMLTextAreaElement;
     textarea.value += str;
   }
-  
+
+
+
+  causedEmojiCannon() {
+    if (this.isAdmin) {
+      return; // no logic for admin
+    }
+    this.isConfettiSource = true;
+    const confettSourceInterval = setInterval(() => this.isConfettiSource = !this.isConfettiSource, 400);
+
+    setTimeout(() => {
+      clearInterval(confettSourceInterval);
+      this.isConfettiSource = false;
+    }, 1200);
+
+  }
+
   // async signalCallback(signalInput: AppSignal) {
 
   //   let msg: Message = signalInput.data.payload;
@@ -161,7 +195,7 @@ export class ChatBubble extends LitElement {
 
   renderEmoji(emoji: string, i: number) {
     return html`
-    <button @click="${() => this._handleClick(emoji)}" class="emoji-btn">
+    <button @click="${() => this._handleEmojiClick(emoji)}" class="emoji-btn">
       <div class="${emoji === '🔥' ? 'waving' : ''}">${emoji}</span>
     </button>`
   }
@@ -193,7 +227,7 @@ export class ChatBubble extends LitElement {
 
   render() {
     return html`
-        <div class="chat-bubble">
+        <div class="chat-bubble ${this.isConfettiSource ? "confetti-source" : ""}">
           <div class="chat-quote ${this.isAdmin ? 'admin': ''}">
             ${this.isAdmin
               ? html`<textarea id="admin-text-bubble" @keyup=${this.dispatchRealtimeSignal} placeholder="Insert your message" rows="2" wrap="hard" maxlength="50"></textarea>`
@@ -259,6 +293,11 @@ export class ChatBubble extends LitElement {
     position: relative;
   }
 
+  .confetti-source {
+    background: orange;
+    border-radius: 20px;
+  }
+
   .chat-header {
     margin: 0.2rem;
   }
@@ -317,7 +356,7 @@ export class ChatBubble extends LitElement {
   .emoji-btn {
     background-color: rgb(255 255 255);
     border: 1px solid rgb(234 234 234);
-    
+
     border-radius: 9px;
     margin: 5px;
     /* padding: 10px; */
