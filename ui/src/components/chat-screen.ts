@@ -85,14 +85,12 @@ export class ChatScreen extends LitElement {
 
   async firstUpdated() {
     // do stuff
-    console.log("FIRST UPDATED CHAT_SCREEN");
-    console.log("this.service");
-    console.log(this.service);
+    // console.log("FIRST UPDATED CHAT_SCREEN");
+    // console.log("this.service");
   }
 
   receiveEmojiCannonSignal(signal: AppSignal) {
     // filter by agentPubKey, check if agent exist as chat-bubble
-    console.log("RECEIVED AN EMOJI SIGNAL: ", signal);
     let senderPubKey = serializeHash(signal.data.payload.senderKey);
     if (Object.keys(this.channelMembers).includes(senderPubKey)) {
       // propagate signal to the right bubble
@@ -100,7 +98,6 @@ export class ChatScreen extends LitElement {
       chatBubble.causedEmojiCannon();
       // extract emoji from payload and go confetti
       const emoji = signal.data.payload.payload;
-      console.log("RECEIVED THE FOLLOWING EMOJI: ", emoji);
       const jsConfetti = new JSConfetti()
       jsConfetti.addConfetti({
         emojis: [emoji],

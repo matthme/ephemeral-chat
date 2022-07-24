@@ -103,7 +103,6 @@ export class ChatBubble extends LitElement {
   }
 
   async _handleEmojiClick(emoji: string) {
-    console.log("HANDLING EMOJI CLICK");
 
     const recipients = Object.keys(this.channelMembers).map(key => deserializeHash(key));
 
