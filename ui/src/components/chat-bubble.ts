@@ -71,7 +71,7 @@ export class ChatBubble extends LitElement {
   addToBuffer(chatBufferElement: ChatBufferElement) {
     // let newBuffer = this.chatBuffer.concat(chatBufferElement);
     this.chatBuffer = [...this.chatBuffer, chatBufferElement];
-    this.printBuffer();
+    // this.printBuffer();
   }
 
   updateBuffer() {
@@ -114,7 +114,6 @@ export class ChatBubble extends LitElement {
       channel: this.channel.value!,
     }
 
-    console.log("msgInput: ", msgInput);
     await this.service.sendMsg(msgInput);
 
     const jsConfetti = new JSConfetti()
@@ -187,7 +186,7 @@ export class ChatBubble extends LitElement {
     } else {
       setInterval(() => {
           this.updateBuffer();
-          this.printBuffer();
+          // this.printBuffer();
       }, 200);
     }
   }
