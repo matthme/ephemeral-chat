@@ -1,7 +1,9 @@
-import { CellClient } from '@holochain-open-dev/cell-client';
-import { ActionHash, AgentPubKey } from '@holochain/client';
-import { ChannelMessageInput, MessageInput, Username } from './types/chat';
+import { CellClient, HolochainClient } from '@holochain-open-dev/cell-client';
+import { ActionHash, AgentPubKey, AppWebsocket, CellId, InstalledAppInfo } from '@holochain/client';
+import { AgentPubKeyB64, ChannelMessageInput, MessageInput, Username } from './types/chat';
 import { writable, Writable, derived, Readable, get } from 'svelte/store';
+import { serializeHash } from '@holochain-open-dev/utils';
+import { state } from 'lit/decorators';
 
 export class BurnerService {
 
@@ -9,7 +11,24 @@ export class BurnerService {
   private _username: Writable<string | undefined> = writable();
   // private _bubbles: Writable<Record<AgentPubKeyB64, ChatBubble>> = writable({});
 
-  constructor(public cellClient: CellClient, public zomeName = 'chat') {}
+  @state()
+  myAgentPubKey: AgentPubKeyB64;
+
+  public cellClient: CellClient;
+  private cellId: CellId;
+
+  constructor(protected appWebsocket: AppWebsocket, protected appInfo: InstalledAppInfo, protected zomeName = 'chat') {
+
+    const cell = appInfo.cell_data.find(c => c.role_id === 'burner_chat');
+    const cellId = cell!.cell_id;
+
+    this.myAgentPubKey = serializeHash(cellId[1]);
+
+    const client = new HolochainClient(appWebsocket);
+    this.cellClient = new CellClient(client, cell!);
+
+    this.cellId = cellId;
+  }
 
 
   async getChannel(): Promise<Readable<string | undefined>> {
@@ -73,6 +92,13 @@ export class BurnerService {
 
 
   private callZome(fn_name: string, payload: any) {
-    return this.cellClient.callZome(this.zomeName, fn_name, payload);
+    return this.appWebsocket.callZome({
+      cap_secret: null as any,
+      cell_id: this.cellId,
+      zome_name: this.zomeName,
+      fn_name,
+      payload,
+      provenance: this.cellId[1]
+    });
   }
 }

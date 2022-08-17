@@ -10,10 +10,9 @@ import {
   InstalledAppInfo,
   InstalledCell,
 } from '@holochain/client';
-import { contextProvider } from '@lit-labs/context';
+import { contextProvided, contextProvider } from '@lit-labs/context';
 import '@material/mwc-circular-progress';
 
-import { get } from 'svelte/store';
 import { appWebsocketContext, appInfoContext, burnerServiceContext } from './contexts';
 import { serializeHash, deserializeHash } from '@holochain-open-dev/utils';
 import { AgentPubKeyB64, ChannelMessageInput, MessageInput, Username } from './types/chat';
@@ -26,20 +25,11 @@ import { TaskSubscriber } from 'lit-svelte-stores';
 import JSConfetti from 'js-confetti';
 
 @customElement('holochain-app')
-export class HolochainApp extends LitElement {
+export class BurnerChatApp extends LitElement {
   @state() loading = false;
-  @state() isWesley = false;
   @state() entryHash: EntryHash | undefined;
 
-  @contextProvider({ context: appWebsocketContext })
-  @property({ type: Object })
-  appWebsocket!: AppWebsocket;
-
-  @contextProvider({ context: appInfoContext })
-  @property({ type: Object })
-  appInfo!: InstalledAppInfo;
-
-  @contextProvider({ context: burnerServiceContext })
+  @contextProvided({ context: burnerServiceContext })
   @property({ type: Object })
   service!: BurnerService;
 
@@ -64,8 +54,6 @@ export class HolochainApp extends LitElement {
   // @state()
   // allMyChannels: string[] = [];
 
-  @state()
-  myAgentPubKey!: string;
 
   @state() startBttnLoading = false;
 
@@ -84,59 +72,7 @@ export class HolochainApp extends LitElement {
   @state()
   activeChannelMembers: Record<AgentPubKeyB64, Username> = {};
 
-  // service!: BurnerService;
-  async dispatchTestSignal() {
-    // get the input from the input text field
-    const input = this.textInputField.value;
-    // copied from boiulerplate
-    const cellData = this.appInfo.cell_data.find((c: InstalledCell) => c.role_id === 'burner_chat')!;
-    await this.appWebsocket.callZome({
-      cap_secret: null,
-      cell_id: cellData.cell_id,
-      zome_name: 'chat',
-      fn_name: 'signal_test',
-      payload: input,
-      provenance: cellData.cell_id[1]
-    });
-  }
 
-  // async sendRemoteSignal() {
-  //   const msgText = this.textInputField.value;
-  //   const recipient = this.recipientInputField.value;
-  //   const msgInput: MessageInput = {
-  //     signalType: "Message",
-  //     payload: msgText,
-  //     senderName: "sender",
-  //     recipients: [deserializeHash(recipient)],
-  //     channel: this.activeChannel.value!,
-  //   }
-
-  //   const cellData = this.appInfo.cell_data.find((c: InstalledCell) => c.role_id === 'burner_chat')!;
-  //   await this.appWebsocket.callZome({
-  //     cap_secret: null,
-  //     cell_id: cellData.cell_id,
-  //     zome_name: 'chat',
-  //     fn_name: 'send_msg',
-  //     payload: msgInput,
-  //     provenance: cellData.cell_id[1]
-  //   });
-  // }
-
-  // async burnChannel() {
-  //   const channelToBurn = this.activeChannel.value;
-  //   if (!channelToBurn) {
-  //     return;
-  //   }
-  //   // const allMyChannelsFiltered = this.allMyChannels.filter(channel => channel !== channelToBurn);
-  //   const burnChannelInput: ChannelMessageInput = {
-  //     signalType: "BurnChannel",
-  //     channel: channelToBurn,
-  //     username: this.username.value!,
-  //   }
-  //   await this.service.burnChannel(burnChannelInput);
-  //   // this.allMyChannels = allMyChannelsFiltered;
-  //   this.service.setChannel(undefined);
-  // }
 
   signalCallback = async (signal: AppSignal) => {
     // filter only current room
@@ -167,25 +103,7 @@ export class HolochainApp extends LitElement {
 
 
   async firstUpdated() {
-
-    this.appWebsocket = await AppWebsocket.connect(
-      `ws://localhost:${process.env.HC_PORT}`,
-      undefined, // timeout
-    );
-
-    this.appInfo = await this.appWebsocket.appInfo({
-      installed_app_id: 'burner-chat',
-    });
-
-    const cellData = this.appInfo.cell_data.find((c: InstalledCell) => c.role_id === 'burner_chat')!;
-    this.myAgentPubKey = serializeHash(cellData.cell_id[1]);
-
-    const cell = this.appInfo.cell_data.find(c => c.role_id === 'burner_chat');
-    const client = new HolochainClient(this.appWebsocket);
-    const cellClient = new CellClient(client, cell!);
-    cellClient.addSignalHandler(this.signalCallback);
-
-    this.service = new BurnerService(cellClient);
+    this.service.cellClient.addSignalHandler(this.signalCallback);
     this.loading = false;
   }
 
@@ -204,9 +122,6 @@ export class HolochainApp extends LitElement {
     }
     this.startBttnLoading = true;
 
-    if (username.toLocaleLowerCase() === 'wesley') {
-      this.isWesley = true;
-    }
     this.service.setUsername(username);
 
     // get channel secret and join channel
@@ -295,7 +210,7 @@ export class HolochainApp extends LitElement {
       <chat-screen
         .channelMembers=${this.activeChannelMembers}
         @switchChannel=${this.switchChannel}
-        .myAgentPubKey=${this.myAgentPubKey}
+        .myAgentPubKey=${this.service.myAgentPubKey}
       ></chat-screen>
     `
   }
@@ -317,7 +232,7 @@ export class HolochainApp extends LitElement {
     //    => my own buuble
 
     return html`
-      <main class=${this.isWesley ? 'isWesley' : ""}>
+      <main>
         <div class="main-title-container">
           <h1 class="main-title">BURNER CHAT</h1>
           <p class="powered-by-holochain" @click=${this.fetchMembers}>powered by holochain</p>
@@ -358,10 +273,6 @@ export class HolochainApp extends LitElement {
     }
     main {
       min-width: 100vw;
-    }
-
-    .isWesley {
-      background-color: magenta;
     }
 
     .main-title-container {

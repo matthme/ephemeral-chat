@@ -1,0 +1,7 @@
+---
+manifest_version: "1"
+name: burner_chat-applet
+ui:
+  bundled: "../ui.zip"
+happ_manifest:
+  bundled: "./burner_chat-applet.happ"

@@ -3,7 +3,8 @@
   "private": true,
   "workspaces": [
     "ui",
-    "tests"
+    "tests",
+    "we-applet"
   ],
   "scripts": {
     "start": "npm run network 2",

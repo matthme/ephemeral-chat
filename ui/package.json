@@ -1,9 +1,9 @@
 {
-  "name": "ui",
+  "name": "@burner-chat/burner-chat",
   "description": "Webcomponent lit-element following open-wc recommendations",
   "license": "MIT",
   "author": "lit-element",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "scripts": {
     "lint": "eslint --ext .ts,.html . --ignore-path .gitignore && prettier \"**/*.ts\" --check --ignore-path .gitignore",
     "format": "eslint --ext .ts,.html . --fix --ignore-path .gitignore && prettier \"**/*.ts\" --write --ignore-path .gitignore",

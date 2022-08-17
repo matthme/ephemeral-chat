@@ -1,0 +1,15 @@
+---
+manifest_version: "1"
+name: burner_chat-applet
+description: ~
+roles:
+  - id: burner_chat
+    provisioning:
+      strategy: create
+      deferred: false
+    dna:
+      bundled: "./burner_chat.dna"
+      properties: ~
+      uuid: ~
+      version: ~
+      clone_limit: 100

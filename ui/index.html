@@ -6,7 +6,7 @@
       name="viewport"
       content="width=device-width, initial-scale=1.0, viewport-fit=cover"
     />
-    
+
     <!-- IMPORT FONTS (google): Rubik + Roboto Mono -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -30,8 +30,37 @@
   </head>
 
   <body>
-    <holochain-app></holochain-app>
+    <burner-service-context>
+      <burner-chat-app></burner-chat-app>
+    </burner-service-context>
 
-    <script type="module" src="./out-tsc/holochain-app.js"></script>
+    <script type="module">
+      import {
+        BurnerChatApp,
+        BurnerServiceContext,
+        BurnerService,
+      } from "./out-tsc/index.js";
+      import { AppWebsocket } from "@holochain/client";
+
+      (async function() {
+        const appWebsocket = await AppWebsocket.connect(
+          `ws://localhost:${process.env.HC_PORT}`,
+          undefined, // timeout
+        );
+
+        const appInfo = await this.appWebsocket.appInfo({
+          installed_app_id: 'burner-chat',
+        });
+
+        service = new BurnerService(appWebsocket, appInfo);
+
+        customElements.define('burner-service-context', BurnerServiceContext);
+        const provider = document.getElementById('provider');
+        provider.service = service;
+
+        customElements.define('burner-chat-app', BurnerChatApp);
+      })();
+
+    </script>
   </body>
 </html>
