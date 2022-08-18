@@ -11,7 +11,7 @@ import copy from "rollup-plugin-copy";
 export default {
   input: 'index.html',
   output: {
-    entryFileNames: '[hash].js',
+    entryFileNames: 'index.js',
     chunkFileNames: '[hash].js',
     assetFileNames: '[hash][extname]',
     format: 'es',

@@ -1,7 +1,18 @@
 ---
 manifest_version: "1"
 name: burner_chat
-uid: 00000000-0000-0000-0000-000000000000
-zomes:
-  - name: burner_chat
-    bundled: ../target/wasm32-unknown-unknown/release/burner_chat.wasm
+integrity:
+  uuid: 00000000-0000-0000-0000-000000000000
+  properties: ~
+  origin_time: 2022-07-20T12:26:07.069Z
+  zomes:
+    - name: chat_integrity
+      bundled: ../target/wasm32-unknown-unknown/release/chat_integrity.wasm
+
+coordinator:
+  zomes:
+    - name: chat
+      bundled: ../target/wasm32-unknown-unknown/release/chat.wasm
+      dependencies:
+        - name: chat_integrity
+

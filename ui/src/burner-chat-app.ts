@@ -13,9 +13,14 @@ import {
 import { contextProvided, contextProvider } from '@lit-labs/context';
 import '@material/mwc-circular-progress';
 
-import { appWebsocketContext, appInfoContext, burnerServiceContext } from './contexts';
+import { burnerServiceContext } from './contexts';
 import { serializeHash, deserializeHash } from '@holochain-open-dev/utils';
-import { AgentPubKeyB64, ChannelMessageInput, MessageInput, Username } from './types/chat';
+import {
+  AgentPubKeyB64,
+  ChannelMessageInput,
+  MessageInput,
+  Username,
+} from './types/chat';
 import { ChatScreen } from './components/chat-screen';
 // import { BurnerStore } from './burner-store';
 import { BurnerService } from './burner-service';
@@ -24,7 +29,7 @@ import { BurnerServiceContext } from './components/service-context';
 import { TaskSubscriber } from 'lit-svelte-stores';
 import JSConfetti from 'js-confetti';
 
-@customElement('holochain-app')
+
 export class BurnerChatApp extends LitElement {
   @state() loading = false;
   @state() entryHash: EntryHash | undefined;
@@ -33,27 +38,26 @@ export class BurnerChatApp extends LitElement {
   @property({ type: Object })
   service!: BurnerService;
 
-  @query("chat-screen")
+  @query('chat-screen')
   chatScreen!: ChatScreen;
 
-  @query("input#join-channel")
+  @query('input#join-channel')
   joinChannelInput!: HTMLInputElement;
 
-  @query("input#enter-name")
+  @query('input#enter-name')
   enterNameInput!: HTMLInputElement;
 
-  @query("#test-signal-text-input")
+  @query('#test-signal-text-input')
   textInputField!: HTMLInputElement;
 
-  @query("#test-recipient-input")
+  @query('#test-recipient-input')
   recipientInputField!: HTMLInputElement;
 
-  @query("#channel-secret-input")
+  @query('#channel-secret-input')
   channelSecretInputField!: HTMLInputElement;
 
   // @state()
   // allMyChannels: string[] = [];
-
 
   @state() startBttnLoading = false;
 
@@ -72,35 +76,40 @@ export class BurnerChatApp extends LitElement {
   @state()
   activeChannelMembers: Record<AgentPubKeyB64, Username> = {};
 
-
-
   signalCallback = async (signal: AppSignal) => {
     // filter only current room
     const signalPayload = signal.data.payload;
     const signalType = signal.data.payload.signalType;
-    if (signalType === "EmojiCannon") {
+    if (signalType === 'EmojiCannon') {
       // propagate and let chat-screen decide if emoji cannon should be fired
       this.chatScreen.receiveEmojiCannonSignal(signal);
-
-    } else if (signalType === "Message" && signalPayload.channel === this.activeChannel.value) {
+    } else if (
+      signalType === 'Message' &&
+      signalPayload.channel === this.activeChannel.value
+    ) {
       // propagate only when in active room
       this.chatScreen.receiveMessageSignal(signal);
-
-    } else if (signalType === "JoinChannel" && signalPayload.channel === this.activeChannel.value) {
+    } else if (
+      signalType === 'JoinChannel' &&
+      signalPayload.channel === this.activeChannel.value
+    ) {
       // @TODO 1. check if join channel is === activeChannel
-      const allChatMembers = await this.service.getChannelMembers(signalPayload.channel);
+      const allChatMembers = await this.service.getChannelMembers(
+        signalPayload.channel
+      );
       const activeChannelMembers: Record<AgentPubKeyB64, Username> = {};
       allChatMembers.forEach(([pubKey, username]) => {
         activeChannelMembers[serializeHash(pubKey)] = username;
-      })
+      });
       this.activeChannelMembers = activeChannelMembers;
-
-    } else if (signalType === "BurnChannel" && signalPayload.channel === this.activeChannel.value) {
+    } else if (
+      signalType === 'BurnChannel' &&
+      signalPayload.channel === this.activeChannel.value
+    ) {
       // console.log("BURNING SIGNAL RECEIVED")
       this.chatScreen.receiveBurnSignal(signal);
     }
-  }
-
+  };
 
   async firstUpdated() {
     this.service.cellClient.addSignalHandler(this.signalCallback);
@@ -109,15 +118,15 @@ export class BurnerChatApp extends LitElement {
 
   async start() {
     // get name and set as username
-    let username = this.enterNameInput.value
+    let username = this.enterNameInput.value;
     const channelToJoin = this.joinChannelInput.value;
 
     if (!username) {
-      alert("🚧 Plase set a username!");
+      alert('🚧 Plase set a username!');
       return;
     }
     if (!channelToJoin) {
-      alert("🚧 You need to set a channel");
+      alert('🚧 You need to set a channel');
       return;
     }
     this.startBttnLoading = true;
@@ -126,10 +135,10 @@ export class BurnerChatApp extends LitElement {
 
     // get channel secret and join channel
     const channelMessageInput: ChannelMessageInput = {
-      signalType: "JoinChannel",
+      signalType: 'JoinChannel',
       channel: channelToJoin,
       username: this.username.value!,
-    }
+    };
     await this.joinChannel(channelMessageInput);
   }
 
@@ -143,7 +152,7 @@ export class BurnerChatApp extends LitElement {
     this.activeChannelMembers = {};
     channelMembers.forEach(([pubKey, username]) => {
       this.activeChannelMembers[serializeHash(pubKey)] = username;
-    })
+    });
     console.warn(this.activeChannelMembers);
     // this.allMyChannels = [...this.allMyChannels, input.channel];
     this.service.setChannel(input.channel);
@@ -153,18 +162,33 @@ export class BurnerChatApp extends LitElement {
   renderLandingPage() {
     return html`
       <p class="tagline">
-        No Security<br>
-        No Persistence<br>
+        No Security<br />
+        No Persistence<br />
         Just Signals
       </p>
       <div class="landing-form">
-        <input class="landing-input" .value=${this.username.value ? this.username.value : ""} id="enter-name" type="text" placeholder="enter name"/>
-        <input class="landing-input" id="join-channel" type="text" placeholder="join channel"/>
+        <input
+          class="landing-input"
+          .value=${this.username.value ? this.username.value : ''}
+          id="enter-name"
+          type="text"
+          placeholder="enter name"
+        />
+        <input
+          class="landing-input"
+          id="join-channel"
+          type="text"
+          placeholder="join channel"
+        />
         <button id="start-bttn" @click=${this.start}>
           ${this.startBttnLoading
-            ? html`<div class="lds-ellipsis"><div></div><div></div><div></div><div></div></div>`
-            : html`<div>START</div>`
-          }
+            ? html`<div class="lds-ellipsis">
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+              </div>`
+            : html`<div>START</div>`}
         </button>
       </div>
     `;
@@ -174,10 +198,10 @@ export class BurnerChatApp extends LitElement {
     // console.log("inside switchChannel");
     this.service.setChannel(ev.detail);
     const join_channel_input: ChannelMessageInput = {
-      signalType: "JoinChannel",
+      signalType: 'JoinChannel',
       channel: ev.detail,
       username: this.username.value!,
-    }
+    };
 
     this.joinChannel(join_channel_input);
 
@@ -188,9 +212,11 @@ export class BurnerChatApp extends LitElement {
     const jsConfetti = new JSConfetti();
     jsConfetti.addConfetti({
       emojis: ['⚡️'],
-    })
+    });
 
-    const members = await this.service.getChannelMembers(this.activeChannel.value!);
+    const members = await this.service.getChannelMembers(
+      this.activeChannel.value!
+    );
     const newActiveChannelMembers: Record<AgentPubKeyB64, Username> = {};
 
     members.forEach(([pubKey, username]) => {
@@ -198,7 +224,7 @@ export class BurnerChatApp extends LitElement {
     });
     this.activeChannelMembers = newActiveChannelMembers;
     console.warn('fetching members', this.activeChannelMembers);
-  }
+  };
 
   goHome() {
     // console.log("GOING HOME");
@@ -212,7 +238,7 @@ export class BurnerChatApp extends LitElement {
         @switchChannel=${this.switchChannel}
         .myAgentPubKey=${this.service.myAgentPubKey}
       ></chat-screen>
-    `
+    `;
   }
 
   render() {
@@ -235,15 +261,16 @@ export class BurnerChatApp extends LitElement {
       <main>
         <div class="main-title-container">
           <h1 class="main-title">BURNER CHAT</h1>
-          <p class="powered-by-holochain" @click=${this.fetchMembers}>powered by holochain</p>
+          <p class="powered-by-holochain" @click=${this.fetchMembers}>
+            powered by holochain
+          </p>
         </div>
         <div id="go-home-menu-bttn" @click=${this.goHome}>🏠️</div>
         ${this.activeChannel.value
-        ? this.renderChatScreen()
-        : this.renderLandingPage()
-      }
+          ? this.renderChatScreen()
+          : this.renderLandingPage()}
       </main>
-    `
+    `;
   }
 
   static styles = css`
@@ -288,7 +315,7 @@ export class BurnerChatApp extends LitElement {
       right: 0;
       font-family: 'Roboto Mono';
       font-size: 20px;
-      color: #2E354C;
+      color: #2e354c;
     }
     button#start-bttn {
       position: relative;
@@ -296,8 +323,8 @@ export class BurnerChatApp extends LitElement {
       margin: 10px;
       padding: 10px 20px;
       color: red;
-      background-color: #2E354C;
-      color: #FBFAF8;
+      background-color: #2e354c;
+      color: #fbfaf8;
       cursor: pointer;
       width: 300px;
       border-radius: 100px;
@@ -325,7 +352,7 @@ export class BurnerChatApp extends LitElement {
       margin-left: 5px;
     }
 
-      .tagline {
+    .tagline {
       font-family: Roboto Mono;
       font-size: 30px;
       margin-top: 80px;
@@ -341,8 +368,9 @@ export class BurnerChatApp extends LitElement {
       border-radius: 100px;
       width: 300px;
     }
-    input.landing-input::placeholder { /* Chrome, Firefox, Opera, Safari 10.1+ */
-      color: #ADADAD;
+    input.landing-input::placeholder {
+      /* Chrome, Firefox, Opera, Safari 10.1+ */
+      color: #adadad;
     }
 
     .main-title {
@@ -352,10 +380,9 @@ export class BurnerChatApp extends LitElement {
       font-size: 70px;
       font-family: RUBIK;
       font-weight: bold;
-      color: #17E6B7;
+      color: #17e6b7;
       letter-spacing: 4px;
     }
-
 
     /**CSS LOADING SPINNER */
     .lds-ellipsis {
@@ -419,17 +446,14 @@ export class BurnerChatApp extends LitElement {
         transform: translate(24px, 0);
       }
     }
-
   `;
 
   static get scopedElements() {
     return {
-      "chat-screen": ChatScreen,
-      "burner-service-context": BurnerServiceContext,
-    }
+      'chat-screen': ChatScreen,
+    };
   }
 }
-
 
 /**
 LOADED FONTS, use like this

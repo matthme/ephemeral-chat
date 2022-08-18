@@ -30,7 +30,7 @@
   </head>
 
   <body>
-    <burner-service-context>
+    <burner-service-context id="provider">
       <burner-chat-app></burner-chat-app>
     </burner-service-context>
 
@@ -48,11 +48,11 @@
           undefined, // timeout
         );
 
-        const appInfo = await this.appWebsocket.appInfo({
+        const appInfo = await appWebsocket.appInfo({
           installed_app_id: 'burner-chat',
         });
 
-        service = new BurnerService(appWebsocket, appInfo);
+        const service = new BurnerService(appWebsocket, appInfo);
 
         customElements.define('burner-service-context', BurnerServiceContext);
         const provider = document.getElementById('provider');

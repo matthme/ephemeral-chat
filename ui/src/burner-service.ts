@@ -3,7 +3,7 @@ import { ActionHash, AgentPubKey, AppWebsocket, CellId, InstalledAppInfo } from 
 import { AgentPubKeyB64, ChannelMessageInput, MessageInput, Username } from './types/chat';
 import { writable, Writable, derived, Readable, get } from 'svelte/store';
 import { serializeHash } from '@holochain-open-dev/utils';
-import { state } from 'lit/decorators';
+import { state } from 'lit/decorators.js';
 
 export class BurnerService {
 
@@ -11,7 +11,6 @@ export class BurnerService {
   private _username: Writable<string | undefined> = writable();
   // private _bubbles: Writable<Record<AgentPubKeyB64, ChatBubble>> = writable({});
 
-  @state()
   myAgentPubKey: AgentPubKeyB64;
 
   public cellClient: CellClient;

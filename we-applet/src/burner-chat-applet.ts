@@ -1,9 +1,5 @@
 import { contextProvider, ContextProvider } from "@lit-labs/context";
 import { property, state } from "lit/decorators.js";
-import {
-  ProfilesStore,
-  profilesStoreContext,
-} from "@holochain-open-dev/profiles";
 import { InstalledAppInfo, AppWebsocket } from "@holochain/client";
 import { ScopedElementsMixin } from "@open-wc/scoped-elements";
 import { CircularProgress } from "@scoped-elements/material-web";
@@ -13,10 +9,6 @@ import { burnerServiceContext, BurnerService } from '@burner-chat/elements';
 export class BurnerChatApplet extends ScopedElementsMixin(LitElement) {
   @property()
   appWebsocket!: AppWebsocket;
-
-  @contextProvider({context: profilesStoreContext})
-  @property()
-  profilesStore!: ProfilesStore;
 
   @property()
   appletAppInfo!: InstalledAppInfo;

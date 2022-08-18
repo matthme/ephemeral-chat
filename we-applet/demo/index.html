@@ -10,11 +10,14 @@
     <div id="container"></div>
 
     <script type="module">
+      console.log("HELLO HELLOOO!!!");
+
       import { ProfilesStore, ProfilesService } from "@holochain-open-dev/profiles";
       import { ProfilesZomeMock } from "@holochain-open-dev/profiles/mocks";
       import { AppWebsocket, AdminWebsocket } from "@holochain/client";
-      import Applet from "../out-tsc";
+      import burnerChatApplet from "../out-tsc";
 
+      console.log("HELLO HELLOOO!!!");
       const container = document.getElementById("container");
 
       async function setup() {
@@ -30,7 +33,7 @@
           installed_app_id: "burner_chat-applet",
         });
 
-        const renderers = await Applet.appletRenderers(
+        const renderers = await burnerChatApplet.appletRenderers(
           appWs,
           adminWs,
           {

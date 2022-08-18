@@ -8,16 +8,17 @@ import {
   WeApplet,
   AppletRenderers,
   WeServices,
+  InstalledAppletInfo,
 } from "@lightningrodlabs/we-applet";
 
 import { BurnerChatApplet } from "./burner-chat-applet";
 
-const burner_chatApplet: WeApplet = {
+const burnerChatApplet: WeApplet = {
   async appletRenderers(
     appWebsocket: AppWebsocket,
     adminWebsocket: AdminWebsocket,
     weServices: WeServices,
-    appletAppInfo: InstalledAppInfo
+    appletAppInfo: InstalledAppInfo | InstalledAppletInfo[]
   ): Promise<AppletRenderers> {
     return {
       full(element: HTMLElement, registry: CustomElementRegistry) {
@@ -26,7 +27,6 @@ const burner_chatApplet: WeApplet = {
         const appletElement = element.querySelector("burner_chat-applet") as any;
 
         appletElement.appWebsocket =  appWebsocket;
-        appletElement.profilesStore = weServices.profilesStore;
         appletElement.appletAppInfo = appletAppInfo;
       },
       blocks: [],
@@ -34,4 +34,4 @@ const burner_chatApplet: WeApplet = {
   },
 };
 
-export default burner_chatApplet;
+export default burnerChatApplet;
