@@ -10,6 +10,7 @@ name = "chat_integrity"
 [dependencies]
 serde = "1"
 derive_more = "0"
+chrono = { version = "=0.4.22", default-features = false, features = ["clock", "std", "oldtime", "serde"], optional = true }
 
-hdi = "0.0.14"
-hdk = "0.0.142"
+hdi = "0.0.18"
+hdk = "0.0.146"
