@@ -24,9 +24,9 @@ export default {
   },
 
   plugins: [
-    copy({
-      targets: [{ src: "public/*", dest: "dist" }],
-    }),
+    // copy({ // not needed anymore since bubble-big.png is directly encoded as base64
+    //   targets: [{ src: "public/*", dest: "dist" }],
+    // }),
     /** Enable using HTML as rollup entrypoint */
     replace({
       'process.env.HC_PORT': '8000',
