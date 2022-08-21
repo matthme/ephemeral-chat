@@ -3,21 +3,23 @@
   <head>
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <title>Page Title</title>
+    <title>🔥 Burner Chat Applet Demo</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono&family=Rubik:wght@700&display=swap" rel="stylesheet">
   </head>
   <body>
     <div id="container"></div>
 
     <script type="module">
-      console.log("HELLO HELLOOO!!!");
-
+      // This demo is not working. I have no clue why...It seems not to be able to import the modules.
+      import burnerChatApplet from "../out-tsc/index.js";
       import { ProfilesStore, ProfilesService } from "@holochain-open-dev/profiles";
       import { ProfilesZomeMock } from "@holochain-open-dev/profiles/mocks";
       import { AppWebsocket, AdminWebsocket } from "@holochain/client";
-      import burnerChatApplet from "../out-tsc";
 
-      console.log("HELLO HELLOOO!!!");
       const container = document.getElementById("container");
 
       async function setup() {
@@ -33,15 +35,18 @@
           installed_app_id: "burner_chat-applet",
         });
 
+        const mockProfilesZome = new ProfilesZomeMock();
+        mockProfilesZome.create_profile({ nickname: "It's a me, Mario!" })
+
         const renderers = await burnerChatApplet.appletRenderers(
           appWs,
           adminWs,
           {
             profilesStore: new ProfilesStore(
-              new ProfilesService(new ProfilesZomeMock())
+              new ProfilesService(mockProfilesZome)
             ),
           },
-          appInfo
+          [{ weInfo: { name: "Demo Group", logoSrc: "" }, installedAppInfo: appInfo }]
         );
         renderers.full(container, window.customElements);
       }

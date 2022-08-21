@@ -18,18 +18,33 @@ const burnerChatApplet: WeApplet = {
     appWebsocket: AppWebsocket,
     adminWebsocket: AdminWebsocket,
     weServices: WeServices,
-    appletAppInfo: InstalledAppInfo | InstalledAppletInfo[]
+    appletAppInfo: InstalledAppletInfo[]
   ): Promise<AppletRenderers> {
     return {
       full(element: HTMLElement, registry: CustomElementRegistry) {
-        registry.define("burner_chat-applet", BurnerChatApplet);
-        element.innerHTML = `<burner_chat-applet></burner_chat-applet>`;
-        const appletElement = element.querySelector("burner_chat-applet") as any;
+        console.log("APPLET APP INFO: ", appletAppInfo);
+        registry.define("burner-chat-app", BurnerChatApplet);
+        // const channelSecret = appletAppInfo[0].weInfo.name + "_" + appletAppInfo[0].installedAppInfo.installed_app_id;
+        element.innerHTML = `<burner-chat-app style="flex: 1; display: flex;></burner-chat-app>`;
+        const appletElement = element.querySelector("burner-chat-app") as any;
 
+        // appletElement.profilesStore = weServices.profilesStore;
         appletElement.appWebsocket =  appWebsocket;
         appletElement.appletAppInfo = appletAppInfo;
       },
-      blocks: [],
+      blocks: [
+        // {
+        //   name: "merge-eye-view",
+        //   render: (element: HTMLElement, registry: CustomElementRegistry) => {
+        //     registry.define("cross-we-burner-chat", CrossWeBurnerChat);
+        //     element.innerHTML = `<cross-we-burner-chat style="flex: 1; display: flex;"></cross-we-burner-chat>`;
+        //     let appletElement = element.querySelector("cross-we-burner-chat") as any;
+
+        //     appletElement.appWebsocket =  appWebsocket;
+        //     appletElement.appletAppsInfo = appletAppInfo;
+        //   }
+        // },
+    ],
     };
   },
 };

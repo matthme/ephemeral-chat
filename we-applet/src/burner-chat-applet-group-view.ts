@@ -48,7 +48,17 @@ export class BurnerChatApplet extends ScopedElementsMixin(LitElement) {
     <div class="flex-scrollable-parent" style="flex: 1;">
       <div class="flex-scrollable-container">
         <div class="flex-scrollable-y">
-          <burner-chat-app style="padding: 30px;"></burner-chat-app>
+          <div class="main-title-container column" style="flex: 1; align-itmes: right;">
+            <h1 class="main-title">BURNER CHAT</h1>
+            <p class="powered-by-holochain" @click=${() => {
+              const jsConfetti = new JSConfetti();
+              jsConfetti.addConfetti({
+                emojis: ['⚡️'],
+              });}}>
+              powered by holochain
+            </p>
+          </div>
+          <group-chat-screen .channel=${this.channel} style="padding: 30px;"></group-chat-screen>
         </div>
       </div>
     </div>`;
@@ -57,7 +67,8 @@ export class BurnerChatApplet extends ScopedElementsMixin(LitElement) {
   static get scopedElements() {
     return {
       "mwc-circular-progress": CircularProgress,
-      "burner-chat-app": BurnerChatApp,
+      "group-chat-screen": GroupChatScreen,
+      // TODO: add any elements that you have in your applet
     };
   }
 
@@ -67,6 +78,32 @@ export class BurnerChatApplet extends ScopedElementsMixin(LitElement) {
       :host {
         display: flex;
         flex: 1;
+      }
+
+      .main-title-container {
+        position: relative;
+        max-width: 700px;
+      }
+
+      .main-title {
+        /* font-family: 'Rubik', monospace;
+        font-weight: bold;
+        color: #17E6B7; */
+        margin: 0;
+        font-size: 40px;
+        font-family: RUBIK;
+        font-weight: bold;
+        color: #17e6b7;
+        letter-spacing: 1px;
+      }
+
+      .powered-by-holochain {
+        position: absolute;
+        top: 42;
+        left: 160;
+        font-family: 'Roboto Mono';
+        font-size: 13px;
+        color: #2e354c;
       }
     `,
   ];
