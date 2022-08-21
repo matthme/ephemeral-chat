@@ -28,6 +28,7 @@ import { CellClient, HolochainClient } from '@holochain-open-dev/cell-client';
 import { BurnerServiceContext } from './components/service-context';
 import { TaskSubscriber } from 'lit-svelte-stores';
 import JSConfetti from 'js-confetti';
+import { robotoMonoNormal, rubikNormal, rubikBold } from './fonts';
 
 
 export class BurnerChatApp extends LitElement {
@@ -75,6 +76,43 @@ export class BurnerChatApp extends LitElement {
 
   @state()
   activeChannelMembers: Record<AgentPubKeyB64, Username> = {};
+
+  constructor() {
+    super();
+    if(!document.getElementById('burner-chat-fonts')){
+      let head = document.head || document.getElementsByTagName('head')[0],
+      style = document.createElement('style');
+          style.id = 'burner-chat-fonts';
+          style.type = 'text/css';
+          style.innerText = `
+            @font-face {
+              font-family: 'Roboto Mono';
+              font-style: normal;
+              font-display: swap;
+              font-weight: 400;
+              src: url(${robotoMonoNormal});
+              unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+2000-206F,U+2074,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;
+            }
+            @font-face {
+              font-family: 'Rubik';
+              font-style: normal;
+              font-display: swap;
+              font-weight: 400;
+              src: url(${rubikNormal});
+              unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+2000-206F,U+2074,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;
+            }
+            @font-face {
+              font-family: 'Rubik';
+              font-style: normal;
+              font-display: swap;
+              font-weight: 700;
+              src: url(${rubikBold});
+              unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+2000-206F,U+2074,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;
+            }
+          `;
+          head.appendChild(style);
+      }
+  }
 
   signalCallback = async (signal: AppSignal) => {
     // filter only current room
