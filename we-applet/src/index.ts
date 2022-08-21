@@ -27,6 +27,7 @@ const burnerChatApplet: WeApplet = {
         // const channelSecret = appletAppInfo[0].weInfo.name + "_" + appletAppInfo[0].installedAppInfo.installed_app_id;
         element.innerHTML = `<burner-chat-app style="flex: 1; display: flex;></burner-chat-app>`;
         const appletElement = element.querySelector("burner-chat-app") as any;
+        console.log("APPLET ELEMENT: ", appletElement);
 
         // appletElement.profilesStore = weServices.profilesStore;
         appletElement.appWebsocket =  appWebsocket;

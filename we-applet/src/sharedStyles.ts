@@ -1,14 +1,6 @@
 import { css } from 'lit';
-import "@fontsource/roboto-mono";
-import "@fontsource/rubik";
 
 export const sharedStyles = css`
-  .rubik {
-    font-family: Rubik;
-  }
-  .roboto-mono {
-    font-family: Roboto Mono;
-  }
   .column {
     display: flex;
     flex-direction: column;

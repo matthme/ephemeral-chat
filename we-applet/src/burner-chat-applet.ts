@@ -10,6 +10,8 @@ import { GroupChatScreen } from "./components/group-chat-screen";
 import { InstalledAppletInfo } from "@lightningrodlabs/we-applet";
 import JSConfetti from 'js-confetti';
 import { sharedStyles } from "./sharedStyles";
+
+
 export class BurnerChatApplet extends ScopedElementsMixin(LitElement) {
   @property()
   appWebsocket!: AppWebsocket;
