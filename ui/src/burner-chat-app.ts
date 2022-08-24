@@ -78,6 +78,7 @@ export class BurnerChatApp extends LitElement {
   activeChannelMembers: Record<AgentPubKeyB64, Username> = {};
 
   constructor() {
+    console.log("BEING CONSTRUCTED.");
     super();
     if(!document.getElementById('burner-chat-fonts')){
       let head = document.head || document.getElementsByTagName('head')[0],

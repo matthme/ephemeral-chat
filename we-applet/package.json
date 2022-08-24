@@ -15,11 +15,9 @@
   },
   "dependencies": {
     "@burner-chat/elements": "file:../ui",
-    "@fontsource/roboto-mono": "^4.5.8",
-    "@fontsource/rubik": "^4.5.11",
-    "@holochain-open-dev/profiles": "^0.5.0",
+    "@holochain-open-dev/profiles": "^0.5.1",
     "@holochain/client": "^0.7.0",
-    "@lightningrodlabs/we-applet": "file:/home/matthias/code/holochain/lightningrodlabs/we-142/ui/libs/we-applet",
+    "@lightningrodlabs/we-applet": "^0.1.0",
     "@lit-labs/context": "^0.1.2",
     "@open-wc/scoped-elements": "^2.0.1",
     "@scoped-elements/material-web": "^0.0.19",
@@ -27,7 +25,6 @@
   },
   "devDependencies": {
     "@babel/preset-env": "^7.15.0",
-    "@burner-chat/elements": "^0.0.1",
     "@rollup/plugin-babel": "^5.3.0",
     "@rollup/plugin-commonjs": "18.0.0",
     "@rollup/plugin-node-resolve": "^13.0.4",

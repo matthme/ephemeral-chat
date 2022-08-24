@@ -22,12 +22,13 @@ const burnerChatApplet: WeApplet = {
   ): Promise<AppletRenderers> {
     return {
       full(element: HTMLElement, registry: CustomElementRegistry) {
-        console.log("APPLET APP INFO: ", appletAppInfo);
-        registry.define("burner-chat-app", BurnerChatApplet);
+        console.log("APPLET APP INFO: ", appletAppInfo); // <-- appletAppInfo looks fine here
+        registry.define("burner-chat-applet", BurnerChatApplet);
+        console.log("BurnerChatApplet", BurnerChatApplet); // <-- BurnerChatApplet component looks fine here
         // const channelSecret = appletAppInfo[0].weInfo.name + "_" + appletAppInfo[0].installedAppInfo.installed_app_id;
-        element.innerHTML = `<burner-chat-app id="burner-chat-applet" style="flex: 1; display: flex;></burner-chat-app>`;
-        const appletElement = element.querySelector("#burner-chat-applet") as any;
-        console.log("APPLET ELEMENT: ", appletElement);
+        element.innerHTML = `<burner-chat-applet id="burner-chat-applet" style="flex: 1; display: flex;></burner-chat-applet>`;
+        let appletElement = element.querySelector("burner-chat-applet") as any;
+        console.log("APPLET ELEMENT: ", appletElement); // <-- is null ?!?!
 
         // appletElement.profilesStore = weServices.profilesStore;
         appletElement.appWebsocket =  appWebsocket;
