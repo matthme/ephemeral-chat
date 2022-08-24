@@ -10,6 +10,7 @@ import { CircularProgress } from "@scoped-elements/material-web";
 import { LitElement, html, css } from "lit";
 import { InstalledAppletInfo } from "@lightningrodlabs/we-applet";
 import { BurnerChatApp, BurnerService, burnerServiceContext } from "@burner-chat/elements";
+import { sharedStyles } from "./sharedStyles";
 
 export class BurnerChatApplet extends ScopedElementsMixin(LitElement) {
   @property()
@@ -61,6 +62,7 @@ export class BurnerChatApplet extends ScopedElementsMixin(LitElement) {
   }
 
   static styles = [
+    sharedStyles,
     css`
       :host {
         display: flex;

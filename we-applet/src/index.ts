@@ -23,7 +23,7 @@ const burner_chatApplet: WeApplet = {
     return {
       full(element: HTMLElement, registry: CustomElementRegistry) {
         registry.define("burner_chat-applet", BurnerChatApplet);
-        element.innerHTML = `<burner_chat-applet style="font-family: sans-serif; background-color: #ededed;"></burner_chat-applet>`;
+        element.innerHTML = `<burner_chat-applet style="font-family: sans-serif; background-color: #ededed; margin: 0;"></burner_chat-applet>`;
         const appletElement = element.querySelector("burner_chat-applet") as any;
 
         appletElement.appWebsocket =  appWebsocket;
