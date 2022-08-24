@@ -1,29 +1,26 @@
 import { contextProvider, ContextProvider } from "@lit-labs/context";
 import { property, state } from "lit/decorators.js";
+import {
+  ProfilesStore,
+  profilesStoreContext,
+} from "@holochain-open-dev/profiles";
 import { InstalledAppInfo, AppWebsocket } from "@holochain/client";
 import { ScopedElementsMixin } from "@open-wc/scoped-elements";
 import { CircularProgress } from "@scoped-elements/material-web";
 import { LitElement, html, css } from "lit";
-import { burnerServiceContext, BurnerService, BurnerChatApp } from '@burner-chat/elements';
-import { ProfilesStore, profilesStoreContext } from "@holochain-open-dev/profiles";
-import { GroupChatScreen } from "./components/group-chat-screen";
 import { InstalledAppletInfo } from "@lightningrodlabs/we-applet";
-import JSConfetti from 'js-confetti';
-import { sharedStyles } from "./sharedStyles";
-
+import { BurnerChatApp, BurnerService, burnerServiceContext } from "@burner-chat/elements";
 
 export class BurnerChatApplet extends ScopedElementsMixin(LitElement) {
   @property()
   appWebsocket!: AppWebsocket;
 
+  @contextProvider({context: profilesStoreContext})
   @property()
   profilesStore!: ProfilesStore;
 
   @property()
   appletAppInfo!: InstalledAppletInfo[];
-
-  @property()
-  channel!: string;
 
   @state()
   loaded = false;
@@ -64,7 +61,6 @@ export class BurnerChatApplet extends ScopedElementsMixin(LitElement) {
   }
 
   static styles = [
-    sharedStyles,
     css`
       :host {
         display: flex;

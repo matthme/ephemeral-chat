@@ -13,7 +13,7 @@ import {
 
 import { BurnerChatApplet } from "./burner-chat-applet";
 
-const burnerChatApplet: WeApplet = {
+const burner_chatApplet: WeApplet = {
   async appletRenderers(
     appWebsocket: AppWebsocket,
     adminWebsocket: AdminWebsocket,
@@ -22,33 +22,17 @@ const burnerChatApplet: WeApplet = {
   ): Promise<AppletRenderers> {
     return {
       full(element: HTMLElement, registry: CustomElementRegistry) {
-        console.log("APPLET APP INFO: ", appletAppInfo); // <-- appletAppInfo looks fine here
-        registry.define("burner-chat-applet", BurnerChatApplet);
-        console.log("BurnerChatApplet", BurnerChatApplet); // <-- BurnerChatApplet component looks fine here
-        // const channelSecret = appletAppInfo[0].weInfo.name + "_" + appletAppInfo[0].installedAppInfo.installed_app_id;
-        element.innerHTML = `<burner-chat-applet id="burner-chat-applet" style="flex: 1; display: flex;></burner-chat-applet>`;
-        let appletElement = element.querySelector("burner-chat-applet") as any;
-        console.log("APPLET ELEMENT: ", appletElement); // <-- is null ?!?!
+        registry.define("burner_chat-applet", BurnerChatApplet);
+        element.innerHTML = `<burner_chat-applet style="font-family: sans-serif; background-color: #ededed;"></burner_chat-applet>`;
+        const appletElement = element.querySelector("burner_chat-applet") as any;
 
-        // appletElement.profilesStore = weServices.profilesStore;
         appletElement.appWebsocket =  appWebsocket;
+        appletElement.profilesStore = weServices.profilesStore;
         appletElement.appletAppInfo = appletAppInfo;
       },
-      blocks: [
-        // {
-        //   name: "merge-eye-view",
-        //   render: (element: HTMLElement, registry: CustomElementRegistry) => {
-        //     registry.define("cross-we-burner-chat", CrossWeBurnerChat);
-        //     element.innerHTML = `<cross-we-burner-chat style="flex: 1; display: flex;"></cross-we-burner-chat>`;
-        //     let appletElement = element.querySelector("cross-we-burner-chat") as any;
-
-        //     appletElement.appWebsocket =  appWebsocket;
-        //     appletElement.appletAppsInfo = appletAppInfo;
-        //   }
-        // },
-    ],
+      blocks: [],
     };
   },
 };
 
-export default burnerChatApplet;
+export default burner_chatApplet;
