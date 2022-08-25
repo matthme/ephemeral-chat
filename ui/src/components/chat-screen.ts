@@ -12,6 +12,7 @@ import { BurnerService } from '../burner-service';
 import { chatBubbles, randomAvatar } from '../helpers/random-avatars';
 import { Drawer } from './menu';
 import JSConfetti from 'js-confetti';
+import { ScopedElementsMixin } from '@open-wc/scoped-elements';
 
 // export interface MemberInfo {
 //   agentPubKey: AgentPubKey,
@@ -19,7 +20,7 @@ import JSConfetti from 'js-confetti';
 // }
 
 
-export class ChatScreen extends LitElement {
+export class ChatScreen extends ScopedElementsMixin(LitElement) {
   receiveMessage(signalInput: AppSignal) {
     throw new Error('Method not implemented.');
   }

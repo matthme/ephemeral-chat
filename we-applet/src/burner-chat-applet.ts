@@ -40,6 +40,7 @@ export class BurnerChatApplet extends ScopedElementsMixin(LitElement) {
   }
 
   render() {
+    console.log("%*%*%*  VERSION 0.0.7 %*%*%*");
     console.log("@burner-chat-applet render(): this.weGroupSecret: ", this.weGroupSecret);
     if (!this.loaded)
       return html`<div
@@ -53,7 +54,7 @@ export class BurnerChatApplet extends ScopedElementsMixin(LitElement) {
     <div class="flex-scrollable-parent">
       <div class="flex-scrollable-container">
         <div class="flex-scrollable-y">
-          <burner-chat-group-app .weGroupSecret=${this.weGroupSecret} style="padding: 0 30px;"></burner-chat-group-app>
+          <burner-chat-group-app .weGroupSecret=${this.weGroupSecret} style="padding: 0 30px; display: flex; flex: 1;"></burner-chat-group-app>
         </div>
       </div>
     </div>`;

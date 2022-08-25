@@ -7,7 +7,6 @@ import {
   appInfoContext,
   appWebsocketContext,
   burnerServiceContext,
-  ChatBubble,
   BurnerService,
   chatBubbles,
   randomAvatar ,
@@ -17,18 +16,19 @@ import {
   Message,
   Username 
 } from '@burner-chat/elements';
+import { ChatBubble } from '@burner-chat/elements';
 import { serializeHash, deserializeHash } from '@holochain-open-dev/utils';
 import { TaskSubscriber } from 'lit-svelte-stores';
 import JSConfetti from 'js-confetti';
-import { ProfilesStore, profilesStoreContext } from '@holochain-open-dev/profiles';
+import { Profile, ProfilesStore, profilesStoreContext } from '@holochain-open-dev/profiles';
+import { ScopedElementsMixin } from '@open-wc/scoped-elements';
 
 // export interface MemberInfo {
 //   agentPubKey: AgentPubKey,
 //   username: string,
 // }
 
-
-export class WeGroupChatScreen extends LitElement {
+export class WeGroupChatScreen extends ScopedElementsMixin(LitElement) {
   receiveMessage(signalInput: AppSignal) {
     throw new Error('Method not implemented.');
   }
@@ -106,6 +106,7 @@ export class WeGroupChatScreen extends LitElement {
   }
 
   async firstUpdated() {
+    console.log("I AM UPDATED!");
     // do stuff
     // console.log("FIRST UPDATED CHAT_SCREEN");
     // console.log("this.service");
@@ -138,7 +139,7 @@ export class WeGroupChatScreen extends LitElement {
     }
   }
 
-  async burnChannel() {
+  async burnChannel(profile: Profile) {
     const jsConfetti = new JSConfetti()
     jsConfetti.addConfetti({
       emojis: ['🔥', '💥', '🔥', '🔥'],
@@ -147,7 +148,7 @@ export class WeGroupChatScreen extends LitElement {
       const msgInput: ChannelMessageInput = {
         signalType: "BurnChannel",
         channel: this.channel.value!,
-        username: this._myProfile.value!.nickname,
+        username: profile!.nickname,
       };
       this.service.burnChannel(msgInput);
     }, 500);
@@ -189,56 +190,68 @@ export class WeGroupChatScreen extends LitElement {
 
 
   render() {
-    if (this.isBURNT) {
-      return html`
-        ${this.renderBurnScreen()}
-      `
-    }
-
-    console.log("@chat-screen: rendering chat screen.");
-    console.log("@chat-screen: channel members:", this.channelMembers);
-    console.log("@chat-screen: myAgentPubKey: ", this.myAgentPubKey);
-
-
-    return html`
-    HELLO FROM THE CHAT SCREEEEEEEN!!!
-    <div class="chat-screen">
-      <!-- <drawer-menu></drawer-menu> -->
-      <div class="chat-bubblez">
-        ${Object.entries(this.channelMembers)
-          // .concat(chatBubbles(this.channel.value!) // comment out this and next line to disable demo data
-          //   .map(e => [e.agentPubKey, e.username]))
-          .filter(([myAgentPubKey, _]) => this.myAgentPubKey !== myAgentPubKey)
-          .map(([agentPubKey, username]) => {
-            const avatar = this.avatarOfAgent(agentPubKey);
-          return html`<chat-bubble id=${agentPubKey}
-            .username=${username}
-            .avatarUrl=${avatar ? avatar : randomAvatar()}
-            .agentPubKey=${agentPubKey}
-          >${username}</chat-bubble>`
-        })}
-      </div>
-      <div class="bottom-chat-container">
-        <div class="admin-chat-cointainer">
-          <div style='display: flex;
-            justify-items: center;
-            align-items: center;
-            flex-direction: column;'>
-            <chat-bubble id=${this.myAgentPubKey}
-              .username=${this._myProfile.value!.nickname}
-              .avatarUrl=${this._myProfile.value?.fields.avatar ? this._myProfile.value.fields.avatar : randomAvatar()}
-              .agentPubKey=${this.myAgentPubKey}
-              .isAdmin=${true}
-              .channelMembers=${this.channelMembers}
-            >${this._myProfile.value!.nickname}
-            </chat-bubble>
-          </div>
-          <button id="burn-btn" @click=${() => this.burnChannel()}>🔥</button>
+    return this._myProfile.render({
+      pending: () => html`
+        <div class="row center-content" style="flex: 1;">
+          <mwc-circular-progress indeterminate></mwc-circular-progress>
         </div>
+      `,
+      complete: (myProfile) => {
+        if (this.isBURNT) {
+          return html`
+            ${this.renderBurnScreen()}
+          `
+        }
 
-      </div>
-    </div>
-    `
+        console.log("@chat-screen: rendering chat screen.");
+        console.log("@chat-screen: channel members:", this.channelMembers);
+        console.log("@chat-screen: myAgentPubKey: ", this.myAgentPubKey);
+
+        const myAvatar = myProfile!.fields.avatar ? myProfile!.fields.avatar : randomAvatar();
+        const myNickname = myProfile!.nickname;
+        console.log("@chat-screen: isAvatar?: ", !!myAvatar);
+        console.log("@chat-screen: myNickname: ", myNickname);
+
+
+        return html`
+        <div class="chat-screen">
+          <!-- <drawer-menu></drawer-menu> -->
+          <div class="chat-bubblez">
+            ${Object.entries(this.channelMembers)
+              // .concat(chatBubbles(this.channel.value!) // comment out this and next line to disable demo data
+              //   .map(e => [e.agentPubKey, e.username]))
+              .filter(([myAgentPubKey, _]) => this.myAgentPubKey !== myAgentPubKey)
+              .map(([agentPubKey, username]) => {
+                const avatar = this.avatarOfAgent(agentPubKey);
+              return html`<chat-bubble id=${agentPubKey}
+                .username=${username}
+                .avatarUrl=${avatar ? avatar : randomAvatar()}
+                .agentPubKey=${agentPubKey}
+              ></chat-bubble>`
+            })}
+          </div>
+          <div class="bottom-chat-container">
+            <div class="admin-chat-cointainer">
+              <div style='display: flex;
+                flex-direction: column;
+                flex: 1;'>
+                <chat-bubble 
+                  style="display: flex; flex: 1;"
+                  id=${this.myAgentPubKey}
+                  .username=${myNickname}
+                  .avatarUrl=${myAvatar}
+                  .agentPubKey=${this.myAgentPubKey}
+                  .isAdmin=${true}
+                  .channelMembers=${this.channelMembers}
+                ></chat-bubble>
+              </div>
+            </div>
+          </div>
+          <button id="burn-btn" @click=${() => this.burnChannel(myProfile!)}>🔥</button>
+        </div>
+        `
+      }
+    });
   }
 
   static styles = css`
@@ -261,19 +274,23 @@ export class WeGroupChatScreen extends LitElement {
       padding: 10px 30px;
       font-weight: bold;
       color: rgb(245, 245, 245);
-      position: absolute;
+      position: fixed;
       padding: 5px;
-      right: 140px;
-      bottom: 16px;
+      right: 77px;
+      bottom: 44px;
       cursor: pointer;
     }
     .admin-chat-cointainer {
+      display: flex;
+      flex: 1;
       max-width: 360px;
       margin: 0 auto;
       position: relative;
     }
 
     .bottom-chat-container {
+      display: flex;
+      flex: 1;
       position:fixed;
       bottom: 0;
       width: 100%;
@@ -283,6 +300,7 @@ export class WeGroupChatScreen extends LitElement {
 
     .chat-screen {
       display: flex;
+      flex: 1;
       flex-direction: column;
     }
     .chat-name {
@@ -292,6 +310,7 @@ export class WeGroupChatScreen extends LitElement {
     .chat-bubblez {
       width: 100%;
       display: flex;
+      flex: 1;
       flex-wrap: wrap;
       justify-content: space-evenly;
     }

@@ -8,13 +8,14 @@ import { AgentPubKeyB64, Message, MessageInput, Username } from '../types/chat';
 import JSConfetti from 'js-confetti';
 import { BurnerService } from '../burner-service';
 import { TaskSubscriber } from 'lit-svelte-stores';
+import { ScopedElementsMixin } from '@open-wc/scoped-elements';
 
 interface ChatBufferElement {
   timestamp: number,
   payload: string,
 }
 
-export class ChatBubble extends LitElement {
+export class ChatBubble extends ScopedElementsMixin(LitElement) {
 
   @contextProvided({ context: appWebsocketContext })
   appWebsocket!: AppWebsocket;
@@ -192,7 +193,7 @@ export class ChatBubble extends LitElement {
   renderEmoji(emoji: string, i: number) {
     return html`
     <button @click="${() => this._handleEmojiClick(emoji)}" class="emoji-btn">
-      <div class="${emoji === '🔥' ? 'waving' : ''}">${emoji}</span>
+      <div class="${emoji === '🔥' ? 'waving' : ''}">${emoji}</div>
     </button>`
   }
 
@@ -222,6 +223,7 @@ export class ChatBubble extends LitElement {
 
 
   render() {
+    console.log("RENDERING CHAT BUBBBBLLLLEEEEEEEEE!!£!£!ADA!D£");
     return html`
         <div class="chat-bubble ${this.isConfettiSource ? "confetti-source" : ""}">
           <div class="chat-quote ${this.isAdmin ? 'admin': ''}">
@@ -369,7 +371,7 @@ export class ChatBubble extends LitElement {
     display: flex;
     align-self: center;
     flex-direction: column;
-    margin-right: 30px;
+    margin-right: 12px;
     position: relative !important;
   }
 

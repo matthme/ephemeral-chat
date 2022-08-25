@@ -26,9 +26,10 @@ import { BurnerServiceContext } from './components/service-context';
 import { TaskSubscriber } from 'lit-svelte-stores';
 import JSConfetti from 'js-confetti';
 import { robotoMonoNormal, rubikNormal, rubikBold } from './fonts';
+import { ScopedElementsMixin } from '@open-wc/scoped-elements';
 
 
-export class BurnerChatApp extends LitElement {
+export class BurnerChatApp extends ScopedElementsMixin(LitElement) {
   @state() loading = false;
   @state() entryHash: EntryHash | undefined;
 

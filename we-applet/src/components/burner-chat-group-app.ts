@@ -34,10 +34,10 @@ import JSConfetti from 'js-confetti';
 import { ProfilesStore, profilesStoreContext } from '@holochain-open-dev/profiles';
 import { WeGroupChatScreen } from './we-group-chat-screen';
 import { sharedStyles } from '../sharedStyles';
+import { ScopedElementsMixin } from '@open-wc/scoped-elements';
 
-
-export class BurnerChatGroupApp extends LitElement {
-  @state() loading = false;
+export class BurnerChatGroupApp extends ScopedElementsMixin(LitElement) {
+  @state() loading = true;
   @state() entryHash: EntryHash | undefined;
 
   @contextProvided({ context: burnerServiceContext, subscribe: true })
@@ -81,13 +81,13 @@ export class BurnerChatGroupApp extends LitElement {
     () => [this.service]
   );
 
-  myProfile = new TaskSubscriber(
+  _myProfile = new TaskSubscriber(
     this,
     () => this.profilesStore.fetchMyProfile(),
     () => [this.profilesStore]
   );
 
-  weGroupMembers = new TaskSubscriber(
+  _weGroupMembers = new TaskSubscriber(
     this,
     () => this.profilesStore.fetchAllProfiles(),
     () => [this.profilesStore]
@@ -170,6 +170,10 @@ export class BurnerChatGroupApp extends LitElement {
 
   async firstUpdated() {
     this.service.cellClient.addSignalHandler(this.signalCallback);
+    this.profilesStore.fetchMyProfile();
+    this.profilesStore.fetchAllProfiles();
+    console.log("@firstUpdated() of burner-chat-froup-app: myProfile: ", this._myProfile.value);
+    console.log("@firstUpdated() of burner-chat-froup-app: _weGroupMembers: ", this._weGroupMembers.value);
     this.loading = false;
   }
 
@@ -183,13 +187,13 @@ export class BurnerChatGroupApp extends LitElement {
     }
     this.startBttnLoading = true;
 
-    this.service.setUsername(this.myProfile.value?.nickname);
+    this.service.setUsername(this._myProfile.value?.nickname);
 
     // get channel secret and join channel
     const channelMessageInput: ChannelMessageInput = {
       signalType: 'JoinChannel',
       channel: channelToJoin,
-      username: this.myProfile.value?.nickname!,
+      username: this._myProfile.value?.nickname!,
     };
     console.log("@start(): cannelMessageInput: ", channelMessageInput);
 
@@ -198,15 +202,15 @@ export class BurnerChatGroupApp extends LitElement {
 
 
   async joinWeGroupChannel() {
-    console.log("MY PROFILE: ", this.myProfile.value);
+    console.log("MY PROFILE: ", this._myProfile.value);
     console.log("weGroupSecret: ", this.weGroupSecret);
     this.groupChannelBttnLoading = true;
-    this.service.setUsername(this.myProfile.value?.nickname);
+    this.service.setUsername(this._myProfile.value?.nickname);
     // get channel secret and join channel
     const channelMessageInput: ChannelMessageInput = {
       signalType: 'JoinChannel',
       channel: this.weGroupSecret,
-      username: this.myProfile.value?.nickname!,
+      username: this._myProfile.value?.nickname!,
     };
 
     console.log("@joinWeGroupChannel(): cannelMessageInput: ", channelMessageInput);
@@ -220,7 +224,7 @@ export class BurnerChatGroupApp extends LitElement {
     // }
     console.log("@burner-chat-group-app: joining channel!")
     await this.service.joinChannel(input);
-    const channelMembers = this.weGroupMembers.value!;
+    const channelMembers = this._weGroupMembers.value!;
     console.log("@burner-chat-group-app: channel members: ", channelMembers);
 
     // console.log(channelMembers);
@@ -245,7 +249,7 @@ export class BurnerChatGroupApp extends LitElement {
         Just Signals
       </p>
       <div class="landing-form">
-        <button id="start-bttn" @click=${this.joinWeGroupChannel}>
+        <button id="groupChannel-bttn" @click=${this.joinWeGroupChannel}>
           ${this.groupChannelBttnLoading
         ? html`<div class="lds-ellipsis">
                 <div></div>
@@ -282,7 +286,7 @@ export class BurnerChatGroupApp extends LitElement {
     const join_channel_input: ChannelMessageInput = {
       signalType: 'JoinChannel',
       channel: ev.detail,
-      username: this.myProfile.value?.nickname!,
+      username: this._myProfile.value?.nickname!,
     };
 
     this.joinChannel(join_channel_input);
@@ -324,6 +328,7 @@ export class BurnerChatGroupApp extends LitElement {
 
     return html`
       <we-group-chat-screen
+      style="display: flex; flex: 1; flex-direction: column;"
         .channelMembers=${this.activeChannelMembers}
         @switchChannel=${this.switchChannel}
         .myAgentPubKey=${this.service.myAgentPubKey}
@@ -348,7 +353,7 @@ export class BurnerChatGroupApp extends LitElement {
     //    => my own buuble
 
     return html`
-      <main style="position: relative;">
+      <main style="position: relative; display: flex; flex: 1; flex-direction: column;">
         ${this.activeChannel.value
         ? html``
         : html`
@@ -409,6 +414,8 @@ export class BurnerChatGroupApp extends LitElement {
     }
 
     .main-title-container {
+      display: flex;
+      flex-direction: column;
       position: relative;
       max-width: 700px;
       margin: 0 auto;
@@ -417,12 +424,28 @@ export class BurnerChatGroupApp extends LitElement {
     }
     .powered-by-holochain {
       position: absolute;
-      top: 50px;
-      right: 0;
+      top: 100px;
+      right: -30px;
       font-family: 'Roboto Mono';
       font-size: 20px;
       color: #2e354c;
     }
+    button#groupChannel-bttn {
+      position: relative;
+      all: unset;
+      margin: 10px;
+      padding: 10px 20px;
+      color: red;
+      background-color: #17dbae;
+      color: #fbfaf8;
+      cursor: pointer;
+      width: 300px;
+      border-radius: 100px;
+      font-weight: bold;
+      font-family: 'Rubik';
+      height: 38px;
+    }
+
     button#start-bttn {
       position: relative;
       all: unset;
@@ -461,8 +484,8 @@ export class BurnerChatGroupApp extends LitElement {
     .tagline {
       font-family: Roboto Mono;
       font-size: 30px;
-      margin-top: 80px;
-      margin-bottom: 80px;
+      margin-top: 27px;
+      margin-bottom: 60px;
     }
 
     input.landing-input {

@@ -1,4 +1,5 @@
 import { contextProvided } from "@lit-labs/context";
+import { ScopedElementsMixin } from "@open-wc/scoped-elements";
 import { css, CSSResultGroup, html, LitElement } from "lit";
 import { TaskSubscriber } from "lit-svelte-stores";
 import { customElement, query, state } from "lit/decorators.js";
@@ -6,7 +7,7 @@ import { property } from "lodash";
 import { BurnerService } from "../burner-service";
 import { burnerServiceContext } from "../contexts";
 
-export class Drawer extends LitElement {
+export class Drawer extends ScopedElementsMixin(LitElement) {
 
   @contextProvided({ context: burnerServiceContext, subscribe: true })
   @state()
