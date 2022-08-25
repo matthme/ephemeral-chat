@@ -22,11 +22,13 @@ const burner_chatApplet: WeApplet = {
   ): Promise<AppletRenderers> {
     return {
       full(element: HTMLElement, registry: CustomElementRegistry) {
+        const weGroupChannelSecret = appletAppInfo[0].weInfo.name + "-" + appletAppInfo[0].installedAppInfo.installed_app_id;
         registry.define("burner_chat-applet", BurnerChatApplet);
-        element.innerHTML = `<burner_chat-applet style="font-family: sans-serif; background-color: #ededed; margin: 0;"></burner_chat-applet>`;
+        element.innerHTML = `<burner_chat-applet style="flex: 1; display: flex; font-family: sans-serif; background-color: #ededed; margin: 0;"></burner_chat-applet>`;
         const appletElement = element.querySelector("burner_chat-applet") as any;
 
-        appletElement.appWebsocket =  appWebsocket;
+        appletElement.weGroupSecret = weGroupChannelSecret;
+        appletElement.appWebsocket = appWebsocket;
         appletElement.profilesStore = weServices.profilesStore;
         appletElement.appletAppInfo = appletAppInfo;
       },

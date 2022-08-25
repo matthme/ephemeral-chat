@@ -1,17 +1,26 @@
+/**
+ *
+ * Chat screen for a We-group, i.e. rendering profiles from the ProfilesStore.
+ * Only one channel, defined by some string derived from the We group properties.
+ *
+ *
+ */
+
 
 import { LitElement, html, css, CSSResultGroup } from 'lit';
 import { state, customElement, property, query } from 'lit/decorators.js';
 import { InstalledCell, AppWebsocket, EntryHash, InstalledAppInfo, AgentPubKey, AppSignal } from '@holochain/client';
 import { contextProvided } from '@lit-labs/context';
-import { appInfoContext, appWebsocketContext, burnerServiceContext } from '../contexts';
+import { appInfoContext, appWebsocketContext, burnerServiceContext } from '@burner-chat/elements';
 import { serializeHash, deserializeHash } from '@holochain-open-dev/utils';
-import { AgentPubKeyB64, ChannelMessageInput, Message, Username } from '../types/chat';
+import { AgentPubKeyB64, ChannelMessageInput, Message, Username } from '@burner-chat/elements';
 import { TaskSubscriber } from 'lit-svelte-stores';
-import { ChatBubble } from './chat-bubble';
-import { BurnerService } from '../burner-service';
-import { chatBubbles, randomAvatar } from '../helpers/random-avatars';
-import { Drawer } from './menu';
+import { ChatBubble } from '@burner-chat/elements';
+import { BurnerService } from '@burner-chat/elements';
+import { chatBubbles, randomAvatar } from '@burner-chat/elements';
+import { Drawer } from '@burner-chat/elements';
 import JSConfetti from 'js-confetti';
+import { ProfilesStore, profilesStoreContext } from '@holochain-open-dev/profiles';
 
 // export interface MemberInfo {
 //   agentPubKey: AgentPubKey,
@@ -19,7 +28,7 @@ import JSConfetti from 'js-confetti';
 // }
 
 
-export class ChatScreen extends LitElement {
+export class GroupChatScreen extends LitElement {
   receiveMessage(signalInput: AppSignal) {
     throw new Error('Method not implemented.');
   }
@@ -37,14 +46,15 @@ export class ChatScreen extends LitElement {
   @state()
   service!: BurnerService;
 
+  @contextProvided({ context: profilesStoreContext, subscribe: true })
+  profilesStore!: ProfilesStore;
+
+
   @query("input#current-channel")
   currentChannelInput!: HTMLInputElement;
 
-  channel = new TaskSubscriber(
-    this,
-    () => this.service.getChannel(),
-    () => [this.service]
-  );
+  @property()
+  channel!: string;
 
   username = new TaskSubscriber(
     this,
@@ -52,9 +62,18 @@ export class ChatScreen extends LitElement {
     () => [this.service]
   );
 
-  @property({ type: Object })
-  @state()
-  channelMembers: Record<AgentPubKeyB64, Username> = {};
+
+  _channelMembers = new TaskSubscriber(
+    this,
+    () => this.profilesStore.fetchAllProfiles(),
+    () => [this.profilesStore]
+  );
+
+  _myProfile = new TaskSubscriber(
+    this,
+    () => this.profilesStore.fetchMyProfile(),
+    () => [this.profilesStore],
+  )
 
   @state()
   chatBubbles: Record<AgentPubKeyB64, ChatBubble> = {};
@@ -88,12 +107,32 @@ export class ChatScreen extends LitElement {
     // console.log("this.service");
   }
 
+  isChannelMember(pubKey: AgentPubKey): boolean {
+    const channelMembers = this._channelMembers.value;
+    if (channelMembers && channelMembers.keys()
+        .map((key) => JSON.stringify(key))
+        .includes(JSON.stringify(pubKey))){
+        return true;
+    }
+    return false;
+  }
+
+  getChannelMembers(): Record<AgentPubKeyB64, Username> {
+    let members: Record<AgentPubKeyB64, Username> = {};
+    if (this._channelMembers.value) {
+      this._channelMembers.value.entries().forEach(([pubKey, profile]) => {
+        members[serializeHash(pubKey)] = profile.nickname;
+      })
+    }
+    return members;
+  }
+
   receiveEmojiCannonSignal(signal: AppSignal) {
     // filter by agentPubKey, check if agent exist as chat-bubble
-    let senderPubKey = serializeHash(signal.data.payload.senderKey);
-    if (Object.keys(this.channelMembers).includes(senderPubKey)) {
+    let senderPubKey = signal.data.payload.senderKey;
+    if (this.isChannelMember(senderPubKey)) {
       // propagate signal to the right bubble
-      const chatBubble = this.shadowRoot?.getElementById(senderPubKey) as ChatBubble;
+      const chatBubble = this.shadowRoot?.getElementById(serializeHash(senderPubKey)) as ChatBubble;
       chatBubble.causedEmojiCannon();
       // extract emoji from payload and go confetti
       const emoji = signal.data.payload.payload;
@@ -106,10 +145,10 @@ export class ChatScreen extends LitElement {
 
   receiveMessageSignal(signal: AppSignal) {
     // filter by agentPubKey, check if agent exist as chat-bubble
-    let senderPubKey = serializeHash(signal.data.payload.senderKey);
-    if (Object.keys(this.channelMembers).includes(senderPubKey)) {
+    let senderPubKey = signal.data.payload.senderKey;
+    if (this.isChannelMember(senderPubKey)) {
       // propagate signal to the right bubble
-      const chatBubble = this.shadowRoot?.getElementById(senderPubKey) as ChatBubble;
+      const chatBubble = this.shadowRoot?.getElementById(serializeHash(senderPubKey)) as ChatBubble;
       // chatBubble
       chatBubble.receiveSignal(signal);
     }
@@ -120,14 +159,15 @@ export class ChatScreen extends LitElement {
     jsConfetti.addConfetti({
       emojis: ['🔥', '💥', '🔥', '🔥'],
     })
-    setTimeout(() => {
-      const msgInput: ChannelMessageInput = {
-        signalType: "BurnChannel",
-        channel: this.channel.value!,
-        username: this.username.value!,
-      };
-      this.service.burnChannel(msgInput);
-    }, 500);
+    // Burning Channel disabled for We Group Channel
+    // setTimeout(() => {
+    //   const msgInput: ChannelMessageInput = {
+    //     signalType: "BurnChannel",
+    //     channel: this.channel,
+    //     username: this.username.value!,
+    //   };
+    //   this.service.burnChannel(msgInput);
+    // }, 500);
   }
 
 
@@ -166,6 +206,8 @@ export class ChatScreen extends LitElement {
 
 
   render() {
+
+    console.log("My Profile: ", this._myProfile.value);
     if (this.isBURNT) {
       return html`
         ${this.renderBurnScreen()}
@@ -176,17 +218,18 @@ export class ChatScreen extends LitElement {
     <div class="chat-screen">
       <!-- <drawer-menu></drawer-menu> -->
       <div class="chat-bubblez">
-        ${Object.entries(this.channelMembers)
-          // .concat(chatBubbles(this.channel.value!) // comment out this and next line to disable demo data
-          //   .map(e => [e.agentPubKey, e.username]))
-          .filter(([myAgentPubKey, _]) => this.myAgentPubKey !== myAgentPubKey)
-          .map(([agentPubKey, username]) => {
-          return html`<chat-bubble id=${agentPubKey}
-            .username=${username}
-            .avatarUrl=${randomAvatar()}
-            .agentPubKey=${agentPubKey}
-          >${username}</chat-bubble>`
-        })}
+        ${this._channelMembers.value
+          ? this._channelMembers.value.entries()
+            .filter(([pubKey, _]) => this.myAgentPubKey !== serializeHash(pubKey))
+            .map(([agentPubKey, profile]) => {
+            return html`<chat-bubble id=${serializeHash(agentPubKey)}
+              .username=${profile.nickname}
+              .avatarUrl=${profile.fields.avatar ? profile.fields.avatar : randomAvatar()}
+              .agentPubKey=${agentPubKey}
+            ></chat-bubble>`
+            })
+          : html``
+        }
       </div>
       <div class="bottom-chat-container">
         <div class="admin-chat-cointainer">
@@ -195,13 +238,12 @@ export class ChatScreen extends LitElement {
             align-items: center;
             flex-direction: column;'>
             <chat-bubble id=${this.myAgentPubKey}
-              .username=${this.username.value!}
-              .avatarUrl=${randomAvatar()}
+              .username=${this._myProfile.value}
+              .avatarUrl=${this._myProfile.value?.fields.avatar ? this._myProfile.value.fields.avatar : randomAvatar()}
               .agentPubKey=${this.myAgentPubKey}
               .isAdmin=${true}
-              .channelMembers=${this.channelMembers}
-            >${this.username.value!}
-            </chat-bubble>
+              .channelMembers=${this.getChannelMembers()}
+            ></chat-bubble>
           </div>
           <button id="burn-btn" @click=${() => this.burnChannel()}>🔥</button>
         </div>

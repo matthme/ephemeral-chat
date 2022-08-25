@@ -8,3 +8,4 @@ export * from './components/service-context';
 export * from './types/chat';
 export * from './helpers/random-avatars';
 export * from './images';
+export * from './fonts';

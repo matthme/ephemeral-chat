@@ -10,34 +10,48 @@ import {
 } from '@holochain/client';
 import { contextProvided, contextProvider } from '@lit-labs/context';
 
-import { burnerServiceContext } from './contexts';
-import { serializeHash, deserializeHash } from '@holochain-open-dev/utils';
 import {
+  burnerServiceContext,
   AgentPubKeyB64,
   ChannelMessageInput,
   MessageInput,
   Username,
-} from './types/chat';
-import { ChatScreen } from './components/chat-screen';
+  ChatScreen,
+  BurnerService,
+  BurnerServiceContext
+} from '@burner-chat/elements';
+
+import {
+  robotoMonoNormal,
+  rubikNormal,
+  rubikBold
+} from './fonts';
+
+import { serializeHash, deserializeHash } from '@holochain-open-dev/utils';
 // import { BurnerStore } from './burner-store';
-import { BurnerService } from './burner-service';
-import { CellClient, HolochainClient } from '@holochain-open-dev/cell-client';
-import { BurnerServiceContext } from './components/service-context';
 import { TaskSubscriber } from 'lit-svelte-stores';
 import JSConfetti from 'js-confetti';
-import { robotoMonoNormal, rubikNormal, rubikBold } from './fonts';
+import { ProfilesStore, profilesStoreContext } from '@holochain-open-dev/profiles';
+import { WeGroupChatScreen } from './we-group-chat-screen';
+import { sharedStyles } from '../sharedStyles';
 
 
-export class BurnerChatApp extends LitElement {
+export class BurnerChatGroupApp extends LitElement {
   @state() loading = false;
   @state() entryHash: EntryHash | undefined;
 
-  @contextProvided({ context: burnerServiceContext })
+  @contextProvided({ context: burnerServiceContext, subscribe: true })
   @property({ type: Object })
   service!: BurnerService;
 
-  @query('chat-screen')
-  chatScreen!: ChatScreen;
+  @contextProvided({ context: profilesStoreContext, subscribe: true })
+  profilesStore!: ProfilesStore;
+
+  @property()
+  weGroupSecret!: string;
+
+  @query('we-group-chat-screen')
+  chatScreen!: WeGroupChatScreen;
 
   @query('input#join-channel')
   joinChannelInput!: HTMLInputElement;
@@ -59,16 +73,24 @@ export class BurnerChatApp extends LitElement {
 
   @state() startBttnLoading = false;
 
+  @state() groupChannelBttnLoading = false;
+
   activeChannel = new TaskSubscriber(
     this,
     () => this.service.getChannel(),
     () => [this.service]
   );
 
-  username = new TaskSubscriber(
+  myProfile = new TaskSubscriber(
     this,
-    () => this.service.getUsername(),
-    () => [this.service]
+    () => this.profilesStore.fetchMyProfile(),
+    () => [this.profilesStore]
+  );
+
+  weGroupMembers = new TaskSubscriber(
+    this,
+    () => this.profilesStore.fetchAllProfiles(),
+    () => [this.profilesStore]
   );
 
   @state()
@@ -76,12 +98,12 @@ export class BurnerChatApp extends LitElement {
 
   constructor() {
     super();
-    if(!document.getElementById('burner-chat-fonts')){
+    if (!document.getElementById('burner-chat-fonts')) {
       let head = document.head || document.getElementsByTagName('head')[0],
-      style = document.createElement('style');
-          style.id = 'burner-chat-fonts';
-          style.type = 'text/css';
-          style.innerText = `
+        style = document.createElement('style');
+      style.id = 'burner-chat-fonts';
+      style.type = 'text/css';
+      style.innerText = `
             @font-face {
               font-family: 'Roboto Mono';
               font-style: normal;
@@ -107,8 +129,8 @@ export class BurnerChatApp extends LitElement {
               unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+2000-206F,U+2074,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;
             }
           `;
-          head.appendChild(style);
-      }
+      head.appendChild(style);
+    }
   }
 
   signalCallback = async (signal: AppSignal) => {
@@ -153,45 +175,66 @@ export class BurnerChatApp extends LitElement {
 
   async start() {
     // get name and set as username
-    let username = this.enterNameInput.value;
     const channelToJoin = this.joinChannelInput.value;
 
-    if (!username) {
-      alert('🚧 Plase set a username!');
-      return;
-    }
     if (!channelToJoin) {
       alert('🚧 You need to set a channel');
       return;
     }
     this.startBttnLoading = true;
 
-    this.service.setUsername(username);
+    this.service.setUsername(this.myProfile.value?.nickname);
 
     // get channel secret and join channel
     const channelMessageInput: ChannelMessageInput = {
       signalType: 'JoinChannel',
       channel: channelToJoin,
-      username: this.username.value!,
+      username: this.myProfile.value?.nickname!,
     };
+    console.log("@start(): cannelMessageInput: ", channelMessageInput);
+
     await this.joinChannel(channelMessageInput);
   }
+
+
+  async joinWeGroupChannel() {
+    console.log("MY PROFILE: ", this.myProfile.value);
+    console.log("weGroupSecret: ", this.weGroupSecret);
+    this.groupChannelBttnLoading = true;
+    this.service.setUsername(this.myProfile.value?.nickname);
+    // get channel secret and join channel
+    const channelMessageInput: ChannelMessageInput = {
+      signalType: 'JoinChannel',
+      channel: this.weGroupSecret,
+      username: this.myProfile.value?.nickname!,
+    };
+
+    console.log("@joinWeGroupChannel(): cannelMessageInput: ", channelMessageInput);
+    await this.joinChannel(channelMessageInput);
+  }
+
 
   async joinChannel(input: ChannelMessageInput): Promise<void> {
     // if (this.allMyChannels.includes(input.channel)) {
     //   return;
     // }
+    console.log("@burner-chat-group-app: joining channel!")
     await this.service.joinChannel(input);
-    const channelMembers = await this.service.getChannelMembers(input.channel);
+    const channelMembers = this.weGroupMembers.value!;
+    console.log("@burner-chat-group-app: channel members: ", channelMembers);
+
     // console.log(channelMembers);
     this.activeChannelMembers = {};
-    channelMembers.forEach(([pubKey, username]) => {
-      this.activeChannelMembers[serializeHash(pubKey)] = username;
+    channelMembers.entries().forEach(([pubKey, profile]) => {
+      this.activeChannelMembers[serializeHash(pubKey)] = profile.nickname as Username;
     });
+
+    console.log("@burner-chat-group-app: ACTIVE channel members: ", this.activeChannelMembers);
     console.warn(this.activeChannelMembers);
     // this.allMyChannels = [...this.allMyChannels, input.channel];
     this.service.setChannel(input.channel);
     this.startBttnLoading = false;
+    this.groupChannelBttnLoading = false;
   }
 
   renderLandingPage() {
@@ -202,28 +245,32 @@ export class BurnerChatApp extends LitElement {
         Just Signals
       </p>
       <div class="landing-form">
-        <input
-          class="landing-input"
-          .value=${this.username.value ? this.username.value : ''}
-          id="enter-name"
-          type="text"
-          placeholder="enter name"
-        />
-        <input
-          class="landing-input"
-          id="join-channel"
-          type="text"
-          placeholder="join channel"
-        />
-        <button id="start-bttn" @click=${this.start}>
-          ${this.startBttnLoading
-            ? html`<div class="lds-ellipsis">
+        <button id="start-bttn" @click=${this.joinWeGroupChannel}>
+          ${this.groupChannelBttnLoading
+        ? html`<div class="lds-ellipsis">
                 <div></div>
                 <div></div>
                 <div></div>
                 <div></div>
               </div>`
-            : html`<div>START</div>`}
+        : html`<div>Enter Group Channel</div>`}
+        </button>
+        <div style="font-family: Roboto Mono; margin-top: 4px; margin-bottom: 4px;">OR</div>
+        <input
+          class="landing-input"
+          id="join-channel"
+          type="text"
+          placeholder="private channel"
+        />
+        <button id="start-bttn" @click=${this.start}>
+          ${this.startBttnLoading
+        ? html`<div class="lds-ellipsis">
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+              </div>`
+        : html`<div>START</div>`}
         </button>
       </div>
     `;
@@ -235,7 +282,7 @@ export class BurnerChatApp extends LitElement {
     const join_channel_input: ChannelMessageInput = {
       signalType: 'JoinChannel',
       channel: ev.detail,
-      username: this.username.value!,
+      username: this.myProfile.value?.nickname!,
     };
 
     this.joinChannel(join_channel_input);
@@ -249,16 +296,20 @@ export class BurnerChatApp extends LitElement {
       emojis: ['⚡️'],
     });
 
-    const members = await this.service.getChannelMembers(
-      this.activeChannel.value!
-    );
-    const newActiveChannelMembers: Record<AgentPubKeyB64, Username> = {};
-
-    members.forEach(([pubKey, username]) => {
-      newActiveChannelMembers[serializeHash(pubKey)] = username;
-    });
-    this.activeChannelMembers = newActiveChannelMembers;
-    console.warn('fetching members', this.activeChannelMembers);
+    console.log("@burner-chat-group-app: fetching members, active channel: ", this.activeChannel);
+    // don't fetch channel members in home screen
+    if (this.activeChannel) {
+      const members = await this.service.getChannelMembers(
+        this.activeChannel.value!
+      );
+      const newActiveChannelMembers: Record<AgentPubKeyB64, Username> = {};
+  
+      members.forEach(([pubKey, username]) => {
+        newActiveChannelMembers[serializeHash(pubKey)] = username;
+      });
+      this.activeChannelMembers = newActiveChannelMembers;
+      console.warn('fetching members', this.activeChannelMembers);
+    }
   };
 
   goHome() {
@@ -267,12 +318,16 @@ export class BurnerChatApp extends LitElement {
   }
 
   renderChatScreen() {
+    console.log("@bruner-chat-group-app: Rendering chat-screen!")
+    console.log("@bruner-chat-group-app: active channel members:",this.activeChannelMembers)
+    console.log("@bruner-chat-group-app: my agentpubkey: ", this.service.myAgentPubKey)
+
     return html`
-      <chat-screen
+      <we-group-chat-screen
         .channelMembers=${this.activeChannelMembers}
         @switchChannel=${this.switchChannel}
         .myAgentPubKey=${this.service.myAgentPubKey}
-      ></chat-screen>
+      ></we-group-chat-screen>
     `;
   }
 
@@ -283,7 +338,7 @@ export class BurnerChatApp extends LitElement {
       `;
     }
 
-    // console.log("ACTIVE CHANNEL: ", this.activeChannel.value);
+    console.log("ACTIVE CHANNEL: ", this.activeChannel.value);
 
     // console.log("CHANNEL MEMBERS: ", this.channelMembers);
 
@@ -294,21 +349,37 @@ export class BurnerChatApp extends LitElement {
 
     return html`
       <main style="position: relative;">
-        <div class="main-title-container">
-          <h1 class="main-title">BURNER CHAT</h1>
-          <p class="powered-by-holochain" @click=${this.fetchMembers}>
-            powered by holochain
-          </p>
-        </div>
+        ${this.activeChannel.value
+        ? html``
+        : html`
+          <div class="main-title-container">
+            <h1 class="main-title">BURNER CHAT</h1>
+            <p class="powered-by-holochain" @click=${this.fetchMembers}>
+              powered by holochain
+            </p>
+          </div>`
+        }
         <div id="go-home-menu-bttn" @click=${this.goHome}>🏠️</div>
         ${this.activeChannel.value
-          ? this.renderChatScreen()
-          : this.renderLandingPage()}
+        ? this.renderChatScreen()
+        : this.renderLandingPage()
+        }
       </main>
     `;
   }
 
-  static styles = css`
+
+
+
+  static get scopedElements() {
+    return {
+      'we-group-chat-screen': WeGroupChatScreen,
+    };
+  }
+
+  static styles = [
+    sharedStyles,
+    css`
     :host {
       min-height: 100vh;
       display: flex;
@@ -328,7 +399,7 @@ export class BurnerChatApp extends LitElement {
       background-color: coral;
       cursor: pointer;
       position: absolute;
-      right: 41px;
+      right: 70px;
       top: 51px;
       background: rgb(23, 230, 183);
       border-radius: 50%;
@@ -481,13 +552,8 @@ export class BurnerChatApp extends LitElement {
         transform: translate(24px, 0);
       }
     }
-  `;
-
-  static get scopedElements() {
-    return {
-      'chat-screen': ChatScreen,
-    };
-  }
+  `
+  ];
 }
 
 /**

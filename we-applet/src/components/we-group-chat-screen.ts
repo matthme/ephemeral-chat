@@ -1,24 +1,24 @@
-/**
- *
- * Chat screen for a We-group, i.e. rendering profiles from the ProfilesStore.
- * Only one channel, defined by some string derived from the We group properties.
- *
- *
- */
-
 
 import { LitElement, html, css, CSSResultGroup } from 'lit';
 import { state, customElement, property, query } from 'lit/decorators.js';
 import { InstalledCell, AppWebsocket, EntryHash, InstalledAppInfo, AgentPubKey, AppSignal } from '@holochain/client';
 import { contextProvided } from '@lit-labs/context';
-import { appInfoContext, appWebsocketContext, burnerServiceContext } from '@burner-chat/elements';
+import {
+  appInfoContext,
+  appWebsocketContext,
+  burnerServiceContext,
+  ChatBubble,
+  BurnerService,
+  chatBubbles,
+  randomAvatar ,
+  Drawer,
+  AgentPubKeyB64,
+  ChannelMessageInput,
+  Message,
+  Username 
+} from '@burner-chat/elements';
 import { serializeHash, deserializeHash } from '@holochain-open-dev/utils';
-import { AgentPubKeyB64, ChannelMessageInput, Message, Username } from '@burner-chat/elements';
 import { TaskSubscriber } from 'lit-svelte-stores';
-import { ChatBubble } from '@burner-chat/elements';
-import { BurnerService } from '@burner-chat/elements';
-import { chatBubbles, randomAvatar } from '@burner-chat/elements';
-import { Drawer } from '@burner-chat/elements';
 import JSConfetti from 'js-confetti';
 import { ProfilesStore, profilesStoreContext } from '@holochain-open-dev/profiles';
 
@@ -28,12 +28,12 @@ import { ProfilesStore, profilesStoreContext } from '@holochain-open-dev/profile
 // }
 
 
-@customElement('group-chat-screen')
-export class GroupChatScreen extends LitElement {
+export class WeGroupChatScreen extends LitElement {
   receiveMessage(signalInput: AppSignal) {
     throw new Error('Method not implemented.');
   }
   constructor() {
+    console.log("@chat-screen: I am being constructed.");
     super();
   }
 
@@ -50,21 +50,16 @@ export class GroupChatScreen extends LitElement {
   @contextProvided({ context: profilesStoreContext, subscribe: true })
   profilesStore!: ProfilesStore;
 
-
   @query("input#current-channel")
   currentChannelInput!: HTMLInputElement;
 
-  @property()
-  channel!: string;
-
-  username = new TaskSubscriber(
+  channel = new TaskSubscriber(
     this,
-    () => this.service.getUsername(),
+    () => this.service.getChannel(),
     () => [this.service]
   );
 
-
-  _channelMembers = new TaskSubscriber(
+  weGroupMembers = new TaskSubscriber(
     this,
     () => this.profilesStore.fetchAllProfiles(),
     () => [this.profilesStore]
@@ -73,8 +68,12 @@ export class GroupChatScreen extends LitElement {
   _myProfile = new TaskSubscriber(
     this,
     () => this.profilesStore.fetchMyProfile(),
-    () => [this.profilesStore],
-  )
+    () => [this.profilesStore]
+  );
+
+  @property({ type: Object })
+  @state()
+  channelMembers: Record<AgentPubKeyB64, Username> = {};
 
   @state()
   chatBubbles: Record<AgentPubKeyB64, ChatBubble> = {};
@@ -102,38 +101,22 @@ export class GroupChatScreen extends LitElement {
   //   console.log(this.service);
   // }
 
+  avatarOfAgent(agentPubKey: AgentPubKeyB64) {
+    return this.weGroupMembers.value?.get(deserializeHash(agentPubKey)).fields.avatar
+  }
+
   async firstUpdated() {
     // do stuff
     // console.log("FIRST UPDATED CHAT_SCREEN");
     // console.log("this.service");
   }
 
-  isChannelMember(pubKey: AgentPubKey): boolean {
-    const channelMembers = this._channelMembers.value;
-    if (channelMembers && channelMembers.keys()
-        .map((key) => JSON.stringify(key))
-        .includes(JSON.stringify(pubKey))){
-        return true;
-    }
-    return false;
-  }
-
-  getChannelMembers(): Record<AgentPubKeyB64, Username> {
-    let members: Record<AgentPubKeyB64, Username> = {};
-    if (this._channelMembers.value) {
-      this._channelMembers.value.entries().forEach(([pubKey, profile]) => {
-        members[serializeHash(pubKey)] = profile.nickname;
-      })
-    }
-    return members;
-  }
-
   receiveEmojiCannonSignal(signal: AppSignal) {
     // filter by agentPubKey, check if agent exist as chat-bubble
-    let senderPubKey = signal.data.payload.senderKey;
-    if (this.isChannelMember(senderPubKey)) {
+    let senderPubKey = serializeHash(signal.data.payload.senderKey);
+    if (Object.keys(this.channelMembers).includes(senderPubKey)) {
       // propagate signal to the right bubble
-      const chatBubble = this.shadowRoot?.getElementById(serializeHash(senderPubKey)) as ChatBubble;
+      const chatBubble = this.shadowRoot?.getElementById(senderPubKey) as ChatBubble;
       chatBubble.causedEmojiCannon();
       // extract emoji from payload and go confetti
       const emoji = signal.data.payload.payload;
@@ -146,10 +129,10 @@ export class GroupChatScreen extends LitElement {
 
   receiveMessageSignal(signal: AppSignal) {
     // filter by agentPubKey, check if agent exist as chat-bubble
-    let senderPubKey = signal.data.payload.senderKey;
-    if (this.isChannelMember(senderPubKey)) {
+    let senderPubKey = serializeHash(signal.data.payload.senderKey);
+    if (Object.keys(this.channelMembers).includes(senderPubKey)) {
       // propagate signal to the right bubble
-      const chatBubble = this.shadowRoot?.getElementById(serializeHash(senderPubKey)) as ChatBubble;
+      const chatBubble = this.shadowRoot?.getElementById(senderPubKey) as ChatBubble;
       // chatBubble
       chatBubble.receiveSignal(signal);
     }
@@ -160,15 +143,14 @@ export class GroupChatScreen extends LitElement {
     jsConfetti.addConfetti({
       emojis: ['🔥', '💥', '🔥', '🔥'],
     })
-    // Burning Channel disabled for We Group Channel
-    // setTimeout(() => {
-    //   const msgInput: ChannelMessageInput = {
-    //     signalType: "BurnChannel",
-    //     channel: this.channel,
-    //     username: this.username.value!,
-    //   };
-    //   this.service.burnChannel(msgInput);
-    // }, 500);
+    setTimeout(() => {
+      const msgInput: ChannelMessageInput = {
+        signalType: "BurnChannel",
+        channel: this.channel.value!,
+        username: this._myProfile.value!.nickname,
+      };
+      this.service.burnChannel(msgInput);
+    }, 500);
   }
 
 
@@ -207,30 +189,34 @@ export class GroupChatScreen extends LitElement {
 
 
   render() {
-
-    console.log("My Profile: ", this._myProfile.value);
     if (this.isBURNT) {
       return html`
         ${this.renderBurnScreen()}
       `
     }
 
+    console.log("@chat-screen: rendering chat screen.");
+    console.log("@chat-screen: channel members:", this.channelMembers);
+    console.log("@chat-screen: myAgentPubKey: ", this.myAgentPubKey);
+
+
     return html`
+    HELLO FROM THE CHAT SCREEEEEEEN!!!
     <div class="chat-screen">
       <!-- <drawer-menu></drawer-menu> -->
       <div class="chat-bubblez">
-        ${this._channelMembers.value
-          ? this._channelMembers.value.entries()
-            .filter(([pubKey, _]) => this.myAgentPubKey !== serializeHash(pubKey))
-            .map(([agentPubKey, profile]) => {
-            return html`<chat-bubble id=${serializeHash(agentPubKey)}
-              .username=${profile.nickname}
-              .avatarUrl=${profile.fields.avatar ? profile.fields.avatar : randomAvatar()}
-              .agentPubKey=${agentPubKey}
-            ></chat-bubble>`
-            })
-          : html``
-        }
+        ${Object.entries(this.channelMembers)
+          // .concat(chatBubbles(this.channel.value!) // comment out this and next line to disable demo data
+          //   .map(e => [e.agentPubKey, e.username]))
+          .filter(([myAgentPubKey, _]) => this.myAgentPubKey !== myAgentPubKey)
+          .map(([agentPubKey, username]) => {
+            const avatar = this.avatarOfAgent(agentPubKey);
+          return html`<chat-bubble id=${agentPubKey}
+            .username=${username}
+            .avatarUrl=${avatar ? avatar : randomAvatar()}
+            .agentPubKey=${agentPubKey}
+          >${username}</chat-bubble>`
+        })}
       </div>
       <div class="bottom-chat-container">
         <div class="admin-chat-cointainer">
@@ -239,12 +225,13 @@ export class GroupChatScreen extends LitElement {
             align-items: center;
             flex-direction: column;'>
             <chat-bubble id=${this.myAgentPubKey}
-              .username=${this._myProfile.value}
+              .username=${this._myProfile.value!.nickname}
               .avatarUrl=${this._myProfile.value?.fields.avatar ? this._myProfile.value.fields.avatar : randomAvatar()}
               .agentPubKey=${this.myAgentPubKey}
               .isAdmin=${true}
-              .channelMembers=${this.getChannelMembers()}
-            ></chat-bubble>
+              .channelMembers=${this.channelMembers}
+            >${this._myProfile.value!.nickname}
+            </chat-bubble>
           </div>
           <button id="burn-btn" @click=${() => this.burnChannel()}>🔥</button>
         </div>

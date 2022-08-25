@@ -11,6 +11,7 @@ import { LitElement, html, css } from "lit";
 import { InstalledAppletInfo } from "@lightningrodlabs/we-applet";
 import { BurnerChatApp, BurnerService, burnerServiceContext } from "@burner-chat/elements";
 import { sharedStyles } from "./sharedStyles";
+import { BurnerChatGroupApp } from "./components/burner-chat-group-app";
 
 export class BurnerChatApplet extends ScopedElementsMixin(LitElement) {
   @property()
@@ -22,6 +23,9 @@ export class BurnerChatApplet extends ScopedElementsMixin(LitElement) {
 
   @property()
   appletAppInfo!: InstalledAppletInfo[];
+
+  @property()
+  weGroupSecret!: string;
 
   @state()
   loaded = false;
@@ -36,6 +40,7 @@ export class BurnerChatApplet extends ScopedElementsMixin(LitElement) {
   }
 
   render() {
+    console.log("@burner-chat-applet render(): this.weGroupSecret: ", this.weGroupSecret);
     if (!this.loaded)
       return html`<div
         style="display: flex; flex: 1; flex-direction: row; align-items: center; justify-content: center"
@@ -45,10 +50,10 @@ export class BurnerChatApplet extends ScopedElementsMixin(LitElement) {
 
     // TODO: add any elements that you have in your applet
     return html`
-    <div class="flex-scrollable-parent" style="flex: 1;">
+    <div class="flex-scrollable-parent">
       <div class="flex-scrollable-container">
         <div class="flex-scrollable-y">
-          <burner-chat-app style="padding: 30px;"></burner-chat-app>
+          <burner-chat-group-app .weGroupSecret=${this.weGroupSecret} style="padding: 0 30px;"></burner-chat-group-app>
         </div>
       </div>
     </div>`;
@@ -57,7 +62,7 @@ export class BurnerChatApplet extends ScopedElementsMixin(LitElement) {
   static get scopedElements() {
     return {
       "mwc-circular-progress": CircularProgress,
-      "burner-chat-app": BurnerChatApp,
+      "burner-chat-group-app": BurnerChatGroupApp,
     };
   }
 

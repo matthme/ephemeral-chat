@@ -14,7 +14,6 @@ interface ChatBufferElement {
   payload: string,
 }
 
-@customElement('chat-bubble')
 export class ChatBubble extends LitElement {
 
   @contextProvided({ context: appWebsocketContext })

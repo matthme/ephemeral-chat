@@ -6,10 +6,10 @@ import { CircularProgress } from "@scoped-elements/material-web";
 import { LitElement, html, css } from "lit";
 import { burnerServiceContext, BurnerService, BurnerChatApp } from '@burner-chat/elements';
 import { ProfilesStore, profilesStoreContext } from "@holochain-open-dev/profiles";
-import { GroupChatScreen } from "./components/group-chat-screen";
+import { GroupChatScreen } from "./group-chat-screen-unused";
 import { InstalledAppletInfo } from "@lightningrodlabs/we-applet";
 import JSConfetti from 'js-confetti';
-import { sharedStyles } from "./sharedStyles";
+import { sharedStyles } from "../sharedStyles";
 export class BurnerChatApplet extends ScopedElementsMixin(LitElement) {
   @property()
   appWebsocket!: AppWebsocket;

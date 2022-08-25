@@ -6,7 +6,6 @@ import { property } from "lodash";
 import { BurnerService } from "../burner-service";
 import { burnerServiceContext } from "../contexts";
 
-@customElement('drawer-menu')
 export class Drawer extends LitElement {
 
   @contextProvided({ context: burnerServiceContext, subscribe: true })
