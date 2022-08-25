@@ -25,7 +25,6 @@ export class Drawer extends ScopedElementsMixin(LitElement) {
   submitChannelChange(ev: SubmitEvent) {
     ev.preventDefault();
     const newChannel = this.currentChannelInput.value;
-    console.log("requesting channel change to " + newChannel);
     // this.channel = newChannel;
     this.dispatchEvent(
       new CustomEvent("switchChannel", {

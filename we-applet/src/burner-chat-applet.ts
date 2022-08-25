@@ -31,17 +31,13 @@ export class BurnerChatApplet extends ScopedElementsMixin(LitElement) {
   loaded = false;
 
   async firstUpdated() {
-    console.log("INSTANCIATING BurnerChatApplet with appletAppInfo: ", this.appletAppInfo);
     new ContextProvider(this, burnerServiceContext, new BurnerService(this.appWebsocket, this.appletAppInfo[0].installedAppInfo));
-    console.log("ProfilesStore: ", this.profilesStore)
     new ContextProvider(this, profilesStoreContext, this.profilesStore);
 
     this.loaded = true;
   }
 
   render() {
-    console.log("%*%*%*  VERSION 0.0.7 %*%*%*");
-    console.log("@burner-chat-applet render(): this.weGroupSecret: ", this.weGroupSecret);
     if (!this.loaded)
       return html`<div
         style="display: flex; flex: 1; flex-direction: row; align-items: center; justify-content: center"

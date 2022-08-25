@@ -33,7 +33,6 @@ export class WeGroupChatScreen extends ScopedElementsMixin(LitElement) {
     throw new Error('Method not implemented.');
   }
   constructor() {
-    console.log("@chat-screen: I am being constructed.");
     super();
   }
 
@@ -89,16 +88,12 @@ export class WeGroupChatScreen extends ScopedElementsMixin(LitElement) {
 
   // async signalCallback(signalInput: AppSignal) {
   //   let msg: Message = signalInput.data.payload;
-  //   console.log(signalInput);
   //   (window as any).signalInput = signalInput;
   //   // alert(signalInput.data.payload.payload);
   // }
 
   // setService(service: BurnerService) {
-  //   console.log("assigning chat-screen service");
   //   this.service = service;
-  //   console.log("this.service");
-  //   console.log(this.service);
   // }
 
   avatarOfAgent(agentPubKey: AgentPubKeyB64) {
@@ -106,10 +101,7 @@ export class WeGroupChatScreen extends ScopedElementsMixin(LitElement) {
   }
 
   async firstUpdated() {
-    console.log("I AM UPDATED!");
     // do stuff
-    // console.log("FIRST UPDATED CHAT_SCREEN");
-    // console.log("this.service");
   }
 
   receiveEmojiCannonSignal(signal: AppSignal) {
@@ -203,14 +195,9 @@ export class WeGroupChatScreen extends ScopedElementsMixin(LitElement) {
           `
         }
 
-        console.log("@chat-screen: rendering chat screen.");
-        console.log("@chat-screen: channel members:", this.channelMembers);
-        console.log("@chat-screen: myAgentPubKey: ", this.myAgentPubKey);
 
         const myAvatar = myProfile!.fields.avatar ? myProfile!.fields.avatar : randomAvatar();
         const myNickname = myProfile!.nickname;
-        console.log("@chat-screen: isAvatar?: ", !!myAvatar);
-        console.log("@chat-screen: myNickname: ", myNickname);
 
 
         return html`

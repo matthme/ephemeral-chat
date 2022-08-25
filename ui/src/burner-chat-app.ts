@@ -142,7 +142,6 @@ export class BurnerChatApp extends ScopedElementsMixin(LitElement) {
       signalType === 'BurnChannel' &&
       signalPayload.channel === this.activeChannel.value
     ) {
-      // console.log("BURNING SIGNAL RECEIVED")
       this.chatScreen.receiveBurnSignal(signal);
     }
   };
@@ -184,7 +183,6 @@ export class BurnerChatApp extends ScopedElementsMixin(LitElement) {
     // }
     await this.service.joinChannel(input);
     const channelMembers = await this.service.getChannelMembers(input.channel);
-    // console.log(channelMembers);
     this.activeChannelMembers = {};
     channelMembers.forEach(([pubKey, username]) => {
       this.activeChannelMembers[serializeHash(pubKey)] = username;
@@ -231,7 +229,6 @@ export class BurnerChatApp extends ScopedElementsMixin(LitElement) {
   }
 
   async switchChannel(ev: CustomEvent) {
-    // console.log("inside switchChannel");
     this.service.setChannel(ev.detail);
     const join_channel_input: ChannelMessageInput = {
       signalType: 'JoinChannel',
@@ -241,7 +238,6 @@ export class BurnerChatApp extends ScopedElementsMixin(LitElement) {
 
     this.joinChannel(join_channel_input);
 
-    // console.log("new channel value: ", this.activeChannel.value);
   }
 
   fetchMembers = async () => {
@@ -263,7 +259,6 @@ export class BurnerChatApp extends ScopedElementsMixin(LitElement) {
   };
 
   goHome() {
-    // console.log("GOING HOME");
     this.service.setChannel(undefined);
   }
 
@@ -284,9 +279,7 @@ export class BurnerChatApp extends ScopedElementsMixin(LitElement) {
       `;
     }
 
-    // console.log("ACTIVE CHANNEL: ", this.activeChannel.value);
 
-    // console.log("CHANNEL MEMBERS: ", this.channelMembers);
 
     // Landing Page
     // Chat Screen

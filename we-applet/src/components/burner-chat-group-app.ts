@@ -163,7 +163,6 @@ export class BurnerChatGroupApp extends ScopedElementsMixin(LitElement) {
       signalType === 'BurnChannel' &&
       signalPayload.channel === this.activeChannel.value
     ) {
-      // console.log("BURNING SIGNAL RECEIVED")
       this.chatScreen.receiveBurnSignal(signal);
     }
   };
@@ -172,8 +171,6 @@ export class BurnerChatGroupApp extends ScopedElementsMixin(LitElement) {
     this.service.cellClient.addSignalHandler(this.signalCallback);
     this.profilesStore.fetchMyProfile();
     this.profilesStore.fetchAllProfiles();
-    console.log("@firstUpdated() of burner-chat-froup-app: myProfile: ", this._myProfile.value);
-    console.log("@firstUpdated() of burner-chat-froup-app: _weGroupMembers: ", this._weGroupMembers.value);
     this.loading = false;
   }
 
@@ -195,15 +192,12 @@ export class BurnerChatGroupApp extends ScopedElementsMixin(LitElement) {
       channel: channelToJoin,
       username: this._myProfile.value?.nickname!,
     };
-    console.log("@start(): cannelMessageInput: ", channelMessageInput);
 
     await this.joinChannel(channelMessageInput);
   }
 
 
   async joinWeGroupChannel() {
-    console.log("MY PROFILE: ", this._myProfile.value);
-    console.log("weGroupSecret: ", this.weGroupSecret);
     this.groupChannelBttnLoading = true;
     this.service.setUsername(this._myProfile.value?.nickname);
     // get channel secret and join channel
@@ -213,7 +207,6 @@ export class BurnerChatGroupApp extends ScopedElementsMixin(LitElement) {
       username: this._myProfile.value?.nickname!,
     };
 
-    console.log("@joinWeGroupChannel(): cannelMessageInput: ", channelMessageInput);
     await this.joinChannel(channelMessageInput);
   }
 
@@ -222,18 +215,14 @@ export class BurnerChatGroupApp extends ScopedElementsMixin(LitElement) {
     // if (this.allMyChannels.includes(input.channel)) {
     //   return;
     // }
-    console.log("@burner-chat-group-app: joining channel!")
     await this.service.joinChannel(input);
     const channelMembers = this._weGroupMembers.value!;
-    console.log("@burner-chat-group-app: channel members: ", channelMembers);
 
-    // console.log(channelMembers);
     this.activeChannelMembers = {};
     channelMembers.entries().forEach(([pubKey, profile]) => {
       this.activeChannelMembers[serializeHash(pubKey)] = profile.nickname as Username;
     });
 
-    console.log("@burner-chat-group-app: ACTIVE channel members: ", this.activeChannelMembers);
     console.warn(this.activeChannelMembers);
     // this.allMyChannels = [...this.allMyChannels, input.channel];
     this.service.setChannel(input.channel);
@@ -281,7 +270,6 @@ export class BurnerChatGroupApp extends ScopedElementsMixin(LitElement) {
   }
 
   async switchChannel(ev: CustomEvent) {
-    // console.log("inside switchChannel");
     this.service.setChannel(ev.detail);
     const join_channel_input: ChannelMessageInput = {
       signalType: 'JoinChannel',
@@ -291,7 +279,6 @@ export class BurnerChatGroupApp extends ScopedElementsMixin(LitElement) {
 
     this.joinChannel(join_channel_input);
 
-    // console.log("new channel value: ", this.activeChannel.value);
   }
 
   fetchMembers = async () => {
@@ -300,7 +287,6 @@ export class BurnerChatGroupApp extends ScopedElementsMixin(LitElement) {
       emojis: ['⚡️'],
     });
 
-    console.log("@burner-chat-group-app: fetching members, active channel: ", this.activeChannel);
     // don't fetch channel members in home screen
     if (this.activeChannel) {
       const members = await this.service.getChannelMembers(
@@ -317,14 +303,10 @@ export class BurnerChatGroupApp extends ScopedElementsMixin(LitElement) {
   };
 
   goHome() {
-    // console.log("GOING HOME");
     this.service.setChannel(undefined);
   }
 
   renderChatScreen() {
-    console.log("@bruner-chat-group-app: Rendering chat-screen!")
-    console.log("@bruner-chat-group-app: active channel members:",this.activeChannelMembers)
-    console.log("@bruner-chat-group-app: my agentpubkey: ", this.service.myAgentPubKey)
 
     return html`
       <we-group-chat-screen
@@ -343,9 +325,7 @@ export class BurnerChatGroupApp extends ScopedElementsMixin(LitElement) {
       `;
     }
 
-    console.log("ACTIVE CHANNEL: ", this.activeChannel.value);
 
-    // console.log("CHANNEL MEMBERS: ", this.channelMembers);
 
     // Landing Page
     // Chat Screen

@@ -71,22 +71,16 @@ export class ChatScreen extends ScopedElementsMixin(LitElement) {
 
   // async signalCallback(signalInput: AppSignal) {
   //   let msg: Message = signalInput.data.payload;
-  //   console.log(signalInput);
   //   (window as any).signalInput = signalInput;
   //   // alert(signalInput.data.payload.payload);
   // }
 
   // setService(service: BurnerService) {
-  //   console.log("assigning chat-screen service");
   //   this.service = service;
-  //   console.log("this.service");
-  //   console.log(this.service);
   // }
 
   async firstUpdated() {
     // do stuff
-    // console.log("FIRST UPDATED CHAT_SCREEN");
-    // console.log("this.service");
   }
 
   receiveEmojiCannonSignal(signal: AppSignal) {

@@ -163,10 +163,8 @@ export class ChatBubble extends ScopedElementsMixin(LitElement) {
   //   const sameChannel = this.channel.value === msg.secret;
   //   if (sameAgent && sameChannel) {
   //     this.addToBuffer(msg);
-  //     console.log(this.bufferToString());
   //   }
 
-  //   console.log(signalInput);
   //   (window as any).signalInput = signalInput;
   //   // alert(signalInput.data.payload.payload);
   // }
@@ -210,7 +208,6 @@ export class ChatBubble extends ScopedElementsMixin(LitElement) {
     const msgText = ev.key;
     const recipients = Object.keys(this.channelMembers).map(key => deserializeHash(key));
 
-    // console.log(ev.key);
     const msgInput: MessageInput = {
       signalType: "Message",
       payload: msgText,
@@ -223,7 +220,6 @@ export class ChatBubble extends ScopedElementsMixin(LitElement) {
 
 
   render() {
-    console.log("RENDERING CHAT BUBBBBLLLLEEEEEEEEE!!£!£!ADA!D£");
     return html`
         <div class="chat-bubble ${this.isConfettiSource ? "confetti-source" : ""}">
           <div class="chat-quote ${this.isAdmin ? 'admin': ''}">
