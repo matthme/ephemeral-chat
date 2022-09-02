@@ -16,9 +16,9 @@
   },
   "dependencies": { 
     "@open-wc/scoped-elements": "^2.1.0",
-    "@holochain-open-dev/cell-client": "^0.7.1",
-    "@holochain-open-dev/utils": "^0.3.1",
-    "@holochain/client": "^0.7.0",
+    "@holochain-open-dev/cell-client": "^0.7.3",
+    "@holochain-open-dev/utils": "^0.3.3",
+    "@holochain/client": "^0.8.0",
     "@lit-labs/context": "^0.1.1",
     "@material/mwc-button": "^0.25.3",
     "@material/mwc-circular-progress": "^0.25.3",
