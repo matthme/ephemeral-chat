@@ -14,4 +14,4 @@ chrono = { version = "=0.4.22", default-features = false, features = ["clock", "
 
 chat_integrity = { path = "../../integrity_zomes/chat" }
 
-hdk = "0.0.152"
+hdk = "0.0.154"
