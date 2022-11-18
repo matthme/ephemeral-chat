@@ -5,6 +5,12 @@ members = [
   "dna/coordinator_zomes/*"
 ]
 
+[workspace.dependencies]
+hdi = "=0.1.8"
+hdk = "0.0.161"
+serde = "1"
+
+
 [profile.dev]
 opt-level = "z"
 

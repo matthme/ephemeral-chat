@@ -8,10 +8,10 @@ crate-type = ["cdylib", "rlib"]
 name = "chat"
 
 [dependencies]
-serde = "1"
+hdk = { workspace = true }
+serde = { workspace = true }
 derive_more = "0"
 chrono = { version = "=0.4.22", default-features = false, features = ["clock", "std", "oldtime", "serde"], optional = true }
 
 chat_integrity = { path = "../../integrity_zomes/chat" }
 
-hdk = "0.0.154"
