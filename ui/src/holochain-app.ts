@@ -89,7 +89,7 @@ export class HolochainApp extends LitElement {
     // get the input from the input text field
     const input = this.textInputField.value;
     // copied from boiulerplate
-    const cellData = this.appInfo.cell_data.find((c: InstalledCell) => c.role_id === 'burner_chat')!;
+    const cellData = this.appInfo.cell_data.find((c: InstalledCell) => c.role_name === 'burner_chat')!;
     await this.appWebsocket.callZome({
       cap_secret: null,
       cell_id: cellData.cell_id,
@@ -177,10 +177,10 @@ export class HolochainApp extends LitElement {
       installed_app_id: 'burner-chat',
     });
 
-    const cellData = this.appInfo.cell_data.find((c: InstalledCell) => c.role_id === 'burner_chat')!;
+    const cellData = this.appInfo.cell_data.find((c: InstalledCell) => c.role_name === 'burner_chat')!;
     this.myAgentPubKey = serializeHash(cellData.cell_id[1]);
 
-    const cell = this.appInfo.cell_data.find(c => c.role_id === 'burner_chat');
+    const cell = this.appInfo.cell_data.find(c => c.role_name === 'burner_chat');
     const client = new HolochainClient(this.appWebsocket);
     const cellClient = new CellClient(client, cell!);
     cellClient.addSignalHandler(this.signalCallback);

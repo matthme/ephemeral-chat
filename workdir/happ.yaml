@@ -4,7 +4,7 @@ name: burner-chat
 description: ~
 roles:
 
-  - id: burner_chat
+  - name: burner_chat
     provisioning:
       strategy: create
       deferred: false

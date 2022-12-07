@@ -11,5 +11,5 @@ name = "chat_integrity"
 serde = "1"
 derive_more = "0"
 
-hdi = "0.0.14"
-hdk = "0.0.142"
+hdi = "0.1.10"
+hdk = "0.0.163"
