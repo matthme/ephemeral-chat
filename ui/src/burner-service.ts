@@ -18,7 +18,7 @@ export class BurnerService {
 
   constructor(protected appWebsocket: AppWebsocket, protected appInfo: InstalledAppInfo, protected zomeName = 'chat') {
 
-    const cell = appInfo.cell_data.find(c => c.role_id === 'burner_chat');
+    const cell = appInfo.cell_data.find(c => c.role_name === 'burner_chat');
     const cellId = cell!.cell_id;
 
     this.myAgentPubKey = serializeHash(cellId[1]);

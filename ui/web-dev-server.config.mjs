@@ -2,9 +2,12 @@
 import { fromRollup } from '@web/dev-server-rollup';
 import rollupReplace from '@rollup/plugin-replace';
 import rollupCommonjs from '@rollup/plugin-commonjs';
+import rollupWasm from "@rollup/plugin-wasm";
+
 
 const replace = fromRollup(rollupReplace);
 const commonjs = fromRollup(rollupCommonjs);
+const wasm = fromRollup(rollupWasm);
 
 /** Use Hot Module replacement by adding --hmr to the start command */
 const hmr = process.argv.includes('--hmr');
@@ -31,6 +34,8 @@ export default /** @type {import('@web/dev-server').DevServerConfig} */ ({
       'process.env.HC_PORT': JSON.stringify(process.env.HC_PORT),
       delimiters: ['', ''],
     }),
+
+    wasm(),
 
     commonjs(),
     /** Use Hot Module Replacement by uncommenting. Requires @open-wc/dev-server-hmr plugin */

@@ -6,8 +6,8 @@ members = [
 ]
 
 [workspace.dependencies]
-hdi = "=0.1.8"
-hdk = "0.0.161"
+hdi = "=0.1.10"
+hdk = "0.0.163"
 serde = "1"
 
 

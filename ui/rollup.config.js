@@ -6,7 +6,7 @@ import { importMetaAssets } from '@web/rollup-plugin-import-meta-assets';
 import { terser } from 'rollup-plugin-terser';
 import replace from '@rollup/plugin-replace';
 import copy from "rollup-plugin-copy";
-
+import wasm from "@rollup/plugin-wasm";
 
 export default {
   input: 'index.html',
@@ -43,6 +43,7 @@ export default {
     nodeResolve({
       browser: true,
     }),
+    wasm(),
     commonjs(),
     /** Minify JS */
     terser(),
