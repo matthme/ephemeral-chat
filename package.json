@@ -10,7 +10,7 @@
     "start": "npm run start:agents",
     "start:agents": "cross-env HC_PORT=$(port) concurrently -k \"sleep 5 && npm run start:happ\" \"npm run start -w ui\"",
     "test": "npm run build:happ && npm t -w tests",
-    "start:happ": "concurrently \"echo pass | hc-launch --piped -n 2 ./workdir/burner-chat.webhapp --ui-path ./ui/dist --watch network mdns\" \"npm run playground\"",    "package": "npm run build:happ && npm run package -w ui && hc web-app pack workdir",
+    "start:happ": "concurrently \"echo pass | hc-launch --piped -n 2 ./workdir/burner-chat.happ --ui-path ./ui/dist --watch network mdns\" \"npm run playground\"",    "package": "npm run build:happ && npm run package -w ui && hc web-app pack workdir",
     "build:happ": "npm run build:dnas && hc app pack ./workdir",
     "build:dnas": "npm run build:zomes && hc dna pack ./dna/workdir",
     "build:zomes": "WASM_LOG=debug CARGO_TARGET_DIR=target cargo build --release --target wasm32-unknown-unknown",
