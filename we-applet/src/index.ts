@@ -1,7 +1,7 @@
 import {
   AdminWebsocket,
   AppWebsocket,
-  InstalledAppInfo,
+  AppInfo,
   InstalledCell,
 } from "@holochain/client";
 import {

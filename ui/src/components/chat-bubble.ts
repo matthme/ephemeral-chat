@@ -1,6 +1,6 @@
 import { LitElement, css, html, CSSResultGroup } from 'lit';
 import { state, customElement, property } from 'lit/decorators.js';
-import { InstalledCell, AppWebsocket, EntryHash, InstalledAppInfo, AgentPubKey, AppSignal } from '@holochain/client';
+import { InstalledCell, AppWebsocket, EntryHash, AppInfo, AgentPubKey, AppSignal } from '@holochain/client';
 import { contextProvided } from '@lit-labs/context';
 import { appInfoContext, appWebsocketContext, burnerServiceContext } from '../contexts';
 import { serializeHash, deserializeHash } from '@holochain-open-dev/utils';
@@ -21,7 +21,7 @@ export class ChatBubble extends ScopedElementsMixin(LitElement) {
   appWebsocket!: AppWebsocket;
 
   @contextProvided({ context: appInfoContext })
-  appInfo!: InstalledAppInfo;
+  appInfo!: AppInfo;
 
   @contextProvided({ context: burnerServiceContext, subscribe: true })
   @state()

@@ -5,7 +5,7 @@ import {
   AppSignal,
   AppWebsocket,
   EntryHash,
-  InstalledAppInfo,
+  AppInfo,
   InstalledCell,
 } from '@holochain/client';
 import { contextProvided, contextProvider } from '@lit-labs/context';
@@ -21,8 +21,6 @@ import {
 import { ChatScreen } from './components/chat-screen';
 // import { BurnerStore } from './burner-store';
 import { BurnerService } from './burner-service';
-import { CellClient, HolochainClient } from '@holochain-open-dev/cell-client';
-import { BurnerServiceContext } from './components/service-context';
 import { TaskSubscriber } from 'lit-svelte-stores';
 import JSConfetti from 'js-confetti';
 import { robotoMonoNormal, rubikNormal, rubikBold } from './fonts';
@@ -147,7 +145,7 @@ export class BurnerChatApp extends ScopedElementsMixin(LitElement) {
   };
 
   async firstUpdated() {
-    this.service.cellClient.addSignalHandler(this.signalCallback);
+    this.service.cellClient.on("signal", this.signalCallback);
     this.loading = false;
   }
 

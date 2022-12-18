@@ -1,7 +1,7 @@
 
 import { LitElement, html, css, CSSResultGroup } from 'lit';
 import { state, customElement, property, query } from 'lit/decorators.js';
-import { InstalledCell, AppWebsocket, EntryHash, InstalledAppInfo, AgentPubKey, AppSignal } from '@holochain/client';
+import { InstalledCell, AppWebsocket, EntryHash, AppInfo, AgentPubKey, AppSignal } from '@holochain/client';
 import { contextProvided } from '@lit-labs/context';
 import {
   appInfoContext,
@@ -14,7 +14,7 @@ import {
   AgentPubKeyB64,
   ChannelMessageInput,
   Message,
-  Username 
+  Username
 } from '@burner-chat/elements';
 import { ChatBubble } from '@burner-chat/elements';
 import { serializeHash, deserializeHash } from '@holochain-open-dev/utils';
@@ -40,7 +40,7 @@ export class WeGroupChatScreen extends ScopedElementsMixin(LitElement) {
   appWebsocket!: AppWebsocket;
 
   @contextProvided({ context: appInfoContext })
-  appInfo!: InstalledAppInfo;
+  appInfo!: AppInfo;
 
   @contextProvided({ context: burnerServiceContext, subscribe: true })
   @state()
@@ -222,7 +222,7 @@ export class WeGroupChatScreen extends ScopedElementsMixin(LitElement) {
               <div style='display: flex;
                 flex-direction: column;
                 flex: 1;'>
-                <chat-bubble 
+                <chat-bubble
                   style="display: flex; flex: 1;"
                   id=${this.myAgentPubKey}
                   .username=${myNickname}

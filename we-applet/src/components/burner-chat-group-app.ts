@@ -5,7 +5,7 @@ import {
   AppSignal,
   AppWebsocket,
   EntryHash,
-  InstalledAppInfo,
+  AppInfo,
   InstalledCell,
 } from '@holochain/client';
 import { contextProvided, contextProvider } from '@lit-labs/context';
@@ -168,7 +168,7 @@ export class BurnerChatGroupApp extends ScopedElementsMixin(LitElement) {
   };
 
   async firstUpdated() {
-    this.service.cellClient.addSignalHandler(this.signalCallback);
+    this.service.cellClient.on("signal", this.signalCallback);
     this.profilesStore.fetchMyProfile();
     this.profilesStore.fetchAllProfiles();
     this.loading = false;
@@ -293,7 +293,7 @@ export class BurnerChatGroupApp extends ScopedElementsMixin(LitElement) {
         this.activeChannel.value!
       );
       const newActiveChannelMembers: Record<AgentPubKeyB64, Username> = {};
-  
+
       members.forEach(([pubKey, username]) => {
         newActiveChannelMembers[serializeHash(pubKey)] = username;
       });

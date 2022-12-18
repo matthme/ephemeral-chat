@@ -1,5 +1,5 @@
 import { CellClient, HolochainClient } from '@holochain-open-dev/cell-client';
-import { ActionHash, AgentPubKey, AppWebsocket, CellId, InstalledAppInfo } from '@holochain/client';
+import { ActionHash, AgentPubKey, AppWebsocket, CellId, AppInfo, AppAgentWebsocket } from '@holochain/client';
 import { AgentPubKeyB64, ChannelMessageInput, MessageInput, Username } from './types/chat';
 import { writable, Writable, derived, Readable, get } from 'svelte/store';
 import { serializeHash } from '@holochain-open-dev/utils';
@@ -13,18 +13,23 @@ export class BurnerService {
 
   myAgentPubKey: AgentPubKeyB64;
 
-  public cellClient: CellClient;
+  public cellClient: AppAgentWebsocket;
   private cellId: CellId;
 
-  constructor(protected appWebsocket: AppWebsocket, protected appInfo: InstalledAppInfo, protected zomeName = 'chat') {
+  constructor(protected appWebsocket: AppWebsocket, protected appInfo: AppInfo, protected zomeName = 'chat') {
 
-    const cell = appInfo.cell_data.find(c => c.role_name === 'burner_chat');
-    const cellId = cell!.cell_id;
+    const cells = appInfo.cell_info['burner_chat'];
+
+    const cell = cells.find((c) => "Provisioned" in c);
+    if (!cell || !("Provisioned" in cell)) {
+      throw new Error("no provisioned cell found");
+    }
+    const cellId = cell.Provisioned.cell_id;
 
     this.myAgentPubKey = serializeHash(cellId[1]);
 
-    const client = new HolochainClient(appWebsocket);
-    this.cellClient = new CellClient(client, cell!);
+    const client = new AppAgentWebsocket(appWebsocket, appInfo.installed_app_id);
+    this.cellClient = client;
 
     this.cellId = cellId;
   }
@@ -92,7 +97,6 @@ export class BurnerService {
 
   private callZome(fn_name: string, payload: any) {
     return this.appWebsocket.callZome({
-      cap_secret: null as any,
       cell_id: this.cellId,
       zome_name: this.zomeName,
       fn_name,

@@ -16,7 +16,6 @@
   },
   "dependencies": {
     "@open-wc/scoped-elements": "^2.1.0",
-    "@holochain-open-dev/cell-client": "^0.9.1",
     "@holochain-open-dev/utils": "^0.3.3",
     "@holochain/client": "file:/home/matthias/code/holochain/holochain/holochain-client-js",
     "@lit-labs/context": "^0.1.1",
