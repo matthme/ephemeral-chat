@@ -45,8 +45,8 @@ export default {
     commonjs(),
     /** Minify JS */
     terser(),
-    /** Bundle assets references via import.meta.url */
-    importMetaAssets(),
+    // /** Bundle assets references via import.meta.url */
+    // importMetaAssets({}),
     /** Compile JS to a lower language target */
     babel({
       babelHelpers: 'bundled',

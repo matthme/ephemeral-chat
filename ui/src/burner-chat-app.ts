@@ -145,7 +145,7 @@ export class BurnerChatApp extends ScopedElementsMixin(LitElement) {
   };
 
   async firstUpdated() {
-    this.service.cellClient.on("signal", this.signalCallback);
+    this.service.cellClient!.on("signal", this.signalCallback);
     this.loading = false;
   }
 
@@ -185,7 +185,7 @@ export class BurnerChatApp extends ScopedElementsMixin(LitElement) {
     channelMembers.forEach(([pubKey, username]) => {
       this.activeChannelMembers[serializeHash(pubKey)] = username;
     });
-    console.warn(this.activeChannelMembers);
+    // console.warn(this.activeChannelMembers);
     // this.allMyChannels = [...this.allMyChannels, input.channel];
     this.service.setChannel(input.channel);
     this.startBttnLoading = false;
@@ -253,7 +253,7 @@ export class BurnerChatApp extends ScopedElementsMixin(LitElement) {
       newActiveChannelMembers[serializeHash(pubKey)] = username;
     });
     this.activeChannelMembers = newActiveChannelMembers;
-    console.warn('fetching members', this.activeChannelMembers);
+    // console.warn('fetching members', this.activeChannelMembers);
   };
 
   goHome() {

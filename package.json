@@ -6,6 +6,7 @@
     "tests",
     "we-applet"
   ],
+  "type": "module",
   "scripts": {
     "start": "npm run start:agents",
     "start:agents": "cross-env HC_PORT=$(port) concurrently -k \"sleep 5 && npm run start:happ\" \"npm run start -w ui\"",

@@ -17,7 +17,7 @@ pub fn init(_: ()) -> ExternResult<InitCallbackResult> {
   let cap_grant = CapGrantEntry {
     tag: "".into(),
     access: CapAccess::Unrestricted,
-    functions,
+    functions: GrantedFunctions::Listed(functions),
   };
 
   create_cap_grant(cap_grant)?;

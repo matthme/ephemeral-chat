@@ -47,6 +47,7 @@
         });
 
         const service = new BurnerService(appWebsocket, appInfo);
+        await service.connect();
 
         customElements.define('burner-service-context', BurnerServiceContext);
         const provider = document.getElementById('provider');

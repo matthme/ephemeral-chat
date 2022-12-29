@@ -13,8 +13,9 @@ export class BurnerService {
 
   myAgentPubKey: AgentPubKeyB64;
 
-  public cellClient: AppAgentWebsocket;
+  public cellClient: AppAgentWebsocket | undefined;
   private cellId: CellId;
+
 
   constructor(protected appWebsocket: AppWebsocket, protected appInfo: AppInfo, protected zomeName = 'chat') {
 
@@ -26,12 +27,15 @@ export class BurnerService {
     }
     const cellId = cell.Provisioned.cell_id;
 
+    this.appWebsocket = appWebsocket;
     this.myAgentPubKey = serializeHash(cellId[1]);
-
-    const client = new AppAgentWebsocket(appWebsocket, appInfo.installed_app_id);
-    this.cellClient = client;
-
+    this.appInfo = appInfo;
     this.cellId = cellId;
+  }
+
+  async connect() {
+    const client = await AppAgentWebsocket.connect(this.appWebsocket, this.appInfo.installed_app_id);
+    this.cellClient = client;
   }
 
 

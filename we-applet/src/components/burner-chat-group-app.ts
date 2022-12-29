@@ -223,7 +223,7 @@ export class BurnerChatGroupApp extends ScopedElementsMixin(LitElement) {
       this.activeChannelMembers[serializeHash(pubKey)] = profile.nickname as Username;
     });
 
-    console.warn(this.activeChannelMembers);
+    // console.warn(this.activeChannelMembers);
     // this.allMyChannels = [...this.allMyChannels, input.channel];
     this.service.setChannel(input.channel);
     this.startBttnLoading = false;
@@ -298,7 +298,7 @@ export class BurnerChatGroupApp extends ScopedElementsMixin(LitElement) {
         newActiveChannelMembers[serializeHash(pubKey)] = username;
       });
       this.activeChannelMembers = newActiveChannelMembers;
-      console.warn('fetching members', this.activeChannelMembers);
+      // console.warn('fetching members', this.activeChannelMembers);
     }
   };
 
